@@ -175,7 +175,7 @@ script:
      fi
 
   # make sure CXX is correctly set
-  - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; fi
+  - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; export CC=${COMPILER}; fi
 
   # show OS/compiler version
   - uname -a

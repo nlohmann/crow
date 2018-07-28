@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(crow VERSION 0.0.1)
+project(crow VERSION 0.0.1 LANGUAGES CXX C)
 
 # check for headers
 include(CheckIncludeFiles)
