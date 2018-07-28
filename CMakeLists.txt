@@ -18,6 +18,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
 # collect dependencies
 find_package(CURL REQUIRED)
 find_package(Threads)
+
+set(ENABLE_DATE_TESTING OFF CACHE BOOL "We do not need to test date")
+set(DISABLE_STRING_VIEW ON CACHE BOOL "Using string views does not work sometimes")
 add_subdirectory(include/thirdparty/date)
 
 # documentation
