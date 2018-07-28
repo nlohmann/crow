@@ -49,5 +49,11 @@ if (BUILD_TESTING)
     target_include_directories(tests PUBLIC tests include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR})
     target_link_libraries(tests ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
+    add_executable(livetest tests/livetest.cpp)
+    set_target_properties(livetest PROPERTIES CXX_STANDARD 11)
+    target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR})
+    target_link_libraries(livetest ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+
     add_test(tests tests)
+    add_test(livetest livetest)
 endif (BUILD_TESTING)
