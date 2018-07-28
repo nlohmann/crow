@@ -136,7 +136,7 @@ template<typename T>
 const char* pretty_typename(const T& e)
 {
     const char* mangled_name = typeid(e).name();
-#ifdef __GNUG__
+#ifdef NLOHMANN_CROW_HAVE_CXXABI_H
     int status;
     return abi::__cxa_demangle(mangled_name, nullptr, nullptr, &status);
 #else
