@@ -16,6 +16,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
         ${CMAKE_CURRENT_BINARY_DIR}/include/crow/config.h)
 
 # collect dependencies
+set(CURL_LIBRARY "-lcurl")
 find_package(CURL REQUIRED)
 find_package(Threads)
 
