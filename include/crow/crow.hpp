@@ -74,8 +74,9 @@ crow* last = nullptr;
 // This function produces a stack backtrace with demangled function & method names.
 json get_backtrace(int skip = 1)
 {
-    json result;
+    json result = json::array();
 
+#if defined(NLOHMANN_CROW_HAVE_DLFCN_H) && defined(NLOHMANN_CROW_HAVE_EXECINFO_H)
     void* callstack[128];
     const int nMaxFrames = sizeof(callstack) / sizeof(callstack[0]);
     char buf[1024];
@@ -126,6 +127,7 @@ json get_backtrace(int skip = 1)
         }
     }
     free(symbols);
+#endif
 
     return result;
 }
