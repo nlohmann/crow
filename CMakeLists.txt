@@ -17,6 +17,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
 
 # collect dependencies
 find_package(CURL REQUIRED)
+find_package(Threads)
 add_subdirectory(include/thirdparty/date)
 
 # documentation
@@ -44,7 +45,7 @@ if (BUILD_TESTING)
     add_executable(tests tests/unittests.cpp)
     set_target_properties(tests PROPERTIES CXX_STANDARD 11)
     target_include_directories(tests PUBLIC tests include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR})
-    target_link_libraries(tests ${CURL_LIBRARIES})
+    target_link_libraries(tests ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
     add_test(tests tests)
 endif (BUILD_TESTING)
