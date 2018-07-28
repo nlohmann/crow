@@ -18,17 +18,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
 # collect dependencies
 if (MSVC)
     set(CURL_LIBRARY "-lcurl")
-    add_definitions(
-            -D_SCL_SECURE_NO_WARNINGS
-            -DWIN32_LEAN_AND_MEAN
-            -DCURL_STATICLIB
-    )
-
-    list(APPEND CURL_LIBRARIES
-            "Crypt32.lib"
-            "Ws2_32.lib"
-            )
-    SET(CMAKE_EXE_LINKER_FLAGS "/NODEFAULTLIB:library")
+    add_definitions(-DCURL_STATICLIB)
 endif (MSVC)
 find_package(CURL REQUIRED)
 find_package(Threads)
