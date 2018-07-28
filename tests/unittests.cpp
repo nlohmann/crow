@@ -104,7 +104,7 @@ TEST_CASE("creating messages")
             verify_message_structure(message);
             CHECK(message.at("exception").size() == 1);
             const auto& exception = message.at("exception").at(0);
-#if NLOHMANN_CROW_HAVE_CXXABI_H
+#ifdef NLOHMANN_CROW_HAVE_CXXABI_H
             CHECK(exception.at("type") == "std::runtime_error");
 #endif
             CHECK(exception.at("value") == ex_string);
@@ -123,7 +123,7 @@ TEST_CASE("creating messages")
             verify_message_structure(message);
             CHECK(message.at("exception").size() == 1);
             const auto& exception = message.at("exception").at(0);
-#if NLOHMANN_CROW_HAVE_CXXABI_H
+#ifdef NLOHMANN_CROW_HAVE_CXXABI_H
             CHECK(exception.at("type") == "std::runtime_error");
 #endif
             CHECK(exception.at("value") == ex_string);
