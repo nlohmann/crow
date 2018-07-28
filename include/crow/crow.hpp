@@ -38,6 +38,7 @@ SOFTWARE.
 #include <exception>
 #include <future>
 #include <regex>
+#include <iostream>
 #include <stdexcept>
 #include <typeinfo>
 #include <crow/config.h>
@@ -211,22 +212,31 @@ class crow
         {
             const std::regex dsn_regex("(http[s]?)://([^:]+):([^@]+)@([^/]+)/([0-9]+)");
             std::smatch pieces_match;
+            std::cout << "alive at " << __LINE__ << std::endl;
 
             if (std::regex_match(dsn, pieces_match, dsn_regex) and pieces_match.size() == 6)
             {
-                assert(pieces_match.ready());
+                std::cout << "alive at " << __LINE__ << std::endl;
                 const auto scheme = pieces_match.str(1);
+                std::cout << "alive at " << __LINE__ << std::endl;
                 m_public_key = pieces_match.str(2);
+                std::cout << "alive at " << __LINE__ << std::endl;
                 m_secret_key = pieces_match.str(3);
+                std::cout << "alive at " << __LINE__ << std::endl;
                 const auto host = pieces_match.str(4);
+                std::cout << "alive at " << __LINE__ << std::endl;
                 const auto project_id = pieces_match.str(5);
+                std::cout << "alive at " << __LINE__ << std::endl;
                 m_store_url = scheme + "://" + host + "/api/" + project_id + "/store/";
+                std::cout << "alive at " << __LINE__ << std::endl;
             }
             else
             {
                 throw std::invalid_argument("DNS " + dsn + " is invalid");
             }
         }
+
+        std::cout << "alive at " << __LINE__ << std::endl;
 
         // add context
         m_payload["contexts"]["app"]["build_type"] = NLOHMANN_CROW_CMAKE_BUILD_TYPE;
