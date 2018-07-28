@@ -31,9 +31,10 @@ SOFTWARE.
 #define NLOHMANN_CROW_HPP
 
 #include <cerrno>
-#include <chrono>
 #include <cstdlib>
+#include <cstddef>
 #include <cstring>
+#include <ctime>
 #include <exception>
 #include <future>
 #include <regex>
@@ -42,13 +43,7 @@ SOFTWARE.
 #include <crow/config.h>
 #include <thirdparty/curl_wrapper/curl_wrapper.hpp>
 #include <thirdparty/json/json.hpp>
-#include <thirdparty/date/include/date/date.h>
-#include <thirdparty/date/include/date/chrono_io.h>
 #include <thirdparty/sole/sole.hpp>
-
-#ifdef NLOHMANN_CROW_HAVE_SYSCTL_H
-    #include <sys/sysctl.h> // for sysctlbyname
-#endif
 
 #ifdef NLOHMANN_CROW_HAVE_CXXABI_H
     #include <cxxabi.h> // for abi::__cxa_demangle
@@ -77,8 +72,9 @@ crow* last = nullptr;
 // This function produces a stack backtrace with demangled function & method names.
 json get_backtrace(int skip = 1)
 {
-    json result;
+    json result = json::array();
 
+#if defined(NLOHMANN_CROW_HAVE_DLFCN_H) && defined(NLOHMANN_CROW_HAVE_EXECINFO_H)
     void* callstack[128];
     const int nMaxFrames = sizeof(callstack) / sizeof(callstack[0]);
     char buf[1024];
@@ -94,7 +90,9 @@ json get_backtrace(int skip = 1)
             int status = -1;
             if (info.dli_sname[0] == '_')
             {
+#ifdef NLOHMANN_CROW_HAVE_CXXABI_H
                 demangled = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status);
+#endif
             }
 
             const std::string function_name = (status == 0 ? demangled : info.dli_sname == nullptr ? symbols[i] : info.dli_sname);
@@ -127,6 +125,7 @@ json get_backtrace(int skip = 1)
         }
     }
     free(symbols);
+#endif
 
     return result;
 }
@@ -136,7 +135,7 @@ template<typename T>
 const char* pretty_typename(const T& e)
 {
     const char* mangled_name = typeid(e).name();
-#ifdef __GNUG__
+#ifdef NLOHMANN_CROW_HAVE_CXXABI_H
     int status;
     return abi::__cxa_demangle(mangled_name, nullptr, nullptr, &status);
 #else
@@ -168,16 +167,11 @@ std::int64_t get_timestamp()
  */
 std::string get_iso8601()
 {
-    auto now = std::chrono::system_clock::now();
-    return date::format("%FT%T", date::floor<std::chrono::seconds>(now));
-}
-
-std::string get_sysctl(const char* entry)
-{
-    char str[256];
-    std::size_t size = sizeof(str);
-    int ret = sysctlbyname(entry, str, &size, nullptr, 0);
-    return std::string(str);
+    std::time_t now;
+    std::time(&now);
+    char buf[sizeof "2011-10-08T07:07:09Z"];
+    std::strftime(buf, sizeof buf, "%FT%TZ", gmtime(&now));
+    return buf;
 }
 
 }
@@ -221,11 +215,11 @@ class crow
 
             if (std::regex_match(dsn, pieces_match, dsn_regex) and pieces_match.size() == 6)
             {
-                const auto scheme = pieces_match[1].str();
-                m_public_key = pieces_match[2].str();
-                m_secret_key = pieces_match[3].str();
-                const auto host = pieces_match[4].str();
-                const auto project_id = pieces_match[5].str();
+                const auto scheme = pieces_match.str(1);
+                m_public_key = pieces_match.str(2);
+                m_secret_key = pieces_match.str(3);
+                const auto host = pieces_match.str(4);
+                const auto project_id = pieces_match.str(5);
                 m_store_url = scheme + "://" + host + "/api/" + project_id + "/store/";
             }
             else
@@ -243,13 +237,12 @@ class crow
         m_payload["contexts"]["os"]["version"] = NLOHMANN_CROW_CMAKE_SYSTEM_VERSION;
         m_payload["contexts"]["runtime"]["name"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_ID;
         m_payload["contexts"]["runtime"]["version"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_VERSION;
-        m_payload["contexts"]["user"]["id"] = std::string(getenv("USER")) + "@" + NLOHMANN_CROW_HOSTNAME;
-        m_payload["contexts"]["user"]["username"] = getenv("USER");
-
-#ifdef NLOHMANN_CROW_HAVE_SYSCTL_H
-        m_payload["contexts"]["os"]["build"] = detail::get_sysctl("kern.osrevision");
-        m_payload["contexts"]["os"]["kernel_version"] = detail::get_sysctl("kern.version");
-#endif
+        const char* user = getenv("USER");
+        if (user)
+        {
+            m_payload["contexts"]["user"]["id"] = std::string(user) + "@" + NLOHMANN_CROW_HOSTNAME;
+            m_payload["contexts"]["user"]["username"] = user;
+        }
 
         // add given attributes
         if (attributes.is_object())

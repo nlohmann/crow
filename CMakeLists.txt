@@ -1,9 +1,8 @@
-cmake_minimum_required(VERSION 3.10)
-project(crow VERSION 0.0.1 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.8)
+project(crow VERSION 0.0.1)
 
 # check for headers
 include(CheckIncludeFiles)
-check_include_files(sys/sysctl.h NLOHMANN_CROW_HAVE_SYSCTL_H)
 check_include_files(cxxabi.h NLOHMANN_CROW_HAVE_CXXABI_H)
 check_include_files(execinfo.h NLOHMANN_CROW_HAVE_EXECINFO_H)
 check_include_files(dlfcn.h NLOHMANN_CROW_HAVE_DLFCN_H)
@@ -17,8 +16,11 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
         ${CMAKE_CURRENT_BINARY_DIR}/include/crow/config.h)
 
 # collect dependencies
+if (MSVC)
+    set(CURL_LIBRARY "-lcurl")
+endif (MSVC)
 find_package(CURL REQUIRED)
-add_subdirectory(include/thirdparty/date)
+find_package(Threads)
 
 # documentation
 find_package(Doxygen)
@@ -45,7 +47,7 @@ if (BUILD_TESTING)
     add_executable(tests tests/unittests.cpp)
     set_target_properties(tests PROPERTIES CXX_STANDARD 11)
     target_include_directories(tests PUBLIC tests include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR})
-    target_link_libraries(tests ${CURL_LIBRARIES})
+    target_link_libraries(tests ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
     add_test(tests tests)
 endif (BUILD_TESTING)

@@ -96,6 +96,7 @@ namespace sole
 #pragma warning(disable:4127)
 #endif
 
+/*
 namespace std {
     template<>
     class hash< sole::uuid > : public std::unary_function< sole::uuid, size_t > {
@@ -111,6 +112,7 @@ namespace std {
         }
     };
 }
+*/
 
 #ifdef _MSC_VER
 #pragma warning(pop)
