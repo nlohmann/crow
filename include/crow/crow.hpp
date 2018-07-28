@@ -51,6 +51,10 @@ SOFTWARE.
     #include <sys/sysctl.h> // for sysctlbyname
 #endif
 
+#ifdef NLOHMANN_CROW_HAVE_SYSTYPES_H
+    #include <sys/types.h> // for sysctlbyname
+#endif
+
 #ifdef NLOHMANN_CROW_HAVE_CXXABI_H
     #include <cxxabi.h> // for abi::__cxa_demangle
 #endif
