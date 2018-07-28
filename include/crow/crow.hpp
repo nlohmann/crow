@@ -31,10 +31,10 @@ SOFTWARE.
 #define NLOHMANN_CROW_HPP
 
 #include <cerrno>
-#include <chrono>
 #include <cstdlib>
 #include <cstddef>
 #include <cstring>
+#include <ctime>
 #include <exception>
 #include <future>
 #include <regex>
@@ -43,8 +43,6 @@ SOFTWARE.
 #include <crow/config.h>
 #include <thirdparty/curl_wrapper/curl_wrapper.hpp>
 #include <thirdparty/json/json.hpp>
-#include <thirdparty/date/include/date/date.h>
-#include <thirdparty/date/include/date/chrono_io.h>
 #include <thirdparty/sole/sole.hpp>
 
 #ifdef NLOHMANN_CROW_HAVE_CXXABI_H
@@ -169,8 +167,11 @@ std::int64_t get_timestamp()
  */
 std::string get_iso8601()
 {
-    auto now = std::chrono::system_clock::now();
-    return date::format("%FT%T", date::floor<std::chrono::seconds>(now));
+    std::time_t now;
+    std::time(&now);
+    char buf[sizeof "2011-10-08T07:07:09Z"];
+    std::strftime(buf, sizeof buf, "%FT%TZ", gmtime(&now));
+    return buf;
 }
 
 }

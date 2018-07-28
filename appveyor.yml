@@ -56,5 +56,4 @@ build_script:
   - cmake --build . --config Release
 
 test_script:
-  - tests.exe
-
+  - ctest -C Release -V -j

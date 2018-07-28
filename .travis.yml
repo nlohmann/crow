@@ -209,5 +209,5 @@ script:
   # compile and execute unit tests
   - mkdir -p build && cd build
   - cmake .. -GNinja && cmake --build . --config Release
-  - ./tests
+  - ctest -C Release -V -j
   - cd ..

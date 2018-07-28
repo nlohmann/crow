@@ -59,7 +59,6 @@ The library itself consists of a single header file licensed under the MIT licen
 
 - [**Artistic Style**](http://astyle.sourceforge.net) for automatic source code identation
 - [**Cmake**](https://cmake.org) for build automation
-- [**Date**](https://github.com/HowardHinnant/date) for generation of ISO 8601 timestamps
 - [**Doxygen**](http://www.stack.nl/~dimitri/doxygen/) to generate documentation
 - [**JSON for Modern C++**](https://github.com/nlohmann/json) to use JSON datatypes inside C++
 - [**libcurl**](https://curl.haxx.se/libcurl/) for HTTP communication with the Sentry servers
