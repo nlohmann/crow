@@ -52,7 +52,9 @@ matrix:
 
   - os: linux
     compiler: gcc
-    env: COMPILER=g++-4.9
+    env:
+      - COMPILER=g++-4.9
+      - CCOMPILER=gcc-4.9
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test']
@@ -60,7 +62,9 @@ matrix:
 
   - os: linux
     compiler: gcc
-    env: COMPILER=g++-5
+    env:
+      - COMPILER=g++-5
+      - CCOMPILER=gcc-5
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test']
@@ -68,7 +72,9 @@ matrix:
 
   - os: linux
     compiler: gcc
-    env: COMPILER=g++-6
+    env:
+      - COMPILER=g++-6
+      - CCOMPILER=gcc-6
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test']
@@ -76,7 +82,9 @@ matrix:
 
   - os: linux
     compiler: gcc
-    env: COMPILER=g++-7
+    env:
+      - COMPILER=g++-7
+      - CCOMPILER=gcc-7
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test']
@@ -86,6 +94,7 @@ matrix:
     compiler: gcc
     env:
       - COMPILER=g++-7
+      - CCOMPILER=gcc-7
       - CXXFLAGS=-std=c++17
     addons:
       apt:
@@ -96,7 +105,9 @@ matrix:
 
   - os: linux
     compiler: clang
-    env: COMPILER=clang++-3.5
+    env:
+      - COMPILER=clang++-3.5
+      - CCOMPILER=clang-3.5
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.5']
@@ -104,7 +115,9 @@ matrix:
 
   - os: linux
     compiler: clang
-    env: COMPILER=clang++-3.6
+    env:
+      - COMPILER=clang++-3.6
+      - CCOMPILER=clang-3.6
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.6']
@@ -112,7 +125,9 @@ matrix:
 
   - os: linux
     compiler: clang
-    env: COMPILER=clang++-3.7
+    env:
+      - COMPILER=clang++-3.7
+      - CCOMPILER=clang-3.7
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-precise-3.7']
@@ -120,7 +135,9 @@ matrix:
 
   - os: linux
     compiler: clang
-    env: COMPILER=clang++-3.8
+    env:
+      - COMPILER=clang++-3.8
+      - CCOMPILER=clang-3.8
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test']
@@ -128,7 +145,9 @@ matrix:
 
   - os: linux
     compiler: clang
-    env: COMPILER=clang++-3.9
+    env:
+      - COMPILER=clang++-3.9
+      - CCOMPILER=clang-3.9
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test']
@@ -136,7 +155,9 @@ matrix:
 
   - os: linux
     compiler: clang
-    env: COMPILER=clang++-4.0
+    env:
+      - COMPILER=clang++-4.0
+      - CCOMPILER=clang-4.0
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-trusty-4.0']
@@ -144,7 +165,9 @@ matrix:
 
   - os: linux
     compiler: clang
-    env: COMPILER=clang++-5.0
+    env:
+      - COMPILER=clang++-5.0
+      - CCOMPILER=clang-5.0
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test', 'llvm-toolchain-trusty-5.0']
@@ -154,6 +177,7 @@ matrix:
     compiler: clang
     env:
       - COMPILER=clang++-5.0
+      - CCOMPILER=clang-5.0
       - CXXFLAGS=-std=c++1z
     addons:
       apt:
@@ -175,10 +199,11 @@ script:
      fi
 
   # make sure CXX is correctly set
-  - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; fi
+  - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; export CC=${CCOMPILER}; fi
 
   # show OS/compiler version
   - uname -a
+  - $CC --version
   - $CXX --version
 
   # compile and execute unit tests
