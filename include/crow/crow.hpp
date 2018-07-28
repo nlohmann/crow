@@ -38,7 +38,6 @@ SOFTWARE.
 #include <exception>
 #include <future>
 #include <regex>
-#include <iostream>
 #include <stdexcept>
 #include <typeinfo>
 #include <crow/config.h>
@@ -212,7 +211,6 @@ class crow
         {
             const std::regex dsn_regex("(http[s]?)://([^:]+):([^@]+)@([^/]+)/([0-9]+)");
             std::smatch pieces_match;
-            std::cout << "alive at " << __LINE__ << std::endl;
 
             if (std::regex_match(dsn, pieces_match, dsn_regex) and pieces_match.size() == 6)
             {
@@ -230,27 +228,20 @@ class crow
         }
 
         // add context
-        std::cout << "alive at " << __LINE__ << std::endl;
         m_payload["contexts"]["app"]["build_type"] = NLOHMANN_CROW_CMAKE_BUILD_TYPE;
-        std::cout << "alive at " << __LINE__ << std::endl;
         m_payload["contexts"]["device"]["arch"] = NLOHMANN_CROW_CMAKE_SYSTEM_PROCESSOR;
-        std::cout << "alive at " << __LINE__ << std::endl;
         m_payload["contexts"]["device"]["name"] = NLOHMANN_CROW_HOSTNAME;
-        std::cout << "alive at " << __LINE__ << std::endl;
         m_payload["contexts"]["device"]["memory_size"] = 1048576ul * NLOHMANN_CROW_TOTAL_PHYSICAL_MEMORY;
-        std::cout << "alive at " << __LINE__ << std::endl;
         m_payload["contexts"]["os"]["name"] = NLOHMANN_CROW_CMAKE_SYSTEM_NAME;
-        std::cout << "alive at " << __LINE__ << std::endl;
         m_payload["contexts"]["os"]["version"] = NLOHMANN_CROW_CMAKE_SYSTEM_VERSION;
-        std::cout << "alive at " << __LINE__ << std::endl;
         m_payload["contexts"]["runtime"]["name"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_ID;
-        std::cout << "alive at " << __LINE__ << std::endl;
         m_payload["contexts"]["runtime"]["version"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_VERSION;
-        std::cout << "alive at " << __LINE__ << std::endl;
-        m_payload["contexts"]["user"]["id"] = std::string(getenv("USER")) + "@" + NLOHMANN_CROW_HOSTNAME;
-        std::cout << "alive at " << __LINE__ << std::endl;
-        m_payload["contexts"]["user"]["username"] = getenv("USER");
-        std::cout << "alive at " << __LINE__ << std::endl;
+        const char* user = getenv("USER");
+        if (user)
+        {
+            m_payload["contexts"]["user"]["id"] = std::string(user) + "@" + NLOHMANN_CROW_HOSTNAME;
+            m_payload["contexts"]["user"]["username"] = user;
+        }
 
         // add given attributes
         if (attributes.is_object())
