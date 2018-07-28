@@ -62,4 +62,3 @@ The library itself consists of a single header file licensed under the MIT licen
 - [**Doxygen**](http://www.stack.nl/~dimitri/doxygen/) to generate documentation
 - [**JSON for Modern C++**](https://github.com/nlohmann/json) to use JSON datatypes inside C++
 - [**libcurl**](https://curl.haxx.se/libcurl/) for HTTP communication with the Sentry servers
-- [**Sole**](https://github.com/r-lyeh-archived/sole) to generate UUIDs

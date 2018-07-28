@@ -43,7 +43,6 @@ SOFTWARE.
 #include <crow/config.h>
 #include <thirdparty/curl_wrapper/curl_wrapper.hpp>
 #include <thirdparty/json/json.hpp>
-#include <thirdparty/sole/sole.hpp>
 
 #ifdef NLOHMANN_CROW_HAVE_CXXABI_H
     #include <cxxabi.h> // for abi::__cxa_demangle
@@ -174,6 +173,26 @@ std::string get_iso8601()
     return buf;
 }
 
+std::string generateUUID(){
+    std::string uuid = std::string(32,' ');
+    int rnd = 0;
+    int r = 0;
+    std::string CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    uuid[12] = '4';
+
+    for(int i=0;i<36;i++){
+        if (i != 12) {
+            if (rnd <= 0x02) {
+                rnd = 0x2000000 + (std::rand() * 0x1000000) | 0;
+            }
+            rnd >>= 4;
+            uuid[i] = CHARS[(i == 19) ? ((rnd & 0xf) & 0x3) | 0x8 : rnd & 0xf];
+        }
+    }
+    return uuid;
+}
+
 }
 
 /*!
@@ -273,7 +292,7 @@ class crow
                          const bool asynchronous = true)
     {
         m_payload["message"] = message;
-        m_payload["event_id"] = sole::uuid4().str();
+        m_payload["event_id"] = nlohmann::detail::generateUUID();
         m_payload["timestamp"] = nlohmann::detail::get_iso8601();
 
         if (options.is_object())
@@ -313,7 +332,7 @@ class crow
             {"mechanism", {{"handled", handled}, {"description", handled ? "handled exception" : "unhandled exception"}}},
             {"stacktrace", {{"frames", detail::get_backtrace()}}},
             {"thread_id", thread_id.str()}});
-        m_payload["event_id"] = sole::uuid4().str();
+        m_payload["event_id"] = detail::generateUUID();
         m_payload["timestamp"] = nlohmann::detail::get_iso8601();
 
         if (asynchronous)
@@ -340,7 +359,7 @@ class crow
     {
         json breadcrumb =
         {
-            {"event_id", sole::uuid4().str()},
+            {"event_id", detail::generateUUID()},
             {"message", message},
             {"type", type},
             {"timestamp", detail::get_timestamp()}
