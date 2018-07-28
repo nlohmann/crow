@@ -1,6 +1,7 @@
 # Crow - a C++ client for Sentry
 
 [![Build Status](https://travis-ci.org/nlohmann/crow.svg?branch=master)](https://travis-ci.org/nlohmann/crow)
+[![Build status](https://ci.appveyor.com/api/projects/status/61gmcsom8dcrjxpn/branch/master?svg=true)](https://ci.appveyor.com/project/nlohmann/crow/branch/master)
 
 [**Sentry**](https://sentry.io/welcome/) is such a useful tool, but there is currently [no official support](https://sentry.io/platforms/) for C++. **Crow** is an official Sentry client for C++ that tries to fill this gap to allow for Sentry notifications in long-running C++ applications where you do not want to constantly look at log files.
 
