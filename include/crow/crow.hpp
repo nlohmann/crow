@@ -33,6 +33,7 @@ SOFTWARE.
 #include <cerrno>
 #include <chrono>
 #include <cstdlib>
+#include <cstddef>
 #include <cstring>
 #include <exception>
 #include <future>
@@ -94,7 +95,9 @@ json get_backtrace(int skip = 1)
             int status = -1;
             if (info.dli_sname[0] == '_')
             {
+#ifdef NLOHMANN_CROW_HAVE_CXXABI_H
                 demangled = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status);
+#endif
             }
 
             const std::string function_name = (status == 0 ? demangled : info.dli_sname == nullptr ? symbols[i] : info.dli_sname);
