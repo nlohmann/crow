@@ -47,14 +47,6 @@ SOFTWARE.
 #include <thirdparty/date/include/date/chrono_io.h>
 #include <thirdparty/sole/sole.hpp>
 
-#ifdef NLOHMANN_CROW_HAVE_SYSCTL_H
-    #include <sys/sysctl.h> // for sysctlbyname
-#endif
-
-#ifdef NLOHMANN_CROW_HAVE_SYSTYPES_H
-    #include <sys/types.h> // for sysctlbyname
-#endif
-
 #ifdef NLOHMANN_CROW_HAVE_CXXABI_H
     #include <cxxabi.h> // for abi::__cxa_demangle
 #endif
@@ -179,14 +171,6 @@ std::string get_iso8601()
     return date::format("%FT%T", date::floor<std::chrono::seconds>(now));
 }
 
-std::string get_sysctl(const char* entry)
-{
-    char str[256];
-    std::size_t size = sizeof(str);
-    int ret = sysctlbyname(entry, str, &size, nullptr, 0);
-    return std::string(str);
-}
-
 }
 
 /*!
@@ -252,11 +236,6 @@ class crow
         m_payload["contexts"]["runtime"]["version"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_VERSION;
         m_payload["contexts"]["user"]["id"] = std::string(getenv("USER")) + "@" + NLOHMANN_CROW_HOSTNAME;
         m_payload["contexts"]["user"]["username"] = getenv("USER");
-
-#ifdef NLOHMANN_CROW_HAVE_SYSCTL_H
-        m_payload["contexts"]["os"]["build"] = detail::get_sysctl("kern.osrevision");
-        m_payload["contexts"]["os"]["kernel_version"] = detail::get_sysctl("kern.version");
-#endif
 
         // add given attributes
         if (attributes.is_object())

@@ -3,8 +3,6 @@ project(crow VERSION 0.0.1)
 
 # check for headers
 include(CheckIncludeFiles)
-check_include_files(sys/sysctl.h NLOHMANN_CROW_HAVE_SYSCTL_H)
-check_include_files(sys/types.h NLOHMANN_CROW_HAVE_SYSTYPES_H)
 check_include_files(cxxabi.h NLOHMANN_CROW_HAVE_CXXABI_H)
 check_include_files(execinfo.h NLOHMANN_CROW_HAVE_EXECINFO_H)
 check_include_files(dlfcn.h NLOHMANN_CROW_HAVE_DLFCN_H)

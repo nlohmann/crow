@@ -1,7 +1,5 @@
 #pragma once
 
-#cmakedefine NLOHMANN_CROW_HAVE_SYSCTL_H
-#cmakedefine NLOHMANN_CROW_HAVE_SYSTYPES_H
 #cmakedefine NLOHMANN_CROW_HAVE_CXXABI_H
 #cmakedefine NLOHMANN_CROW_HAVE_EXECINFO_H
 #cmakedefine NLOHMANN_CROW_HAVE_DLFCN_H
