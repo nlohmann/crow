@@ -37,13 +37,13 @@ SOFTWARE.
 #include <ctime>
 #include <exception>
 #include <future>
+#include <random>
 #include <regex>
 #include <stdexcept>
 #include <typeinfo>
 #include <crow/config.h>
 #include <thirdparty/curl_wrapper/curl_wrapper.hpp>
 #include <thirdparty/json/json.hpp>
-#include <thirdparty/sole/sole.hpp>
 
 #ifdef NLOHMANN_CROW_HAVE_CXXABI_H
     #include <cxxabi.h> // for abi::__cxa_demangle
@@ -174,6 +174,41 @@ std::string get_iso8601()
     return buf;
 }
 
+/*!
+ * @brief generate a UUID4 without dashes
+ * @return UUID4
+ */
+std::string generate_uuid()
+{
+    std::random_device random_device;
+    std::default_random_engine random_engine(random_device());
+    std::uniform_int_distribution<char> uniform_dist(0, 15);
+
+    std::string result(32, ' ');
+
+    for (size_t i = 0; i < 32; ++i)
+    {
+        if (i == 12)
+        {
+            result[i] = '4';
+        }
+        else
+        {
+            const auto r = uniform_dist(random_engine);
+            if (r < 10)
+            {
+                result[i] = '0' + r;
+            }
+            else
+            {
+                result[i] = 'a' + static_cast<char>(r - 10);
+            }
+        }
+    }
+
+    return result;
+}
+
 }
 
 /*!
@@ -232,11 +267,14 @@ class crow
         m_payload["contexts"]["app"]["build_type"] = NLOHMANN_CROW_CMAKE_BUILD_TYPE;
         m_payload["contexts"]["device"]["arch"] = NLOHMANN_CROW_CMAKE_SYSTEM_PROCESSOR;
         m_payload["contexts"]["device"]["name"] = NLOHMANN_CROW_HOSTNAME;
+        m_payload["contexts"]["device"]["model"] = NLOHMANN_CROW_SYSCTL_HW_MODEL;
         m_payload["contexts"]["device"]["memory_size"] = 1048576ul * NLOHMANN_CROW_TOTAL_PHYSICAL_MEMORY;
         m_payload["contexts"]["os"]["name"] = NLOHMANN_CROW_CMAKE_SYSTEM_NAME;
         m_payload["contexts"]["os"]["version"] = NLOHMANN_CROW_CMAKE_SYSTEM_VERSION;
+        m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_UNAME;
         m_payload["contexts"]["runtime"]["name"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_ID;
         m_payload["contexts"]["runtime"]["version"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_VERSION;
+        m_payload["contexts"]["runtime"]["detail"] = NLOHMANN_CROW_CXX;
         const char* user = getenv("USER");
         if (user)
         {
@@ -273,7 +311,7 @@ class crow
                          const bool asynchronous = true)
     {
         m_payload["message"] = message;
-        m_payload["event_id"] = sole::uuid4().str();
+        m_payload["event_id"] = nlohmann::detail::generate_uuid();
         m_payload["timestamp"] = nlohmann::detail::get_iso8601();
 
         if (options.is_object())
@@ -313,7 +351,7 @@ class crow
             {"mechanism", {{"handled", handled}, {"description", handled ? "handled exception" : "unhandled exception"}}},
             {"stacktrace", {{"frames", detail::get_backtrace()}}},
             {"thread_id", thread_id.str()}});
-        m_payload["event_id"] = sole::uuid4().str();
+        m_payload["event_id"] = detail::generate_uuid();
         m_payload["timestamp"] = nlohmann::detail::get_iso8601();
 
         if (asynchronous)
@@ -340,7 +378,7 @@ class crow
     {
         json breadcrumb =
         {
-            {"event_id", sole::uuid4().str()},
+            {"event_id", detail::generate_uuid()},
             {"message", message},
             {"type", type},
             {"timestamp", detail::get_timestamp()}
