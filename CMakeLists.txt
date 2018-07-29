@@ -17,6 +17,8 @@ check_include_files(dlfcn.h NLOHMANN_CROW_HAVE_DLFCN_H)
 # CMake
 cmake_host_system_information(RESULT NLOHMANN_CROW_HOSTNAME QUERY HOSTNAME)
 cmake_host_system_information(RESULT NLOHMANN_CROW_TOTAL_PHYSICAL_MEMORY QUERY TOTAL_PHYSICAL_MEMORY)
+cmake_host_system_information(RESULT NLOHMANN_CROW_OS_RELEASE QUERY OS_RELEASE)
+cmake_host_system_information(RESULT NLOHMANN_CROW_OS_VERSION QUERY OS_VERSION)
 
 # uname
 find_program(UNAME_TOOL uname)

@@ -270,7 +270,8 @@ class crow
         m_payload["contexts"]["device"]["model"] = NLOHMANN_CROW_SYSCTL_HW_MODEL;
         m_payload["contexts"]["device"]["memory_size"] = 1048576ul * NLOHMANN_CROW_TOTAL_PHYSICAL_MEMORY;
         m_payload["contexts"]["os"]["name"] = NLOHMANN_CROW_CMAKE_SYSTEM_NAME;
-        m_payload["contexts"]["os"]["version"] = NLOHMANN_CROW_CMAKE_SYSTEM_VERSION;
+        m_payload["contexts"]["os"]["version"] = NLOHMANN_CROW_OS_RELEASE;
+        m_payload["contexts"]["os"]["build"] = NLOHMANN_CROW_OS_VERSION;
         m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_UNAME;
         m_payload["contexts"]["runtime"]["name"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_ID;
         m_payload["contexts"]["runtime"]["version"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_VERSION;
