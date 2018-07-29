@@ -273,6 +273,7 @@ class crow
         m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_UNAME;
         m_payload["contexts"]["runtime"]["name"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_ID;
         m_payload["contexts"]["runtime"]["version"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_VERSION;
+        m_payload["contexts"]["runtime"]["detail"] = NLOHMANN_CROW_CXX;
         const char* user = getenv("USER");
         if (user)
         {
