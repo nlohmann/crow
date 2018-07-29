@@ -11,6 +11,11 @@ check_include_files(dlfcn.h NLOHMANN_CROW_HAVE_DLFCN_H)
 cmake_host_system_information(RESULT NLOHMANN_CROW_HOSTNAME QUERY HOSTNAME)
 cmake_host_system_information(RESULT NLOHMANN_CROW_TOTAL_PHYSICAL_MEMORY QUERY TOTAL_PHYSICAL_MEMORY)
 
+find_program(UNAME_TOOL uname)
+execute_process(COMMAND ${UNAME_TOOL} -a
+        OUTPUT_VARIABLE NLOHMANN_CROW_UNAME
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 # create config.h header
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
         ${CMAKE_CURRENT_BINARY_DIR}/include/crow/config.h)
