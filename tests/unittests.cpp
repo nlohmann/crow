@@ -69,6 +69,8 @@ TEST_CASE("creating messages")
             verify_message_structure(message);
             CHECK(message.at("message") == msg_string);
             CHECK(results.at(0).at("url") == url);
+
+            CHECK(crow_client.get_last_event_id() == "0");
         }
 
         SECTION("with payload")
@@ -87,6 +89,8 @@ TEST_CASE("creating messages")
                 CHECK(message.at(el.key()) == el.value());
             }
             CHECK(results.at(0).at("url") == url);
+
+            CHECK(crow_client.get_last_event_id() == "1");
         }
     }
 
@@ -110,6 +114,8 @@ TEST_CASE("creating messages")
             CHECK(exception.at("value") == ex_string);
             CHECK(exception.at("mechanism").at("handled"));
             CHECK(results.at(0).at("url") == url);
+
+            CHECK(crow_client.get_last_event_id() == "2");
         }
 
         SECTION("marked as unhandled")
@@ -129,6 +135,8 @@ TEST_CASE("creating messages")
             CHECK(exception.at("value") == ex_string);
             CHECK(not exception.at("mechanism").at("handled"));
             CHECK(results.at(0).at("url") == url);
+
+            CHECK(crow_client.get_last_event_id() == "3");
         }
     }
 
@@ -160,5 +168,7 @@ TEST_CASE("creating messages")
         CHECK(message.at("breadcrumbs").at("values").at(1).at("message") == msg2);
         CHECK(message.at("breadcrumbs").at("values").at(1).at("type") == "navigation");
         CHECK(message.at("breadcrumbs").at("values").at(1).at("data") == data2);
+
+        CHECK(crow_client.get_last_event_id() == "4");
     }
 }

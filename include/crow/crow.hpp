@@ -298,6 +298,31 @@ class crow
     }
 
     /*!
+     * @brief copy constructor
+     * @param other client to copy
+     * @note The last event id is not preserved by copying.
+     */
+    crow(const crow& other)
+        : m_enabled(other.m_enabled),
+          m_public_key(other.m_public_key),
+          m_secret_key(other.m_secret_key),
+          m_store_url(other.m_store_url),
+          m_payload(other.m_payload)
+    {}
+
+    /*!
+     * @brief destructor
+     * @note Waits until pending HTTP requests complete
+     */
+    ~crow()
+    {
+        if (m_pending_future.valid())
+        {
+            m_pending_future.wait();
+        }
+    }
+
+    /*!
      * @brief capture a message
      *
      * @param[in] message the message to capture
@@ -319,14 +344,10 @@ class crow
             m_payload.update(options);
         }
 
-        if (asynchronous)
+        m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
+        if (not asynchronous)
         {
-            auto f = std::async(std::launch::async, [this] { post(m_payload); });
-            m_pending_futures.push_back(std::move(f));
-        }
-        else
-        {
-            post(m_payload);
+            m_pending_future.wait();
         }
     }
 
@@ -354,14 +375,10 @@ class crow
         m_payload["event_id"] = detail::generate_uuid();
         m_payload["timestamp"] = nlohmann::detail::get_iso8601();
 
-        if (asynchronous)
+        m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
+        if (not asynchronous)
         {
-            auto f = std::async(std::launch::async, [this] { post(m_payload); });
-            m_pending_futures.push_back(std::move(f));
-        }
-        else
-        {
-            post(m_payload);
+            m_pending_future.wait();
         }
     }
 
@@ -392,6 +409,22 @@ class crow
         m_payload["breadcrumbs"]["values"].push_back(std::move(breadcrumb));
     }
 
+    /*!
+     * @brief return the id of the last reported event
+     * @return event id, or empty string, if no request has been made
+     */
+    std::string get_last_event_id() const
+    {
+        if (m_pending_future.valid())
+        {
+            return json::parse(m_pending_future.get()).at("id");
+        }
+        else
+        {
+            return "";
+        }
+    }
+
   private:
     /*!
      * @brief POST the payload to the Sentry sink URL
@@ -400,7 +433,7 @@ class crow
      *
      * @return result
      */
-    void post(const json& payload)
+    std::string post(const json& payload)
     {
         if (m_enabled)
         {
@@ -414,8 +447,10 @@ class crow
             security_header += ",sentry_secret=" + m_secret_key;
             curl.set_header(security_header.c_str());
 
-            curl.post(m_store_url, payload);
+            return curl.post(m_store_url, payload);
         }
+
+        return "";
     }
 
     /*!
@@ -454,8 +489,8 @@ class crow
     std::string m_store_url;
     /// the payload of all events
     json m_payload = {};
-    /// a pool of futures for the sentry client
-    std::vector<std::future<void>> m_pending_futures;
+    /// the result of the last HTTP POST
+    mutable std::future<std::string> m_pending_future;
     /// the termination handler installed before initializing the client
     std::terminate_handler existing_termination_handler = nullptr;
 };
