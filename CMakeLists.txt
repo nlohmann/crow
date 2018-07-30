@@ -63,6 +63,7 @@ if(WIN32)
             PREFIX curl
             CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/curl -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DCURL_STATICLIB=ON -DCURL_CA_PATH_SET=OFF -DCMAKE_USE_OPENSSL=ON -DHTTP_ONLY=ON
     )
+    set(CURL_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/curl/include)
 else()
     find_package(CURL)
 endif()
@@ -113,7 +114,6 @@ if(BUILD_TESTING)
 
     if(WIN32)
         add_dependencies(livetest curl_external_project)
-        set(CURL_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/curl/include)
         set(CURL_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/curl/lib/libcurl.a)
     endif()
 
