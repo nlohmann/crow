@@ -56,7 +56,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
 
 option(CROW_EXTERNAL_CURL_PROJECT "the path to curl")
 if(CROW_EXTERNAL_CURL_PROJECT)
-    find_package(CURL HINTS ${CROW_EXTERNAL_CURL_PROJECT})
+    set(CURL_INCLUDE_DIR ${CROW_EXTERNAL_CURL_PROJECT}/include)
+    set(CURL_LIBRARIES ${CROW_EXTERNAL_CURL_PROJECT}/lib/libcurl.a)
 else()
     find_package(CURL)
 endif()
