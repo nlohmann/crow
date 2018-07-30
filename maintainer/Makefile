@@ -11,8 +11,7 @@ pretty:
 	   include/crow/crow.hpp tests/unittests.cpp
 
 upload_docs:
-	mkdir build ; cd build ; cmake .. ; cmake --build . ; cd ..
-	cd build/doc ; doxygen ; cd ..
+	mkdir build ; cd build ; cmake .. ; cmake --build . --target doc ; cd ..
 	cd build/doc ; ../../doc/scripts/git-update-ghpages nlohmann/crow html
 	rm -fr build
 	open http://nlohmann.github.io/crow/

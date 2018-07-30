@@ -22,18 +22,21 @@ cmake_host_system_information(RESULT NLOHMANN_CROW_OS_VERSION QUERY OS_VERSION)
 
 # uname
 find_program(UNAME_TOOL uname)
-execute_process(COMMAND ${UNAME_TOOL} -a OUTPUT_VARIABLE NLOHMANN_CROW_UNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND ${UNAME_TOOL} -a
+        OUTPUT_VARIABLE NLOHMANN_CROW_UNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # compiler
-execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version OUTPUT_VARIABLE NLOHMANN_CROW_CXX OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version
+        OUTPUT_VARIABLE NLOHMANN_CROW_CXX OUTPUT_STRIP_TRAILING_WHITESPACE)
 string(REGEX REPLACE "\n" "\\\\n" NLOHMANN_CROW_CXX ${NLOHMANN_CROW_CXX})
 
 # sysctl
 find_program(SYSCTL_TOOL sysctl)
-execute_process(COMMAND ${SYSCTL_TOOL} hw.model OUTPUT_VARIABLE NLOHMANN_CROW_SYSCTL_HW_MODEL ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-if (NLOHMANN_CROW_SYSCTL_HW_MODEL)
+execute_process(COMMAND ${SYSCTL_TOOL} hw.model
+        OUTPUT_VARIABLE NLOHMANN_CROW_SYSCTL_HW_MODEL ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(NLOHMANN_CROW_SYSCTL_HW_MODEL)
     string(REGEX REPLACE ".*: (.*)" "\\1" NLOHMANN_CROW_SYSCTL_HW_MODEL ${NLOHMANN_CROW_SYSCTL_HW_MODEL})
-endif ()
+endif()
 
 ########################
 # create config header #
@@ -46,32 +49,36 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
 # dependencies #
 ################
 
-if (MSVC)
-    set(CURL_LIBRARY "-lcurl")
-    add_definitions(-DCURL_STATICLIB)
-endif (MSVC)
 find_package(CURL REQUIRED)
 find_package(Threads)
+if(MSVC)
+    add_definitions(-DCURL_STATICLIB)
+    set(CURL_LIBRARY "-lcurl")
+    list(APPEND CURL_LIBRARIES
+            "Crypt32.lib"
+            "Ws2_32.lib"
+            )
+endif()
 
 #################
 # documentation #
 #################
 
 find_package(Doxygen)
-if (DOXYGEN_FOUND)
+if(DOXYGEN_FOUND)
     set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in)
     set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile)
 
     configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
 
-    add_custom_target(doc ALL
+    add_custom_target(doc
             COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM)
-else (DOXYGEN_FOUND)
+else()
     message("Doxygen need to be installed to generate the documentation")
-endif (DOXYGEN_FOUND)
+endif()
 
 
 ###########
@@ -79,7 +86,7 @@ endif (DOXYGEN_FOUND)
 ###########
 
 include(CTest)
-if (BUILD_TESTING)
+if(BUILD_TESTING)
     enable_testing()
 
     add_executable(tests tests/unittests.cpp)
@@ -94,4 +101,4 @@ if (BUILD_TESTING)
 
     add_test(tests tests)
     add_test(livetest livetest)
-endif (BUILD_TESTING)
+endif()
