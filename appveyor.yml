@@ -55,7 +55,7 @@ before_build:
 - cmake ..\external_curl
 - cmake --build .
 - cd ..
-- cmake . -G "%GENERATOR%" -DCMAKE_CXX_FLAGS="%FLAGS%" -DCMAKE_IGNORE_PATH="C:/Program Files/Git/usr/bin" -DCMAKE_BUILD_TYPE=Release -DCROW_EXTERNAL_CURL_PROJECT=%~dp0/curl_build
+- cmake . -G "%GENERATOR%" -DCMAKE_CXX_FLAGS="%FLAGS%" -DCMAKE_IGNORE_PATH="C:/Program Files/Git/usr/bin" -DCMAKE_BUILD_TYPE=Release -DCROW_EXTERNAL_CURL_PROJECT=%~dp0/external_curl_build
 
 build_script:
   - cmake --build . --config Release
