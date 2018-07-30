@@ -182,7 +182,7 @@ std::string generate_uuid()
 {
     std::random_device random_device;
     std::default_random_engine random_engine(random_device());
-    std::uniform_int_distribution<char> uniform_dist(0, 15);
+    std::uniform_int_distribution<int> uniform_dist(0, 15);
 
     std::string result(32, ' ');
 
