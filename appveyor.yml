@@ -50,7 +50,11 @@ install:
   - if "%COMPILER%"=="mingw" g++ --version
 
 before_build:
-- mkdir external_curl_build ; cd external_curl_build ; cmake .. ;  cmake --build ..\external_curl ; cd ..
+- mkdir external_curl_build
+- cd external_curl_build
+- cmake ..
+- cmake --build ..\external_curl
+- cd ..
 - cmake . -G "%GENERATOR%" -DCMAKE_CXX_FLAGS="%FLAGS%" -DCMAKE_IGNORE_PATH="C:/Program Files/Git/usr/bin" -DCMAKE_BUILD_TYPE=Release -DCROW_EXTERNAL_CURL_PROJECT=curl_build
 
 build_script:
