@@ -55,8 +55,12 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
 ################
 
 if(MSVC)
-    add_definitions(-DCURL_STATICLIB)
-    #set(CURL_LIBRARY "-lcurl")
+    add_definitions(
+            -D_SCL_SECURE_NO_WARNINGS
+            -DWIN32_LEAN_AND_MEAN
+            -DCURL_STATICLIB
+    )
+    set(CURL_LIBRARY "-lcurl")
 endif()
 find_package(CURL REQUIRED)
 if(MSVC)
