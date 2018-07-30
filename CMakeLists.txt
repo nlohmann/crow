@@ -27,7 +27,7 @@ execute_process(COMMAND ${UNAME_TOOL} -a
 
 # compiler
 if(MSVC)
-execute_process(COMMAND ${CMAKE_CXX_COMPILER}
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER}
         OUTPUT_VARIABLE NLOHMANN_CROW_CXX OUTPUT_STRIP_TRAILING_WHITESPACE)
 else()
     execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version
@@ -54,8 +54,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
 # dependencies #
 ################
 
-find_package(CURL REQUIRED)
-find_package(Threads)
 if(MSVC)
     add_definitions(-DCURL_STATICLIB)
     set(CURL_LIBRARY "-lcurl")
@@ -64,6 +62,8 @@ if(MSVC)
             "Ws2_32.lib"
             )
 endif()
+find_package(CURL REQUIRED)
+find_package(Threads)
 
 #################
 # documentation #
