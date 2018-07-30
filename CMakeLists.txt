@@ -65,7 +65,7 @@ endif()
 find_package(CURL REQUIRED)
 if(MSVC)
     include_directories(${CURL_INCLUDE_DIR})
-    list(APPEND CURL_LIBRARIES libcurl_imp.lib ws2_32.lib winmm.lib wldap32.lib crypt32.lib)
+    list(APPEND CURL_LIBRARIES ws2_32.lib winmm.lib wldap32.lib crypt32.lib)
 endif()
 find_package(Threads)
 
