@@ -56,10 +56,11 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
 
 if(MSVC)
     add_definitions(-DCURL_STATICLIB)
-    set(CURL_LIBRARY "-lcurl")
+    #set(CURL_LIBRARY "-lcurl")
 endif()
 find_package(CURL REQUIRED)
 if(MSVC)
+    include_directories(${CURL_INCLUDE_DIR})
     list(APPEND CURL_LIBRARIES
             "Crypt32.lib"
             "Ws2_32.lib"
