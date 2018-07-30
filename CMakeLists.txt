@@ -68,7 +68,7 @@ if(WIN32)
     set(CURL_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/curl/lib/libcurl.a)
 endif()
 
-
+find_package(CURL)
 find_package(Threads)
 
 
@@ -109,6 +109,7 @@ if(BUILD_TESTING)
     add_executable(livetest tests/livetest.cpp)
     set_target_properties(livetest PROPERTIES CXX_STANDARD 11)
     target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR})
+    message("CURL_LIBRARIES = " ${CURL_LIBRARIES})
     target_link_libraries(livetest ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${LIBSSH2_LIBRARY} ${OPENSSL_LIBRARIES})
 
     add_test(tests tests)
