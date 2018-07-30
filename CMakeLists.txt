@@ -58,12 +58,15 @@ if(WIN32)
     include(ExternalProject)
     ExternalProject_Add(
             curl_external_project
+            ALWAYS 1
             URL http://curl.haxx.se/download/curl-7.61.0.tar.gz
             URL_MD5 ef343f64daab4691f528697b58a2d984
             PREFIX curl
             CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/curl -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DCURL_STATICLIB=ON -DCURL_CA_PATH_SET=OFF -DCMAKE_USE_OPENSSL=ON -DHTTP_ONLY=ON
     )
     set(CURL_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/curl/include)
+    add_dependencies(livetest curl_external_project)
+    set(CURL_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/curl/lib/libcurl.a)
 else()
     find_package(CURL)
 endif()
@@ -111,11 +114,6 @@ if(BUILD_TESTING)
     target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR})
     target_link_libraries(livetest ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${LIBSSH2_LIBRARY} ${OPENSSL_LIBRARIES})
     #target_link_libraries(livetest ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${ZLIB_LIBRARIES} ${LIBSSH2_LIBRARY} ${OPENSSL_LIBRARIES})
-
-    if(WIN32)
-        add_dependencies(livetest curl_external_project)
-        set(CURL_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/curl/lib/libcurl.a)
-    endif()
 
     add_test(tests tests)
     add_test(livetest livetest)
