@@ -54,25 +54,14 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
 # dependencies #
 ################
 
-if(WIN32)
-    include(ExternalProject)
-    ExternalProject_Add(
-            curl_external_project
-            URL http://curl.haxx.se/download/curl-7.61.0.tar.gz
-            URL_MD5 ef343f64daab4691f528697b58a2d984
-            PREFIX curl
-            CMAKE_ARGS -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/curl -DBUILD_CURL_EXE=OFF -DBUILD_TESTING=OFF -DCURL_STATICLIB=ON -DCURL_CA_PATH_SET=OFF -DCMAKE_USE_OPENSSL=ON -DHTTP_ONLY=ON
-    )
-
-    set(CURL_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/curl/include)
-    add_library(wincurl)
-    add_dependencies(wincurl curl_external_project)
-    target_link_libraries(wincurl ${CMAKE_CURRENT_BINARY_DIR}/curl/lib/libcurl.a)
+option(CROW_EXTERNAL_CURL_PROJECT "the path to curl")
+if(CROW_EXTERNAL_CURL_PROJECT)
+    find_package(CURL HINTS ${CROW_EXTERNAL_CURL_PROJECT})
+else()
+    find_package(CURL)
 endif()
 
-find_package(CURL)
 find_package(Threads)
-
 
 #################
 # documentation #
@@ -112,9 +101,6 @@ if(BUILD_TESTING)
     set_target_properties(livetest PROPERTIES CXX_STANDARD 11)
     target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR})
     target_link_libraries(livetest ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${LIBSSH2_LIBRARY} ${OPENSSL_LIBRARIES})
-    if(WIN32)
-        target_link_libraries(livetest wincurl)
-    endif()
 
     add_test(tests tests)
     add_test(livetest livetest)
