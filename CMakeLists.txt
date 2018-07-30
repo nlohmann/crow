@@ -72,7 +72,7 @@ else()
 endif()
 
 find_package(Threads)
-find_package(ZLIB REQUIRED)
+find_package(ZLIB)
 
 
 #################
