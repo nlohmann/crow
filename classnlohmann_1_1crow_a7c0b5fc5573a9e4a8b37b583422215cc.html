@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.15"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Crow: nlohmann::crow::add_breadcrumb</title>
+<title>Crow: nlohmann::crow::get_last_event_id</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -71,19 +71,19 @@ $(function() {
    <td valign="top">
       <div class="navtab">
         <table>
-          <tr><td class="navtab"><a class="qindexHL" href="classnlohmann_1_1crow_a478be96f95e06018f33ac167cdacd192.html#a478be96f95e06018f33ac167cdacd192">add_breadcrumb</a></td></tr>
+          <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_a478be96f95e06018f33ac167cdacd192.html#a478be96f95e06018f33ac167cdacd192">add_breadcrumb</a></td></tr>
           <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_a7d9e7ee833a210557ab2a35f02a05e1b.html#a7d9e7ee833a210557ab2a35f02a05e1b">capture_exception</a></td></tr>
           <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_af5485af7830f6159176160ff66b9c871.html#af5485af7830f6159176160ff66b9c871">capture_message</a></td></tr>
           <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_a9d2b0a8b04ff15a830e4f9aed69a973a.html#a9d2b0a8b04ff15a830e4f9aed69a973a">crow</a></td></tr>
           <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_af0899e2af28185ae075582118855e639.html#af0899e2af28185ae075582118855e639">crow</a></td></tr>
-          <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_a7c0b5fc5573a9e4a8b37b583422215cc.html#a7c0b5fc5573a9e4a8b37b583422215cc">get_last_event_id</a></td></tr>
+          <tr><td class="navtab"><a class="qindexHL" href="classnlohmann_1_1crow_a7c0b5fc5573a9e4a8b37b583422215cc.html#a7c0b5fc5573a9e4a8b37b583422215cc">get_last_event_id</a></td></tr>
           <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_ab33f4e8f830c20e0cdeae81ee93c3add.html#ab33f4e8f830c20e0cdeae81ee93c3add">~crow</a></td></tr>
         </table>
       </div>
    </td>
    <td valign="top" class="mempage">
-<a id="a478be96f95e06018f33ac167cdacd192"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a478be96f95e06018f33ac167cdacd192">&#9670;&nbsp;</a></span>add_breadcrumb()</h2>
+<a id="a7c0b5fc5573a9e4a8b37b583422215cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c0b5fc5573a9e4a8b37b583422215cc">&#9670;&nbsp;</a></span>get_last_event_id()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -92,27 +92,10 @@ $(function() {
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void nlohmann::crow::add_breadcrumb </td>
+          <td class="memname">std::string nlohmann::crow::get_last_event_id </td>
           <td>(</td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>message</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const std::string &amp;&#160;</td>
-          <td class="paramname"><em>type</em> = <code>&quot;default&quot;</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const json &amp;&#160;</td>
-          <td class="paramname"><em>data</em> = <code>nullptr</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
+          <td class="paramname"></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -121,16 +104,9 @@ $(function() {
   </tr>
 </table>
 </div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">message</td><td>message for the breadcrumb </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">type</td><td>type of the breadcrumb (optional) </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>additional JSON object (optional) </td></tr>
-  </table>
-  </dd>
-</dl>
+<dl class="section return"><dt>Returns</dt><dd>event id, or empty string, if no request has been made </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="crow_8hpp_source.html#l00413">413</a> of file <a class="el" href="crow_8hpp_source.html">crow.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="crow_8hpp_source.html#l00437">437</a> of file <a class="el" href="crow_8hpp_source.html">crow.hpp</a>.</p>
 
 </div>
 </div>
