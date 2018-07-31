@@ -16,6 +16,22 @@ group: edge
 matrix:
   include:
 
+  # Coveralls (http://gronlier.fr/blog/2015/01/adding-code-coverage-to-your-c-project/)
+
+  - os: linux
+    compiler: gcc
+    addons:
+      apt:
+        sources: ['ubuntu-toolchain-r-test']
+        packages: ['g++-4.9', 'ninja-build']
+    before_script:
+    - pip install --user cpp-coveralls
+    after_success:
+    - coveralls --build-root test --include include/crow --gcov 'gcov-4.9' --gcov-options '\-lp'
+    env:
+    - COMPILER=g++-4.9
+    - CMAKE_OPTIONS=-Dcheck_coverage=ON
+
   # OSX / Clang
 
   - os: osx
@@ -47,6 +63,9 @@ matrix:
 
   - os: osx
     osx_image: xcode9.3
+
+  - os: osx
+    osx_image: xcode9.4
 
   # Linux / GCC
 
@@ -213,6 +232,6 @@ script:
 
   # compile and execute unit tests
   - mkdir -p build && cd build
-  - cmake .. -GNinja && cmake --build . --config Release
+  - cmake .. ${CMAKE_OPTIONS} -GNinja && cmake --build . --config Release
   - ctest -C Release -V -j
   - cd ..
