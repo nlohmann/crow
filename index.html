@@ -74,6 +74,7 @@ $(function() {
 <li><code><a class="el" href="classnlohmann_1_1crow_af5485af7830f6159176160ff66b9c871.html#af5485af7830f6159176160ff66b9c871" title="capture a message ">crow::capture_message</a>(message, options=nullptr, async=true)</code> to send a message</li>
 <li><code><a class="el" href="classnlohmann_1_1crow_a7d9e7ee833a210557ab2a35f02a05e1b.html#a7d9e7ee833a210557ab2a35f02a05e1b" title="capture an exception ">crow::capture_exception</a>(exception, async=true, handled=true)</code> to send an exception</li>
 <li><code><a class="el" href="classnlohmann_1_1crow_a478be96f95e06018f33ac167cdacd192.html#a478be96f95e06018f33ac167cdacd192" title="add a breadcrumb to the current context ">crow::add_breadcrumb</a>(message, type="default")</code> to add a breadcrumb</li>
+<li><code><a class="el" href="classnlohmann_1_1crow_a7c0b5fc5573a9e4a8b37b583422215cc.html#a7c0b5fc5573a9e4a8b37b583422215cc" title="return the id of the last reported event ">crow::get_last_event_id()</a></code> to get the id of the last event</li>
 </ul>
 <p class="">See <a href="https://nlohmann.github.io/crow/classnlohmann_1_1crow.html">the documentation</a> for a complete overview of the public API.</p>
 <h2>Requirements for Sentry SDKs</h2>
@@ -83,7 +84,7 @@ $(function() {
 <li>[x] DSN configuration</li>
 <li>[ ] Graceful failures (e.g. Sentry server is unreachable)</li>
 <li>[ ] Setting attributes (e.g. tags and extra data)</li>
-<li>[ ] Support for Linux, Windows and OS X (where applicable)</li>
+<li>[x] Support for Linux, Windows and OS X (where applicable)</li>
 </ul>
 </li>
 <li>Feature based support is required for the following:<ul>
@@ -96,7 +97,7 @@ $(function() {
 <li>[ ] Logging framework integration</li>
 <li>[x] Non-blocking event submission</li>
 <li>[ ] Basic data sanitization (e.g. filtering out values that look like passwords)</li>
-<li>[ ] Context data helpers (e.g. setting the current user, recording breadcrumbs)</li>
+<li>[x] Context data helpers (e.g. setting the current user, recording breadcrumbs)</li>
 <li>[ ] Event sampling</li>
 <li>[ ] Honor Sentry’s HTTP 429 Retry-After header</li>
 <li>[ ] Pre and Post event send hooks</li>
@@ -104,8 +105,24 @@ $(function() {
 </ul>
 </li>
 </ul>
+<h2>Change Log</h2>
+<h3>Version 0.0.2</h3>
+<ul>
+<li>:construction_worker: integrated Travis and AppVeyor CI (#1)</li>
+<li>:memo: added Doxygen documentation as GitHub page (#4)</li>
+<li>:sparkles: added function to retrieve last event id (#8)</li>
+<li>:sparkles: collecting information on user, machine, operating system, and compiler</li>
+<li>:wheelchair: client now compiles with macOS, Linux, Windows (MinGW and MSVC)</li>
+<li>:heavy_minus_sign: removed Sole dependency for UUID generation</li>
+<li>:heavy_minus_sign: removed Date dependency for ISO8601 date string generation</li>
+<li>:white_check_mark: adding unit tests and live test client</li>
+</ul>
+<h3>Version 0.0.1</h3>
+<ul>
+<li>:tada: initial release</li>
+</ul>
 <h2>Prerequisites</h2>
-<p class="">You need <a href="https://curl.haxx.se/libcurl/">libcurl</a> and a C++11 compiler to use the library.</p>
+<p class="">You need <a href="https://curl.haxx.se/libcurl/">libcurl</a> and a C++11 compiler to use the library. Curl should be detected by CMake. If this does not work, you can <a href="https://curl.haxx.se/download.html">download libcurl</a> and pass the path to the source release folder to CMake via <code>-DCROW_EXTERNAL_CURL_PROJECT=curl-7.61.0</code>. This libcurl is then built and statically linked.</p>
 <h2>License</h2>
 <div class="image">
 <img src="http://opensource.org/trademarks/opensource/OSI-Approved-License-100x137.png" align="right"/>
