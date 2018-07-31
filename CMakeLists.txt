@@ -25,6 +25,11 @@ find_program(UNAME_TOOL uname)
 execute_process(COMMAND ${UNAME_TOOL} -a
         OUTPUT_VARIABLE NLOHMANN_CROW_UNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+# ver
+find_program(VER_TOOL ver)
+execute_process(COMMAND ${VER_TOOL}
+        OUTPUT_VARIABLE NLOHMANN_CROW_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
+
 # compiler
 if(MSVC)
     execute_process(COMMAND msbuild /version

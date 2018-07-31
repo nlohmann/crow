@@ -40,7 +40,7 @@ TEST_CASE("basics")
         CHECK(x[13] == ':');
         CHECK(x[16] == ':');
         CHECK(x[19] == 'Z');
-        CHECK(x.substr(0,2) == "20");
+        CHECK(x.substr(0, 2) == "20");
     }
 
     SECTION("generate_uuid")

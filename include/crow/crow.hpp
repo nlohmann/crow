@@ -263,19 +263,35 @@ class crow
             }
         }
 
-        // add context
+        // add context: app
         m_payload["contexts"]["app"]["build_type"] = NLOHMANN_CROW_CMAKE_BUILD_TYPE;
+
+        // add context: device
         m_payload["contexts"]["device"]["arch"] = NLOHMANN_CROW_CMAKE_SYSTEM_PROCESSOR;
         m_payload["contexts"]["device"]["name"] = NLOHMANN_CROW_HOSTNAME;
         m_payload["contexts"]["device"]["model"] = NLOHMANN_CROW_SYSCTL_HW_MODEL;
         m_payload["contexts"]["device"]["memory_size"] = 1048576ul * NLOHMANN_CROW_TOTAL_PHYSICAL_MEMORY;
+
+        // add context: os
         m_payload["contexts"]["os"]["name"] = NLOHMANN_CROW_CMAKE_SYSTEM_NAME;
         m_payload["contexts"]["os"]["version"] = NLOHMANN_CROW_OS_RELEASE;
         m_payload["contexts"]["os"]["build"] = NLOHMANN_CROW_OS_VERSION;
-        m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_UNAME;
+        if (not std::string(NLOHMANN_CROW_UNAME).empty())
+        {
+            m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_UNAME;
+        }
+        else if (not std::string(NLOHMANN_CROW_VER).empty())
+        {
+            m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_VER;
+        }
+
+        // add context: runtime
         m_payload["contexts"]["runtime"]["name"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_ID;
         m_payload["contexts"]["runtime"]["version"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_VERSION;
         m_payload["contexts"]["runtime"]["detail"] = NLOHMANN_CROW_CXX;
+        m_payload["contexts"]["runtime"]["pointer_size"] = NLOHMANN_CROW_BITS;
+
+        // add context: user
         const char* user = getenv("USER");
         if (user == nullptr)
         {
