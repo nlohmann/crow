@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(crow VERSION 0.0.1)
+project(crow VERSION 0.0.2)
 
 ##############################
 # check for required headers #
