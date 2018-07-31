@@ -167,11 +167,11 @@ std::int64_t get_timestamp()
  */
 std::string get_iso8601()
 {
-    auto now = std::chrono::system_clock::now();
-    auto itt = std::chrono::system_clock::to_time_t(now);
-    std::ostringstream ss;
-    ss << std::put_time(std::gmtime(&itt), "%FT%TZ");
-    return ss.str();
+    std::time_t now;
+    std::time(&now);
+    char buf[sizeof "2011-10-08T07:07:09Z"];
+    std::strftime(buf, sizeof buf, "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
+    return buf;
 }
 
 /*!
