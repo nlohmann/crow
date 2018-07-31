@@ -26,9 +26,10 @@ execute_process(COMMAND ${UNAME_TOOL} -a
         OUTPUT_VARIABLE NLOHMANN_CROW_UNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # ver
-find_program(VER_TOOL ver)
-execute_process(COMMAND ${VER_TOOL}
+if(WIN32)
+execute_process(COMMAND ver
         OUTPUT_VARIABLE NLOHMANN_CROW_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
 
 # compiler
 if(MSVC)
