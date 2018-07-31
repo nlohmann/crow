@@ -196,6 +196,11 @@ script:
        brew install cmake ninja
        brew upgrade cmake
        cmake --version
+     else
+       wget -O cmake.sh https://cmake.org/files/v3.10/cmake-3.10.0-rc1-Linux-x86_64.sh
+       mkdir -p /tmp/cmake
+       sudo sh cmake.sh --skip-license --exclude-subdir --prefix=/tmp/cmake
+       export PATH=/tmp/cmake/bin:$PATH
      fi
 
   # make sure CXX is correctly set

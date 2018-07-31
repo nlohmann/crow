@@ -20,6 +20,38 @@ void verify_message_structure(const json& msg)
     CHECK(msg.at("sdk").at("version").is_string());
 }
 
+TEST_CASE("basics")
+{
+    SECTION("get_timestamp")
+    {
+        auto x = nlohmann::detail::get_timestamp();
+        CAPTURE(x);
+        CHECK(x > 1533027000);
+    }
+
+    SECTION("get_iso8601")
+    {
+        auto x = nlohmann::detail::get_iso8601();
+        CAPTURE(x);
+        CHECK(x.size() == 20);
+        CHECK(x[4] == '-');
+        CHECK(x[7] == '-');
+        CHECK(x[10] == 'T');
+        CHECK(x[13] == ':');
+        CHECK(x[16] == ':');
+        CHECK(x[19] == 'Z');
+        CHECK(x.substr(0, 2) == "20");
+    }
+
+    SECTION("generate_uuid")
+    {
+        auto x = nlohmann::detail::generate_uuid();
+        CAPTURE(x);
+        CHECK(x.size() == 32);
+        CHECK(x[12] == '4');
+    }
+}
+
 TEST_CASE("DSN parsing")
 {
     SECTION("valid DSN")
@@ -69,6 +101,8 @@ TEST_CASE("creating messages")
             verify_message_structure(message);
             CHECK(message.at("message") == msg_string);
             CHECK(results.at(0).at("url") == url);
+
+            CHECK(crow_client.get_last_event_id() == "0");
         }
 
         SECTION("with payload")
@@ -87,6 +121,8 @@ TEST_CASE("creating messages")
                 CHECK(message.at(el.key()) == el.value());
             }
             CHECK(results.at(0).at("url") == url);
+
+            CHECK(crow_client.get_last_event_id() == "1");
         }
     }
 
@@ -110,6 +146,8 @@ TEST_CASE("creating messages")
             CHECK(exception.at("value") == ex_string);
             CHECK(exception.at("mechanism").at("handled"));
             CHECK(results.at(0).at("url") == url);
+
+            CHECK(crow_client.get_last_event_id() == "2");
         }
 
         SECTION("marked as unhandled")
@@ -129,6 +167,8 @@ TEST_CASE("creating messages")
             CHECK(exception.at("value") == ex_string);
             CHECK(not exception.at("mechanism").at("handled"));
             CHECK(results.at(0).at("url") == url);
+
+            CHECK(crow_client.get_last_event_id() == "3");
         }
     }
 
@@ -160,5 +200,7 @@ TEST_CASE("creating messages")
         CHECK(message.at("breadcrumbs").at("values").at(1).at("message") == msg2);
         CHECK(message.at("breadcrumbs").at("values").at(1).at("type") == "navigation");
         CHECK(message.at("breadcrumbs").at("values").at(1).at("data") == data2);
+
+        CHECK(crow_client.get_last_event_id() == "4");
     }
 }
