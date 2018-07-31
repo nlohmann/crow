@@ -54,10 +54,18 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
 # dependencies #
 ################
 
-option(CROW_EXTERNAL_CURL_PROJECT "the path to curl")
+option(CROW_EXTERNAL_CURL_PROJECT "the path to curl" OFF)
 if(CROW_EXTERNAL_CURL_PROJECT)
-    set(CURL_INCLUDE_DIR ${CROW_EXTERNAL_CURL_PROJECT}/curl/include)
-    set(CURL_LIBRARIES ${CROW_EXTERNAL_CURL_PROJECT}/curl/lib/libcurl.lib)
+    set(BUILD_TESTING OFF CACHE INTERNAL "")
+    set(BUILD_SHARED_LIBS ON CACHE INTERNAL "")
+    set(CURL_STATICLIB OFF CACHE INTERNAL "")
+    set(BUILD_CURL_EXE OFF CACHE INTERNAL "")
+    set(CURL_CA_PATH_SET OFF CACHE INTERNAL "")
+    set(CMAKE_USE_OPENSSL OFF CACHE INTERNAL "")
+    set(HTTP_ONLY ON CACHE INTERNAL "")
+    add_subdirectory(${CROW_EXTERNAL_CURL_PROJECT})
+    set(CURL_INCLUDE_DIR ${CROW_EXTERNAL_CURL_PROJECT}/include)
+    set(CURL_LIBRARIES libcurl)
 else()
     find_package(CURL)
 endif()
@@ -90,7 +98,7 @@ endif()
 ###########
 
 include(CTest)
-if(BUILD_TESTING)
+if(BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT)
     enable_testing()
 
     add_executable(tests tests/unittests.cpp)
