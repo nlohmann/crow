@@ -112,13 +112,23 @@ matrix:
   - os: linux
     compiler: gcc
     env:
-      - COMPILER=g++-7
-      - CCOMPILER=gcc-7
+    - COMPILER=g++-8
+    - CCOMPILER=gcc-8
+    addons:
+      apt:
+        sources: ['ubuntu-toolchain-r-test']
+        packages: ['g++-8', 'ninja-build']
+
+  - os: linux
+    compiler: gcc
+    env:
+      - COMPILER=g++-8
+      - CCOMPILER=gcc-8
       - CXXFLAGS=-std=c++17
     addons:
       apt:
         sources: ['ubuntu-toolchain-r-test']
-        packages: ['g++-7', 'ninja-build']
+        packages: ['g++-8', 'ninja-build']
 
   # Linux / Clang
 
