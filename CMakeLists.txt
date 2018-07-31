@@ -27,7 +27,7 @@ execute_process(COMMAND ${UNAME_TOOL} -a
 
 # compiler
 if(MSVC)
-    execute_process(COMMAND ${CMAKE_CXX_COMPILER}
+    execute_process(COMMAND msbuild /version
         OUTPUT_VARIABLE NLOHMANN_CROW_CXX OUTPUT_STRIP_TRAILING_WHITESPACE)
 else()
     execute_process(COMMAND ${CMAKE_CXX_COMPILER} --version

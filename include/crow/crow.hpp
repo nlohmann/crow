@@ -277,6 +277,10 @@ class crow
         m_payload["contexts"]["runtime"]["version"] = NLOHMANN_CROW_CMAKE_CXX_COMPILER_VERSION;
         m_payload["contexts"]["runtime"]["detail"] = NLOHMANN_CROW_CXX;
         const char* user = getenv("USER");
+        if (user == nullptr)
+        {
+            user = getenv("USERNAME");
+        }
         if (user)
         {
             m_payload["contexts"]["user"]["id"] = std::string(user) + "@" + NLOHMANN_CROW_HOSTNAME;
