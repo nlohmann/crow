@@ -12,6 +12,7 @@
 - `crow::capture_message(message, options=nullptr, async=true)` to send a message
 - `crow::capture_exception(exception, async=true, handled=true)` to send an exception
 - `crow::add_breadcrumb(message, type="default")` to add a breadcrumb
+- `crow::get_last_event_id()` to get the id of the last event
 
 See [the documentation](https://nlohmann.github.io/crow/classnlohmann_1_1crow.html) for a complete overview of the public API.
 
@@ -23,7 +24,7 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
     - [x] DSN configuration
     - [ ] Graceful failures (e.g. Sentry server is unreachable)
     - [ ] Setting attributes (e.g. tags and extra data)
-    - [ ] Support for Linux, Windows and OS X (where applicable)
+    - [x] Support for Linux, Windows and OS X (where applicable)
 - Feature based support is required for the following:
     - [ ] If cookie data is available, it’s not sent by default
     - [ ] If POST data is available, it’s not sent by default
@@ -32,15 +33,32 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
     - [ ] Logging framework integration
     - [x] Non-blocking event submission
     - [ ] Basic data sanitization (e.g. filtering out values that look like passwords)
-    - [ ] Context data helpers (e.g. setting the current user, recording breadcrumbs)
+    - [x] Context data helpers (e.g. setting the current user, recording breadcrumbs)
     - [ ] Event sampling
     - [ ] Honor Sentry’s HTTP 429 Retry-After header
     - [ ] Pre and Post event send hooks
     - [ ] Local variable values in stacktrace (on platforms where this is possible)
 
+## Change Log
+
+### Version 0.0.2
+
+- :construction_worker: integrated Travis and AppVeyor CI (#1)
+- :memo: added Doxygen documentation as GitHub page (#4)
+- :sparkles: added function to retrieve last event id (#8)
+- :sparkles: collecting information on user, machine, operating system, and compiler
+- :wheelchair: client now compiles with macOS, Linux, Windows (MinGW and MSVC)
+- :heavy_minus_sign: removed Sole dependency for UUID generation
+- :heavy_minus_sign: removed Date dependency for ISO8601 date string generation
+- :white_check_mark: adding unit tests and live test client
+
+### Version 0.0.1
+
+- :tada: initial release
+
 ## Prerequisites
 
-You need [libcurl](https://curl.haxx.se/libcurl/) and a C++11 compiler to use the library.
+You need [libcurl](https://curl.haxx.se/libcurl/) and a C++11 compiler to use the library. Curl should be detected by CMake. If this does not work, you can [download libcurl](https://curl.haxx.se/download.html) and pass the path to the source release folder to CMake via `-DCROW_EXTERNAL_CURL_PROJECT=curl-7.61.0`. This libcurl is then built and statically linked.
 
 ## License
 

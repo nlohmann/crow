@@ -1,7 +1,7 @@
 /*
  _____ _____ _____ _ _ _
 |     | __  |     | | | |  Crow - a Sentry client for C++
-|   --|    -|  |  | | | |  version 0.0.1
+|   --|    -|  |  | | | |  version 0.0.2
 |_____|__|__|_____|_____|  https://github.com/nlohmann/crow
 
 Licensed under the MIT License <http://opensource.org/licenses/MIT>.
@@ -235,6 +235,8 @@ class crow
      * previously installed termination handler. Note that termination
      * handlers installed after creating this client would override this
      * termination behavior.
+     *
+     * @since 0.0.1
      */
     explicit crow(const std::string& dsn,
                   const json& attributes = nullptr,
@@ -322,6 +324,7 @@ class crow
      * @brief copy constructor
      * @param other client to copy
      * @note The last event id is not preserved by copying.
+     * @since 0.0.2
      */
     crow(const crow& other)
         : m_enabled(other.m_enabled),
@@ -334,6 +337,7 @@ class crow
     /*!
      * @brief destructor
      * @note Waits until pending HTTP requests complete
+     * @since 0.0.2
      */
     ~crow()
     {
@@ -351,6 +355,7 @@ class crow
      * @param[in] asynchronous whether the message should be sent asynchronously
      *
      * @return id of the captured message
+     * @since 0.0.1
      */
     void capture_message(const std::string& message,
                          const json& options = nullptr,
@@ -380,6 +385,7 @@ class crow
      * @param[in] handled whether the exception was handled and only reported
      *
      * @return id of the captured exception
+     * @since 0.0.1
      */
     void capture_exception(const std::exception& exception,
                            const bool asynchronous = true,
@@ -409,6 +415,7 @@ class crow
      * @param[in] message message for the breadcrumb
      * @param[in] type type of the breadcrumb (optional)
      * @param[in] data additional JSON object (optional)
+     * @since 0.0.1
      */
     void add_breadcrumb(const std::string& message,
                         const std::string& type = "default",
@@ -433,6 +440,7 @@ class crow
     /*!
      * @brief return the id of the last reported event
      * @return event id, or empty string, if no request has been made
+     * @since 0.0.2
      */
     std::string get_last_event_id() const
     {
