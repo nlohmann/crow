@@ -12,6 +12,7 @@
 - `crow::capture_message(message, options=nullptr, async=true)` to send a message
 - `crow::capture_exception(exception, async=true, handled=true)` to send an exception
 - `crow::add_breadcrumb(message, type="default")` to add a breadcrumb
+- `crow::get_last_event_id()` to get the id of the last event
 
 See [the documentation](https://nlohmann.github.io/crow/classnlohmann_1_1crow.html) for a complete overview of the public API.
 
