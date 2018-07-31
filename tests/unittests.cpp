@@ -20,6 +20,38 @@ void verify_message_structure(const json& msg)
     CHECK(msg.at("sdk").at("version").is_string());
 }
 
+TEST_CASE("basics")
+{
+    SECTION("get_timestamp")
+    {
+        auto x = nlohmann::detail::get_timestamp();
+        CAPTURE(x);
+        CHECK(x > 1533027000);
+    }
+
+    SECTION("get_iso8601")
+    {
+        auto x = nlohmann::detail::get_iso8601();
+        CAPTURE(x);
+        CHECK(x.size() == 20);
+        CHECK(x[4] == '-');
+        CHECK(x[7] == '-');
+        CHECK(x[10] == 'T');
+        CHECK(x[13] == ':');
+        CHECK(x[16] == ':');
+        CHECK(x[19] == 'Z');
+        CHECK(x.substr(0,2) == "20");
+    }
+
+    SECTION("generate_uuid")
+    {
+        auto x = nlohmann::detail::generate_uuid();
+        CAPTURE(x);
+        CHECK(x.size() == 32);
+        CHECK(x[12] == '4');
+    }
+}
+
 TEST_CASE("DSN parsing")
 {
     SECTION("valid DSN")
