@@ -102,7 +102,6 @@ if(BUILD_TESTING)
     set_target_properties(livetest PROPERTIES CXX_STANDARD 11)
     target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR})
     target_link_libraries(livetest ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${LIBSSH2_LIBRARY} ${OPENSSL_LIBRARIES})
-    target_compile_definitions(livetest PRIVATE CURL_STATICLIB)
 
     add_test(tests tests)
     add_test(livetest livetest)
