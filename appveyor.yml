@@ -58,4 +58,4 @@ build_script:
   - cmake --build . --config Release
 
 test_script:
-  - ctest -C Release -V -j
+  - ctest -C Release -V -j --output-on-failure
