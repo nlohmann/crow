@@ -12,9 +12,9 @@
 
 ## API
 
-- `crow::crow(dsn, attributes=null, install_handlers=true)` to create a client
-- `crow::capture_message(message, options=nullptr, async=true)` to send a message
-- `crow::capture_exception(exception, async=true, handled=true)` to send an exception
+- `crow::crow(dsn, coontext=null, install_handlers=true)` to create a client
+- `crow::capture_message(message, context=nullptr, async=true)` to send a message
+- `crow::capture_exception(exception, context=nullptr, async=true, handled=true)` to send an exception
 - `crow::add_breadcrumb(message, type="default")` to add a breadcrumb
 - `crow::get_last_event_id()` to get the id of the last event
 
@@ -27,7 +27,7 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
 - The following items are expected of production-ready SDKs:
     - [x] DSN configuration
     - [ ] Graceful failures (e.g. Sentry server is unreachable)
-    - [ ] Setting attributes (e.g. tags and extra data)
+    - [x] Setting attributes (e.g. tags and extra data)
     - [x] Support for Linux, Windows and OS X (where applicable)
 - Feature based support is required for the following:
     - [ ] If cookie data is available, it’s not sent by default

@@ -104,26 +104,6 @@ TEST_CASE("creating messages")
 
             CHECK(crow_client.get_last_event_id() == "0");
         }
-
-        SECTION("with payload")
-        {
-            results.clear();
-            std::string msg_string = "message text";
-            json payload = {{"key", "value"}};
-            crow_client.capture_message(msg_string, payload, false);
-
-            CHECK(results.size() == 1);
-            const auto& message = results.at(0).at("payload");
-            verify_message_structure(message);
-            CHECK(message.at("message") == msg_string);
-            for (auto& el : payload.items())
-            {
-                CHECK(message.at(el.key()) == el.value());
-            }
-            CHECK(results.at(0).at("url") == url);
-
-            CHECK(crow_client.get_last_event_id() == "1");
-        }
     }
 
     SECTION("capture_exception")
@@ -132,7 +112,7 @@ TEST_CASE("creating messages")
         {
             results.clear();
             std::string ex_string = "exception text";
-            crow_client.capture_exception(std::runtime_error(ex_string), false, true);
+            crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false, true);
 
             CHECK(results.size() == 1);
             const auto& message = results.at(0).at("payload");
@@ -147,14 +127,14 @@ TEST_CASE("creating messages")
             CHECK(exception.at("mechanism").at("handled"));
             CHECK(results.at(0).at("url") == url);
 
-            CHECK(crow_client.get_last_event_id() == "2");
+            CHECK(crow_client.get_last_event_id() == "1");
         }
 
         SECTION("marked as unhandled")
         {
             results.clear();
             std::string ex_string = "exception text";
-            crow_client.capture_exception(std::runtime_error(ex_string), false, false);
+            crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false, false);
 
             const auto& message = results.at(0).at("payload");
             CAPTURE(message);
@@ -168,7 +148,7 @@ TEST_CASE("creating messages")
             CHECK(not exception.at("mechanism").at("handled"));
             CHECK(results.at(0).at("url") == url);
 
-            CHECK(crow_client.get_last_event_id() == "3");
+            CHECK(crow_client.get_last_event_id() == "2");
         }
     }
 
@@ -201,6 +181,52 @@ TEST_CASE("creating messages")
         CHECK(message.at("breadcrumbs").at("values").at(1).at("type") == "navigation");
         CHECK(message.at("breadcrumbs").at("values").at(1).at("data") == data2);
 
-        CHECK(crow_client.get_last_event_id() == "4");
+        CHECK(crow_client.get_last_event_id() == "3");
+    }
+}
+
+TEST_CASE("context")
+{
+    crow crow_client("https://abc:def@sentry.io/123");
+
+    SECTION("user context")
+    {
+        crow_client.add_user_context({{"email", "person@example.com"}});
+        CHECK(crow_client.get_context()["user"]["email"] == "person@example.com");
+    }
+
+    SECTION("tags context")
+    {
+        crow_client.add_tags_context({{"tag", "value"}});
+        CHECK(crow_client.get_context()["tags"]["tag"] == "value");
+    }
+
+    SECTION("request context")
+    {
+        crow_client.add_request_context({{"url", "http://example.com"}, {"method", "GET"}});
+        CHECK(crow_client.get_context()["request"]["url"] == "http://example.com");
+        CHECK(crow_client.get_context()["request"]["method"] == "GET");
+    }
+
+    SECTION("extra context")
+    {
+        crow_client.add_extra_context({{"foo", "bar"}});
+        CHECK(crow_client.get_context()["extra"]["foo"] == "bar");
+    }
+
+    SECTION("reset context")
+    {
+        auto previous_context = crow_client.get_context();
+
+        crow_client.add_user_context({{"email", "person@example.com"}});
+        crow_client.add_tags_context({{"tag", "value"}});
+        crow_client.add_request_context({{"url", "http://example.com"}, {"method", "GET"}});
+        crow_client.add_extra_context({{"foo", "bar"}});
+
+        CHECK(crow_client.get_context() != previous_context);
+
+        crow_client.clear_context();
+
+        CHECK(crow_client.get_context() == previous_context);
     }
 }
