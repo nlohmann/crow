@@ -1,7 +1,7 @@
 # Crow - a C++ client for Sentry
 
 [![Build Status](https://travis-ci.org/nlohmann/crow.svg?branch=master)](https://travis-ci.org/nlohmann/crow)
-[![Build status](https://ci.appveyor.com/api/projects/status/61gmcsom8dcrjxpn/branch/master?svg=true)](https://ci.appveyor.com/project/nlohmann/crow/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/40wh0fwaevlheyjo?svg=true)](https://ci.appveyor.com/project/nlohmann/crow)
 [![Coverage Status](https://coveralls.io/repos/github/nlohmann/crow/badge.svg?branch=master)](https://coveralls.io/github/nlohmann/crow?branch=master)
 [![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](http://nlohmann.github.io/crow)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/nlohmann/crow/master/LICENSE.MIT)
@@ -12,9 +12,9 @@
 
 ## API
 
-- `crow::crow(dsn, attributes=null, install_handlers=true)` to create a client
-- `crow::capture_message(message, options=nullptr, async=true)` to send a message
-- `crow::capture_exception(exception, async=true, handled=true)` to send an exception
+- `crow::crow(dsn, coontext=null, install_handlers=true)` to create a client
+- `crow::capture_message(message, context=nullptr, async=true)` to send a message
+- `crow::capture_exception(exception, context=nullptr, async=true, handled=true)` to send an exception
 - `crow::add_breadcrumb(message, type="default")` to add a breadcrumb
 - `crow::get_last_event_id()` to get the id of the last event
 
@@ -27,7 +27,7 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
 - The following items are expected of production-ready SDKs:
     - [x] DSN configuration
     - [ ] Graceful failures (e.g. Sentry server is unreachable)
-    - [ ] Setting attributes (e.g. tags and extra data)
+    - [x] Setting attributes (e.g. tags and extra data)
     - [x] Support for Linux, Windows and OS X (where applicable)
 - Feature based support is required for the following:
     - [ ] If cookie data is available, it’s not sent by default

@@ -170,7 +170,7 @@ std::string get_iso8601()
     std::time_t now;
     std::time(&now);
     char buf[sizeof "2011-10-08T07:07:09Z"];
-    std::strftime(buf, sizeof buf, "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
+    std::strftime(buf, sizeof buf, "%Y-%m-%dT%H:%M:%SZ", std::gmtime(&now));
     return buf;
 }
 
@@ -186,7 +186,7 @@ std::string generate_uuid()
 
     std::string result(32, ' ');
 
-    for (size_t i = 0; i < 32; ++i)
+    for (std::size_t i = 0; i < 32; ++i)
     {
         if (i == 12)
         {
@@ -221,10 +221,11 @@ class crow
      * @brief create a client
      *
      * @param[in] dsn the DNS string
-     * @param[in] attributes an optional attributes object
+     * @param[in] context an optional attributes object
      * @param[in] install_handlers whether to install a termination handler
      *
      * @throw std::invalid_argument if DNS string is invalid
+     * @throw std::invalid_argument if context object contains invalid key
      *
      * @note If @a dns is empty, the client is disabled.
      *
@@ -239,10 +240,9 @@ class crow
      * @since 0.0.1
      */
     explicit crow(const std::string& dsn,
-                  const json& attributes = nullptr,
+                  const json& context = nullptr,
                   const bool install_handlers = true)
-        : m_enabled(not dsn.empty()),
-          m_payload({{"platform", "c"}, {"sdk", {{"name", "crow"}, {"version", NLOHMANN_CROW_VERSION}}}})
+        : m_enabled(not dsn.empty())
     {
         // process DSN
         if (not dsn.empty())
@@ -264,6 +264,320 @@ class crow
                 throw std::invalid_argument("DNS " + dsn + " is invalid");
             }
         }
+
+        // manage context
+        set_default_context();
+        merge_context(context);
+
+        // install termination handler
+        if (install_handlers)
+        {
+            existing_termination_handler = std::set_terminate([]() {});
+            std::set_terminate(&new_termination_handler);
+            detail::last = this;
+        }
+    }
+
+    /*!
+     * @brief copy constructor
+     *
+     * @param[in] other client to copy
+     *
+     * @note The last event id is not preserved by copying.
+     *
+     * @since 0.0.2
+     */
+    crow(const crow& other)
+        : m_enabled(other.m_enabled),
+          m_public_key(other.m_public_key),
+          m_secret_key(other.m_secret_key),
+          m_store_url(other.m_store_url),
+          m_payload(other.m_payload)
+    {}
+
+    /*!
+     * @brief destructor
+     *
+     * @note Waits until pending HTTP requests complete.
+     *
+     * @since 0.0.2
+     */
+    ~crow()
+    {
+        if (m_pending_future.valid())
+        {
+            m_pending_future.wait();
+        }
+    }
+    /*!
+     * @name event capturing
+     * @{
+     */
+
+    /*!
+     * @brief capture a message
+     *
+     * @param[in] message the message to capture
+     * @param[in] context an optional context object
+     * @param[in] asynchronous whether the message should be sent asynchronously
+     *
+     * @throw std::invalid_argument if context object contains invalid key
+     *
+     * @since 0.0.1
+     */
+    void capture_message(const std::string& message,
+                         const json& context = nullptr,
+                         const bool asynchronous = true)
+    {
+        m_payload["message"] = message;
+        m_payload["event_id"] = nlohmann::detail::generate_uuid();
+        m_payload["timestamp"] = nlohmann::detail::get_iso8601();
+
+        // add given context
+        merge_context(context);
+
+        m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
+        if (not asynchronous)
+        {
+            m_pending_future.wait();
+        }
+    }
+
+    /*!
+     * @brief capture an exception
+     *
+     * @param[in] exception the passed exception
+     * @param[in] context an optional context object
+     * @param[in] asynchronous whether the message should be sent asynchronously
+     * @param[in] handled whether the exception was handled and only reported
+     *
+     * @throw std::invalid_argument if context object contains invalid key
+     *
+     * @since 0.0.1, context added with 0.0.3
+     */
+    void capture_exception(const std::exception& exception,
+                           const json& context = nullptr,
+                           const bool asynchronous = true,
+                           const bool handled = true)
+    {
+        std::stringstream thread_id;
+        thread_id << std::this_thread::get_id();
+        m_payload["exception"].push_back({{"type", detail::pretty_typename(exception)},
+            {"value", exception.what()},
+            {"module", detail::get_module(exception)},
+            {"mechanism", {{"handled", handled}, {"description", handled ? "handled exception" : "unhandled exception"}}},
+            {"stacktrace", {{"frames", detail::get_backtrace()}}},
+            {"thread_id", thread_id.str()}});
+        m_payload["event_id"] = detail::generate_uuid();
+        m_payload["timestamp"] = nlohmann::detail::get_iso8601();
+
+        // add given context
+        merge_context(context);
+
+        m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
+        if (not asynchronous)
+        {
+            m_pending_future.wait();
+        }
+    }
+
+    /*!
+     * @brief add a breadcrumb to the current context
+     *
+     * @param[in] message message for the breadcrumb
+     * @param[in] type type of the breadcrumb (optional)
+     * @param[in] data additional JSON object (optional)
+     *
+     * @since 0.0.1
+     */
+    void add_breadcrumb(const std::string& message,
+                        const std::string& type = "default",
+                        const json& data = nullptr)
+    {
+        json breadcrumb =
+        {
+            {"event_id", detail::generate_uuid()},
+            {"message", message},
+            {"type", type},
+            {"timestamp", detail::get_timestamp()}
+        };
+
+        if (not data.is_null())
+        {
+            breadcrumb["data"] = data;
+        }
+
+        m_payload["breadcrumbs"]["values"].push_back(std::move(breadcrumb));
+    }
+
+    /*!
+     * @brief return the id of the last reported event
+     *
+     * @return event id, or empty string, if no request has been made
+     *
+     * @since 0.0.2
+     */
+    std::string get_last_event_id() const
+    {
+        if (m_pending_future.valid())
+        {
+            return json::parse(m_pending_future.get()).at("id");
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    /*!
+     * @}
+     */
+
+    /*!
+     * @name context management
+     * @{
+     */
+
+    /*!
+     * @brief return current context
+     *
+     * @return current context
+     *
+     * @since 0.0.3
+     */
+    const json& get_context() const
+    {
+        return m_payload;
+    }
+
+    /*!
+     * @brief add elements to the "user" context for future events
+     *
+     * @param[in] data data to add to the extra context
+     *
+     * @since 0.0.3
+     */
+    void add_user_context(const json& data)
+    {
+        m_payload["user"].update(data);
+    }
+
+    /*!
+     * @brief add elements to the "tags" context for future events
+     *
+     * @param[in] data data to add to the extra context
+     *
+     * @since 0.0.3
+     */
+    void add_tags_context(const json& data)
+    {
+        m_payload["tags"].update(data);
+    }
+
+    /*!
+     * @brief add elements to the "request" context for future events
+     *
+     * @param[in] data data to add to the extra context
+     *
+     * @since 0.0.3
+     */
+    void add_request_context(const json& data)
+    {
+        m_payload["request"].update(data);
+    }
+
+    /*!
+     * @brief add elements to the "extra" context for future events
+     *
+     * @param[in] data data to add to the extra context
+     *
+     * @since 0.0.3
+     */
+    void add_extra_context(const json& data)
+    {
+        m_payload["extra"].update(data);
+    }
+
+    /*!
+     * @brief add context information to payload for future events
+     *
+     * @param[in] context the context to add
+     *
+     * @note @a context must be an object; allowed keys are "user", "request", "extea", or "tags"
+     * @throw std::invalid_argument if context object contains invalid key
+     *
+     * @since 0.0.3
+     */
+    void merge_context(const json& context)
+    {
+        if (context.is_object())
+        {
+            for (const auto& el : context.items())
+            {
+                if (el.key() == "user" or el.key() == "request" or el.key() == "extra" or el.key() == "tags")
+                {
+                    m_payload[el.key()].update(el.value());
+                }
+                else
+                {
+                    throw std::runtime_error("invalid context");
+                }
+            }
+        }
+    }
+
+    /*!
+     * @brief reset context for future events
+     *
+     * @post context is in the same state as it was after construction
+     *
+     * @since 0.0.3
+     */
+    void clear_context()
+    {
+        m_payload.clear();
+        set_default_context();
+    }
+
+    /*!
+     * @}
+     */
+
+  private:
+    /*!
+     * @brief POST the payload to the Sentry sink URL
+     *
+     * @param[in] payload payload to send
+     * @return result
+     */
+    std::string post(const json& payload)
+    {
+        if (m_enabled)
+        {
+            curl_wrapper curl;
+
+            // add security header
+            std::string security_header = "X-Sentry-Auth: Sentry sentry_version=5,sentry_client=crow/";
+            security_header += std::string(NLOHMANN_CROW_VERSION) + ",sentry_timestamp=";
+            security_header += std::to_string(detail::get_timestamp());
+            security_header += ",sentry_key=" + m_public_key;
+            security_header += ",sentry_secret=" + m_secret_key;
+            curl.set_header(security_header.c_str());
+
+            return curl.post(m_store_url, payload);
+        }
+
+        return "";
+    }
+
+    /*!
+     * @brief set the default context
+     */
+    void set_default_context()
+    {
+        m_payload["platform"] = "c";
+        m_payload["sdk"]["name"] = "crow";
+        m_payload["sdk"]["version"] = NLOHMANN_CROW_VERSION;
 
         // add context: app
         m_payload["contexts"]["app"]["build_type"] = NLOHMANN_CROW_CMAKE_BUILD_TYPE;
@@ -301,183 +615,9 @@ class crow
         }
         if (user)
         {
-            m_payload["contexts"]["user"]["id"] = std::string(user) + "@" + NLOHMANN_CROW_HOSTNAME;
-            m_payload["contexts"]["user"]["username"] = user;
+            m_payload["user"]["id"] = std::string(user) + "@" + NLOHMANN_CROW_HOSTNAME;
+            m_payload["user"]["username"] = user;
         }
-
-        // add given attributes
-        if (attributes.is_object())
-        {
-            m_payload["contexts"].update(attributes);
-        }
-
-        // install termination handler
-        if (install_handlers)
-        {
-            existing_termination_handler = std::set_terminate([]() {});
-            std::set_terminate(&new_termination_handler);
-            detail::last = this;
-        }
-    }
-
-    /*!
-     * @brief copy constructor
-     * @param other client to copy
-     * @note The last event id is not preserved by copying.
-     * @since 0.0.2
-     */
-    crow(const crow& other)
-        : m_enabled(other.m_enabled),
-          m_public_key(other.m_public_key),
-          m_secret_key(other.m_secret_key),
-          m_store_url(other.m_store_url),
-          m_payload(other.m_payload)
-    {}
-
-    /*!
-     * @brief destructor
-     * @note Waits until pending HTTP requests complete
-     * @since 0.0.2
-     */
-    ~crow()
-    {
-        if (m_pending_future.valid())
-        {
-            m_pending_future.wait();
-        }
-    }
-
-    /*!
-     * @brief capture a message
-     *
-     * @param[in] message the message to capture
-     * @param[in] options an optional options object
-     * @param[in] asynchronous whether the message should be sent asynchronously
-     *
-     * @since 0.0.1
-     */
-    void capture_message(const std::string& message,
-                         const json& options = nullptr,
-                         const bool asynchronous = true)
-    {
-        m_payload["message"] = message;
-        m_payload["event_id"] = nlohmann::detail::generate_uuid();
-        m_payload["timestamp"] = nlohmann::detail::get_iso8601();
-
-        if (options.is_object())
-        {
-            m_payload.update(options);
-        }
-
-        m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
-        if (not asynchronous)
-        {
-            m_pending_future.wait();
-        }
-    }
-
-    /*!
-     * @brief capture an exception
-     *
-     * @param[in] exception the passed exception
-     * @param[in] asynchronous whether the message should be sent asynchronously
-     * @param[in] handled whether the exception was handled and only reported
-     *
-     * @since 0.0.1
-     */
-    void capture_exception(const std::exception& exception,
-                           const bool asynchronous = true,
-                           const bool handled = true)
-    {
-        std::stringstream thread_id;
-        thread_id << std::this_thread::get_id();
-        m_payload["exception"].push_back({{"type", detail::pretty_typename(exception)},
-            {"value", exception.what()},
-            {"module", detail::get_module(exception)},
-            {"mechanism", {{"handled", handled}, {"description", handled ? "handled exception" : "unhandled exception"}}},
-            {"stacktrace", {{"frames", detail::get_backtrace()}}},
-            {"thread_id", thread_id.str()}});
-        m_payload["event_id"] = detail::generate_uuid();
-        m_payload["timestamp"] = nlohmann::detail::get_iso8601();
-
-        m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
-        if (not asynchronous)
-        {
-            m_pending_future.wait();
-        }
-    }
-
-    /*!
-     * @brief add a breadcrumb to the current context
-     *
-     * @param[in] message message for the breadcrumb
-     * @param[in] type type of the breadcrumb (optional)
-     * @param[in] data additional JSON object (optional)
-     * @since 0.0.1
-     */
-    void add_breadcrumb(const std::string& message,
-                        const std::string& type = "default",
-                        const json& data = nullptr)
-    {
-        json breadcrumb =
-        {
-            {"event_id", detail::generate_uuid()},
-            {"message", message},
-            {"type", type},
-            {"timestamp", detail::get_timestamp()}
-        };
-
-        if (not data.is_null())
-        {
-            breadcrumb["data"] = data;
-        }
-
-        m_payload["breadcrumbs"]["values"].push_back(std::move(breadcrumb));
-    }
-
-    /*!
-     * @brief return the id of the last reported event
-     * @return event id, or empty string, if no request has been made
-     * @since 0.0.2
-     */
-    std::string get_last_event_id() const
-    {
-        if (m_pending_future.valid())
-        {
-            return json::parse(m_pending_future.get()).at("id");
-        }
-        else
-        {
-            return "";
-        }
-    }
-
-  private:
-    /*!
-     * @brief POST the payload to the Sentry sink URL
-     *
-     * @param payload payload to send
-     *
-     * @return result
-     */
-    std::string post(const json& payload)
-    {
-        if (m_enabled)
-        {
-            curl_wrapper curl;
-
-            // add security header
-            std::string security_header = "X-Sentry-Auth: Sentry sentry_version=5,sentry_client=crow/";
-            security_header += std::string(NLOHMANN_CROW_VERSION) + ",sentry_timestamp=";
-            security_header += std::to_string(detail::get_timestamp());
-            security_header += ",sentry_key=" + m_public_key;
-            security_header += ",sentry_secret=" + m_secret_key;
-            curl.set_header(security_header.c_str());
-
-            return curl.post(m_store_url, payload);
-        }
-
-        return "";
     }
 
     /*!
@@ -498,7 +638,7 @@ class crow
             }
             catch (const std::exception& e)
             {
-                detail::last->capture_exception(e, false, false);
+                detail::last->capture_exception(e, nullptr, false, false);
             }
         }
 
