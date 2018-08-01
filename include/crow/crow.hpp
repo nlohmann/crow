@@ -447,7 +447,7 @@ class crow
      */
     const json& get_context() const
     {
-        return m_payload.at("contexts");
+        return m_payload;
     }
 
     /*!
@@ -459,7 +459,7 @@ class crow
      */
     void add_user_context(const json& data)
     {
-        m_payload["contexts"]["user"].update(data);
+        m_payload["user"].update(data);
     }
 
     /*!
@@ -471,7 +471,7 @@ class crow
      */
     void add_tags_context(const json& data)
     {
-        m_payload["contexts"]["tags"].update(data);
+        m_payload["tags"].update(data);
     }
 
     /*!
@@ -483,7 +483,7 @@ class crow
      */
     void add_request_context(const json& data)
     {
-        m_payload["contexts"]["request"].update(data);
+        m_payload["request"].update(data);
     }
 
     /*!
@@ -495,7 +495,7 @@ class crow
      */
     void add_extra_context(const json& data)
     {
-        m_payload["contexts"]["extra"].update(data);
+        m_payload["extra"].update(data);
     }
 
     /*!
@@ -516,7 +516,7 @@ class crow
             {
                 if (el.key() == "user" or el.key() == "request" or el.key() == "extra" or el.key() == "tags")
                 {
-                    m_payload["contexts"][el.key()].update(el.value());
+                    m_payload[el.key()].update(el.value());
                 }
                 else
                 {
@@ -615,8 +615,8 @@ class crow
         }
         if (user)
         {
-            m_payload["contexts"]["user"]["id"] = std::string(user) + "@" + NLOHMANN_CROW_HOSTNAME;
-            m_payload["contexts"]["user"]["username"] = user;
+            m_payload["user"]["id"] = std::string(user) + "@" + NLOHMANN_CROW_HOSTNAME;
+            m_payload["user"]["username"] = user;
         }
     }
 
