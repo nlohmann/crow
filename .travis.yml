@@ -27,7 +27,7 @@ matrix:
     before_script:
     - pip install --user cpp-coveralls
     after_success:
-    - coveralls --build-root test --include include/crow --gcov 'gcov-4.9' --gcov-options '\-lp'
+    - coveralls --build-root tests --include include/crow --gcov 'gcov-4.9' --gcov-options '\-lp'
     env:
     - COMPILER=g++-4.9
     - CCOMPILER=gcc-4.9
