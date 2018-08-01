@@ -98,7 +98,6 @@ else()
     message("Doxygen need to be installed to generate the documentation")
 endif()
 
-
 ###########
 # testing #
 ###########
@@ -119,4 +118,27 @@ if(BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT)
 
     add_test(tests tests)
     add_test(livetest livetest)
+endif()
+
+############
+# coverage #
+############
+
+option(check_coverage OFF)
+if(check_coverage)
+    message(STATUS "Building test suite with coverage information; now build, run the unit tests and call `make lcov_html`")
+
+    # add compiler flags to collect coverage information
+    set(CMAKE_CXX_FLAGS "--coverage -g -O0 -fprofile-arcs -ftest-coverage -Wno-unused-command-line-argument")
+
+    # collect all source files that we are interested in
+    file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/include/crow/*)
+
+    # define target to run lcov to collect coverage information, filter unwanted files, and create HTML report
+    add_custom_target(lcov_html
+            COMMAND lcov --directory . --capture --output-file coverage.info --rc lcov_branch_coverage=1
+            COMMAND lcov -e coverage.info ${SOURCE_FILES} --output-file coverage.info.filtered --rc lcov_branch_coverage=1
+            COMMAND genhtml --title "Crow ${PROJECT_VERSION}" --legend --demangle-cpp --output-directory coverage_report --show-details --branch-coverage coverage.info.filtered
+            COMMENT "Generating HTML report coverage_report/index.html"
+            )
 endif()

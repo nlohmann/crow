@@ -1,6 +1,7 @@
 all:
 	@echo pretty      - indent code
 	@echo upload_docs - upload documentation
+	@echo coverage    - create coverage report
 
 pretty:
 	astyle --style=allman --indent=spaces=4 --indent-modifiers \
@@ -15,3 +16,9 @@ upload_docs:
 	cd build/doc ; ../../doc/scripts/git-update-ghpages nlohmann/crow html
 	rm -fr build
 	open http://nlohmann.github.io/crow/
+
+coverage:
+	mkdir build ; cd build ; cmake .. -Dcheck_coverage=ON ; cmake --build . ; cd ..
+	cd build ; ./tests ; cd ..
+	cd build ; cmake --build . --target lcov_html ; cd ..
+	open build/coverage_report/index.html
