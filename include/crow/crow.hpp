@@ -170,7 +170,7 @@ std::string get_iso8601()
     std::time_t now;
     std::time(&now);
     char buf[sizeof "2011-10-08T07:07:09Z"];
-    std::strftime(buf, sizeof buf, "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
+    std::strftime(buf, sizeof buf, "%Y-%m-%dT%H:%M:%SZ", std::gmtime(&now));
     return buf;
 }
 
@@ -186,7 +186,7 @@ std::string generate_uuid()
 
     std::string result(32, ' ');
 
-    for (size_t i = 0; i < 32; ++i)
+    for (std::size_t i = 0; i < 32; ++i)
     {
         if (i == 12)
         {
