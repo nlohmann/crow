@@ -194,14 +194,14 @@ std::string generate_uuid()
         }
         else
         {
-            const auto r = uniform_dist(random_engine);
+            const auto r = static_cast<char>(uniform_dist(random_engine));
             if (r < 10)
             {
                 result[i] = '0' + r;
             }
             else
             {
-                result[i] = 'a' + static_cast<char>(r - 10);
+                result[i] = 'a' + r - static_cast<char>(10);
             }
         }
     }
@@ -354,7 +354,6 @@ class crow
      * @param[in] options an optional options object
      * @param[in] asynchronous whether the message should be sent asynchronously
      *
-     * @return id of the captured message
      * @since 0.0.1
      */
     void capture_message(const std::string& message,
@@ -384,7 +383,6 @@ class crow
      * @param[in] asynchronous whether the message should be sent asynchronously
      * @param[in] handled whether the exception was handled and only reported
      *
-     * @return id of the captured exception
      * @since 0.0.1
      */
     void capture_exception(const std::exception& exception,

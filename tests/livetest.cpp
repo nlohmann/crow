@@ -8,7 +8,7 @@ int main()
     c.add_breadcrumb(__DATE__ " " __TIME__);
     std::cout << "added breadcrumb" << std::endl;
 
-    c.capture_message("This is a live test.");
+    c.capture_message(NLOHMANN_CROW_CXX);
     std::cout << "sent message" << std::endl;
 
     std::cout << "last event id: " << c.get_last_event_id() << std::endl;

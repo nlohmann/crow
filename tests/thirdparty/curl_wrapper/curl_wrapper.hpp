@@ -23,6 +23,6 @@ class curl_wrapper
         return "{\"id\":\"" + std::to_string(message_count++) + "\"}";
     }
 
-    void set_header(const char* header)
+    void set_header(const char*)
     {}
 };
