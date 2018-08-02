@@ -29,7 +29,7 @@ execute_process(COMMAND ${UNAME_TOOL} -a
 
 # ver
 find_program(SYSTEMINFO_TOOL systeminfo)
-execute_process(COMMAND ${SYSTEMINFO_TOOL} /fo CSV | findstr /B /C:"OS Name" /C:"OS Version"
+execute_process(COMMAND ${SYSTEMINFO_TOOL} COMMAND findstr /B /C:"OS Name" /C:"OS Version"
         OUTPUT_VARIABLE NLOHMANN_CROW_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
 if(NLOHMANN_CROW_VER)
     string(REGEX REPLACE "\n" "\\\\n" NLOHMANN_CROW_VER ${NLOHMANN_CROW_VER})
