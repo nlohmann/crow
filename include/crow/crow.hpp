@@ -130,24 +130,25 @@ json get_backtrace(int skip = 1)
     return result;
 }
 
-
-template<typename T>
-const char* pretty_typename(const T& e)
+/*!
+ * @brief return pretty type name
+ * @param[in] type_id_name result of type_id().name()
+ * @param[in] only_module whether only the module name should be returned
+ * @return demangled prettified name
+ */
+std::string pretty_name(const char* type_id_name,
+                        const bool only_module = false)
 {
-    const char* mangled_name = typeid(e).name();
 #ifdef NLOHMANN_CROW_HAVE_CXXABI_H
     int status;
-    return abi::__cxa_demangle(mangled_name, nullptr, nullptr, &status);
+    std::string result = abi::__cxa_demangle(type_id_name, nullptr, nullptr, &status);
 #else
-    return mangled_name;
+    std::result = type_id_name;
 #endif
-}
 
-template<typename T>
-std::string get_module(const T& e)
-{
-    std::string result = pretty_typename(e);
-    return result.substr(0, result.find_first_of(':'));
+    return only_module
+           ? result.substr(0, result.find_first_of(':'))
+           : result;
 }
 
 /*!
@@ -362,9 +363,9 @@ class crow
     {
         std::stringstream thread_id;
         thread_id << std::this_thread::get_id();
-        m_payload["exception"].push_back({{"type", detail::pretty_typename(exception)},
+        m_payload["exception"].push_back({{"type", detail::pretty_name(typeid(exception).name())},
             {"value", exception.what()},
-            {"module", detail::get_module(exception)},
+            {"module", detail::pretty_name(typeid(exception).name(), true)},
             {"mechanism", {{"handled", handled}, {"description", handled ? "handled exception" : "unhandled exception"}}},
             {"stacktrace", {{"frames", detail::get_backtrace()}}},
             {"thread_id", thread_id.str()}});
