@@ -567,7 +567,7 @@ class crow
             security_header += ",sentry_secret=" + m_secret_key;
             curl.set_header(security_header.c_str());
 
-            return curl.post(m_store_url, payload);
+            return curl.post(m_store_url, payload, true);
         }
 
         return "";

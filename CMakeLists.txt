@@ -83,6 +83,7 @@ else()
 endif()
 
 find_package(Threads)
+find_package(ZLIB REQUIRED)
 
 #################
 # documentation #
@@ -118,8 +119,8 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
 
     add_executable(livetest tests/livetest.cpp)
     set_target_properties(livetest PROPERTIES CXX_STANDARD 11)
-    target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR})
-    target_link_libraries(livetest ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES})
+    target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
+    target_link_libraries(livetest ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
 
     add_test(tests tests)
     add_test(livetest livetest)
