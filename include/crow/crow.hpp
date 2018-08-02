@@ -607,9 +607,9 @@ class crow
         {
             m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_UNAME;
         }
-        else if (not std::string(NLOHMANN_CROW_VER).empty())
+        else if (not std::string(NLOHMANN_CROW_SYSTEMINFO).empty())
         {
-            m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_VER;
+            m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_SYSTEMINFO;
         }
 
         // add context: runtime
