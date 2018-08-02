@@ -130,7 +130,7 @@ endif()
 ############
 
 option(CROW_CHECK_COVERAGE "instrument compiler to collect coverage information" OFF)
-if(check_coverage)
+if(CROW_CHECK_COVERAGE)
     message(STATUS "Building test suite with coverage information; now build, run the unit tests and call `make crow_coverage_report`")
 
     # add compiler flags to collect coverage information

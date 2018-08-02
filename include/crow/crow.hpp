@@ -238,7 +238,8 @@ class crow
      * that first reports possibly uncaught exceptions and then executes the
      * previously installed termination handler. Note that termination
      * handlers installed after creating this client would override this
-     * termination behavior.
+     * termination behavior. The termination handler can be installed later
+     * with function @ref install_handler().
      *
      * @since 0.0.1
      */
@@ -274,6 +275,20 @@ class crow
 
         // install termination handler
         if (install_handlers)
+        {
+            install_handler();
+        }
+    }
+
+    /*!
+     * @brief install termination handler to handle uncaught exceptions
+     * @post uncaught exceptions are reported prior to executing existing termination handler
+     *
+     * @since 0.0.3
+     */
+    void install_handler()
+    {
+        if (existing_termination_handler == nullptr)
         {
             existing_termination_handler = std::set_terminate([]() {});
             std::set_terminate(&new_termination_handler);

@@ -12,11 +12,26 @@
 
 ## API
 
-- `crow::crow(dsn, coontext=null, install_handlers=true)` to create a client
+### Setup
+
+- `crow::crow(dsn, context=null, install_handlers=true)` to create a client
+- `crow::install_handler()` to later install termination handler
+
+### Reporting
+
 - `crow::capture_message(message, context=nullptr, async=true)` to send a message
 - `crow::capture_exception(exception, context=nullptr, async=true, handled=true)` to send an exception
 - `crow::add_breadcrumb(message, type="default")` to add a breadcrumb
 - `crow::get_last_event_id()` to get the id of the last event
+
+### Context management
+
+- `crow::get_context()` to return current context
+- `crow::add_user_context(data)` to add data to the user context
+- `crow::add_tags_context(data)` to add data to the tags context
+- `crow::add_request_context(data)` to add data to the request context
+- `crow::add_extra_context(data)` to add data to the extra context
+- `crow::merge_context(data)` to merge context information
 
 See [the documentation](https://nlohmann.github.io/crow/classnlohmann_1_1crow.html) for a complete overview of the public API.
 
