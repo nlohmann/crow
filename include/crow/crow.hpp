@@ -187,14 +187,16 @@ std::string generate_uuid()
 
     std::string result(32, ' ');
 
-    for (std::size_t i = 0; i < 32; ++i)
+    for (std::size_t i = 0; i < result.size(); ++i)
     {
+        // the 12th character must be a '4'
         if (i == 12)
         {
             result[i] = '4';
         }
         else
         {
+            // get a random number from 0..15
             const auto r = static_cast<char>(uniform_dist(random_engine));
             if (r < 10)
             {

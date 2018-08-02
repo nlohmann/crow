@@ -29,7 +29,7 @@ execute_process(COMMAND ${UNAME_TOOL} -a
 
 # ver
 find_program(SYSTEMINFO_TOOL systeminfo)
-execute_process(COMMAND ${SYSTEMINFO_TOOL} systeminfo
+execute_process(COMMAND ${SYSTEMINFO_TOOL}
         OUTPUT_VARIABLE NLOHMANN_CROW_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # compiler
