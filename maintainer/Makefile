@@ -14,11 +14,10 @@ pretty:
 upload_docs:
 	mkdir build ; cd build ; cmake .. ; cmake --build . --target crow_documentation ; cd ..
 	cd build/doc ; ../../doc/scripts/git-update-ghpages nlohmann/crow html
-	rm -fr build
 	open http://nlohmann.github.io/crow/
 
 coverage:
-	mkdir build ; cd build ; cmake .. -Dcheck_coverage=ON ; cmake --build . ; cd ..
+	mkdir build ; cd build ; cmake .. -DCROW_CHECK_COVERAGE=ON ; cmake --build . ; cd ..
 	cd build ; ./tests ; cd ..
 	cd build ; cmake --build . --target crow_coverage_report ; cd ..
 	open build/coverage_report/index.html
