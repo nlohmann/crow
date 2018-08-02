@@ -130,24 +130,25 @@ json get_backtrace(int skip = 1)
     return result;
 }
 
-
-template<typename T>
-const char* pretty_typename(const T& e)
+/*!
+ * @brief return pretty type name
+ * @param[in] type_id_name result of type_id().name()
+ * @param[in] only_module whether only the module name should be returned
+ * @return demangled prettified name
+ */
+std::string pretty_name(const char* type_id_name,
+                        const bool only_module = false)
 {
-    const char* mangled_name = typeid(e).name();
 #ifdef NLOHMANN_CROW_HAVE_CXXABI_H
     int status;
-    return abi::__cxa_demangle(mangled_name, nullptr, nullptr, &status);
+    std::string result = abi::__cxa_demangle(type_id_name, nullptr, nullptr, &status);
 #else
-    return mangled_name;
+    std::string result = type_id_name;
 #endif
-}
 
-template<typename T>
-std::string get_module(const T& e)
-{
-    std::string result = pretty_typename(e);
-    return result.substr(0, result.find_first_of(':'));
+    return only_module
+           ? result.substr(0, result.find_first_of(':'))
+           : result;
 }
 
 /*!
@@ -186,14 +187,16 @@ std::string generate_uuid()
 
     std::string result(32, ' ');
 
-    for (std::size_t i = 0; i < 32; ++i)
+    for (std::size_t i = 0; i < result.size(); ++i)
     {
+        // the 12th character must be a '4'
         if (i == 12)
         {
             result[i] = '4';
         }
         else
         {
+            // get a random number from 0..15
             const auto r = static_cast<char>(uniform_dist(random_engine));
             if (r < 10)
             {
@@ -362,9 +365,9 @@ class crow
     {
         std::stringstream thread_id;
         thread_id << std::this_thread::get_id();
-        m_payload["exception"].push_back({{"type", detail::pretty_typename(exception)},
+        m_payload["exception"].push_back({{"type", detail::pretty_name(typeid(exception).name())},
             {"value", exception.what()},
-            {"module", detail::get_module(exception)},
+            {"module", detail::pretty_name(typeid(exception).name(), true)},
             {"mechanism", {{"handled", handled}, {"description", handled ? "handled exception" : "unhandled exception"}}},
             {"stacktrace", {{"frames", detail::get_backtrace()}}},
             {"thread_id", thread_id.str()}});
@@ -592,14 +595,21 @@ class crow
         // add context: os
         m_payload["contexts"]["os"]["name"] = NLOHMANN_CROW_CMAKE_SYSTEM_NAME;
         m_payload["contexts"]["os"]["version"] = NLOHMANN_CROW_OS_RELEASE;
-        m_payload["contexts"]["os"]["build"] = NLOHMANN_CROW_OS_VERSION;
+        if (not std::string(NLOHMANN_CROW_OS_VERSION).empty())
+        {
+            m_payload["contexts"]["os"]["build"] = NLOHMANN_CROW_OS_VERSION;
+        }
+        else
+        {
+            m_payload["contexts"]["os"]["build"] = NLOHMANN_CROW_CMAKE_SYSTEM_VERSION;
+        }
         if (not std::string(NLOHMANN_CROW_UNAME).empty())
         {
             m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_UNAME;
         }
-        else if (not std::string(NLOHMANN_CROW_VER).empty())
+        else if (not std::string(NLOHMANN_CROW_SYSTEMINFO).empty())
         {
-            m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_VER;
+            m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_SYSTEMINFO;
         }
 
         // add context: runtime

@@ -31,7 +31,7 @@ matrix:
     env:
     - COMPILER=g++-4.9
     - CCOMPILER=gcc-4.9
-    - CMAKE_OPTIONS=-Dcheck_coverage=ON
+    - CMAKE_OPTIONS=-DCROW_CHECK_COVERAGE=ON
 
   # OSX / Clang
 

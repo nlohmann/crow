@@ -18,19 +18,25 @@ check_include_files(dlfcn.h NLOHMANN_CROW_HAVE_DLFCN_H)
 cmake_host_system_information(RESULT NLOHMANN_CROW_HOSTNAME QUERY HOSTNAME)
 cmake_host_system_information(RESULT NLOHMANN_CROW_TOTAL_PHYSICAL_MEMORY QUERY TOTAL_PHYSICAL_MEMORY)
 cmake_host_system_information(RESULT NLOHMANN_CROW_OS_RELEASE QUERY OS_RELEASE)
+string(STRIP "${NLOHMANN_CROW_OS_RELEASE}" NLOHMANN_CROW_OS_RELEASE)
 cmake_host_system_information(RESULT NLOHMANN_CROW_OS_VERSION QUERY OS_VERSION)
+string(STRIP "${NLOHMANN_CROW_OS_VERSION}" NLOHMANN_CROW_OS_VERSION)
 
 # uname
 find_program(UNAME_TOOL uname)
 execute_process(COMMAND ${UNAME_TOOL} -a
         OUTPUT_VARIABLE NLOHMANN_CROW_UNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# ver
-find_program(UNAME_CMD cmd)
-execute_process(COMMAND ${UNAME_CMD} ver
-        OUTPUT_VARIABLE NLOHMANN_CROW_VER OUTPUT_STRIP_TRAILING_WHITESPACE)
+# systeminfo
+find_program(SYSTEMINFO_TOOL systeminfo)
+execute_process(COMMAND ${SYSTEMINFO_TOOL}
+        OUTPUT_VARIABLE NLOHMANN_CROW_SYSTEMINFO OUTPUT_STRIP_TRAILING_WHITESPACE)
+if(NLOHMANN_CROW_SYSTEMINFO)
+    string(REGEX MATCHALL "OS [^\n]*" NLOHMANN_CROW_SYSTEMINFO ${NLOHMANN_CROW_SYSTEMINFO})
+    string(REPLACE ";" "\\n" NLOHMANN_CROW_SYSTEMINFO "${NLOHMANN_CROW_SYSTEMINFO}")
+endif()
 
-# compiler
+# compiler version output
 if(MSVC)
     execute_process(COMMAND msbuild /version
         OUTPUT_VARIABLE NLOHMANN_CROW_CXX OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -89,13 +95,11 @@ if(DOXYGEN_FOUND)
 
     configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
 
-    add_custom_target(doc
+    add_custom_target(crow_documentation
             COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM)
-else()
-    message("Doxygen need to be installed to generate the documentation")
 endif()
 
 ###########
@@ -103,7 +107,8 @@ endif()
 ###########
 
 include(CTest)
-if(BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT)
+option(CROW_BUILD_TESTING "build tests" ON)
+if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
     enable_testing()
 
     add_executable(tests tests/unittests.cpp)
@@ -124,9 +129,9 @@ endif()
 # coverage #
 ############
 
-option(check_coverage OFF)
+option(CROW_CHECK_COVERAGE "instrument compiler to collect coverage information" OFF)
 if(check_coverage)
-    message(STATUS "Building test suite with coverage information; now build, run the unit tests and call `make lcov_html`")
+    message(STATUS "Building test suite with coverage information; now build, run the unit tests and call `make crow_coverage_report`")
 
     # add compiler flags to collect coverage information
     set(CMAKE_CXX_FLAGS "--coverage -g -O0 -fprofile-arcs -ftest-coverage -Wno-unused-command-line-argument")
@@ -135,10 +140,9 @@ if(check_coverage)
     file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/include/crow/*)
 
     # define target to run lcov to collect coverage information, filter unwanted files, and create HTML report
-    add_custom_target(lcov_html
+    add_custom_target(crow_coverage_report
             COMMAND lcov --directory . --capture --output-file coverage.info --rc lcov_branch_coverage=1
             COMMAND lcov -e coverage.info ${SOURCE_FILES} --output-file coverage.info.filtered --rc lcov_branch_coverage=1
             COMMAND genhtml --title "Crow ${PROJECT_VERSION}" --legend --demangle-cpp --output-directory coverage_report --show-details --branch-coverage coverage.info.filtered
-            COMMENT "Generating HTML report coverage_report/index.html"
-            )
+            COMMENT "Generating HTML report coverage_report/index.html")
 endif()
