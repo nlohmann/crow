@@ -82,8 +82,16 @@ else()
     find_package(CURL)
 endif()
 
+option(CROW_EXTERNAL_ZLIB_PROJECT "the path to zlib" OFF)
+if(CROW_EXTERNAL_ZLIB_PROJECT)
+    add_subdirectory(${CROW_EXTERNAL_ZLIB_PROJECT})
+    set(ZLIB_INCLUDE_DIRS )
+    set(ZLIB_LIBRARIES z)
+else()
+    find_package(ZLIB REQUIRED ${CROW_EXTERNAL_ZLIB_PROJECT})
+endif()
+
 find_package(Threads)
-find_package(ZLIB REQUIRED)
 
 #################
 # documentation #

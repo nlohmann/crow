@@ -65,6 +65,7 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
 
 - :sparkles: added functions to manage contexts
 - :sparkles: made installation of termination handler more transparent
+- :sparkles: added gzip compression for requests
 - :checkered_flag: overworked Windows version detection
 - :construction_worker: added more compilers to CI
 - :white_check_mark: added code coverage check
@@ -86,7 +87,11 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
 
 ## Prerequisites
 
-You need [libcurl](https://curl.haxx.se/libcurl/) and a C++11 compiler to use the library. Curl should be detected by CMake. If this does not work, you can [download libcurl](https://curl.haxx.se/download.html) and pass the path to the source release folder to CMake via `-DCROW_EXTERNAL_CURL_PROJECT=curl-7.61.0`. This libcurl is then built and statically linked.
+You need [libcurl](https://curl.haxx.se/libcurl/), [zlib](https://zlib.net), and a C++11 compiler to use the library.
+Curl should be detected by CMake. If this does not work, you can download [libcurl](https://curl.haxx.se/download.html)
+and [zlib](https://zlib.net) and pass the path to the source release folder to CMake via
+`-DCROW_EXTERNAL_CURL_PROJECT=curl-7.61.0` and `-DCROW_EXTERNAL_ZLIB_PROJECT=zlib-1.2.11`.
+This libcurl and zlib is then built and linked.
 
 ## License
 
@@ -111,3 +116,4 @@ The library itself consists of a single header file licensed under the MIT licen
 - [**Doxygen**](http://www.stack.nl/~dimitri/doxygen/) to generate documentation
 - [**JSON for Modern C++**](https://github.com/nlohmann/json) to use JSON datatypes inside C++
 - [**libcurl**](https://curl.haxx.se/libcurl/) for HTTP communication with the Sentry servers
+- [**zlib**](https://zlib.net) to compress the communication to the Sentry servers
