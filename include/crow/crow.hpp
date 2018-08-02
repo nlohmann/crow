@@ -592,7 +592,14 @@ class crow
         // add context: os
         m_payload["contexts"]["os"]["name"] = NLOHMANN_CROW_CMAKE_SYSTEM_NAME;
         m_payload["contexts"]["os"]["version"] = NLOHMANN_CROW_OS_RELEASE;
-        m_payload["contexts"]["os"]["build"] = NLOHMANN_CROW_OS_VERSION;
+        if (not std::string(NLOHMANN_CROW_OS_VERSION).empty())
+        {
+            m_payload["contexts"]["os"]["build"] = NLOHMANN_CROW_OS_VERSION;
+        }
+        else
+        {
+            m_payload["contexts"]["os"]["build"] = NLOHMANN_CROW_CMAKE_SYSTEM_VERSION;
+        }
         if (not std::string(NLOHMANN_CROW_UNAME).empty())
         {
             m_payload["contexts"]["os"]["kernel_version"] = NLOHMANN_CROW_UNAME;

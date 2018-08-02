@@ -8,6 +8,22 @@ int main()
     c.add_breadcrumb(__DATE__ " " __TIME__);
     std::cout << "added breadcrumb" << std::endl;
 
+    const char* build_number = getenv("APPVEYOR_JOB_NUMBER");
+    if (build_number != nullptr)
+    {
+        c.add_extra_context({{"job_number", build_number}});
+        c.add_tags_context({{"ci", "appveyor"}});
+    }
+    else
+    {
+        build_number = getenv("TRAVIS_JOB_NUMBER");
+        if (build_number)
+        {
+            c.add_extra_context({{"job_number", build_number}});
+            c.add_tags_context({{"ci", "travis"}});
+        }
+    }
+
     c.capture_message(NLOHMANN_CROW_CXX);
     std::cout << "sent message" << std::endl;
 
