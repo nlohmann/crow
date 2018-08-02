@@ -8,19 +8,24 @@ int main()
     c.add_breadcrumb(__DATE__ " " __TIME__);
     std::cout << "added breadcrumb" << std::endl;
 
-    const char* build_number = getenv("APPVEYOR_JOB_NUMBER");
-    if (build_number != nullptr)
+    const char* job_number = getenv("APPVEYOR_JOB_NUMBER");
+    if (job_number != nullptr)
     {
-        c.add_extra_context({{"job_number", build_number}});
+        c.add_extra_context({{"job_number", job_number}});
         c.add_tags_context({{"ci", "appveyor"}});
     }
     else
     {
-        build_number = getenv("TRAVIS_JOB_NUMBER");
-        if (build_number)
+        job_number = getenv("TRAVIS_JOB_NUMBER");
+        const char* build_number = getenv("APPVEYOR_BUILD_NUMBER");
+        if (job_number)
         {
-            c.add_extra_context({{"job_number", build_number}});
+            c.add_extra_context({{"job_number", job_number}});
             c.add_tags_context({{"ci", "travis"}});
+            if (build_number)
+            {
+                c.add_extra_context({{"build_number", build_number}});
+            }
         }
     }
 
