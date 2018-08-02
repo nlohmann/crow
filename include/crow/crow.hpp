@@ -143,7 +143,7 @@ std::string pretty_name(const char* type_id_name,
     int status;
     std::string result = abi::__cxa_demangle(type_id_name, nullptr, nullptr, &status);
 #else
-    std::result = type_id_name;
+    std::string result = type_id_name;
 #endif
 
     return only_module
