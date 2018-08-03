@@ -65,6 +65,7 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
 
 - :sparkles: added functions to manage contexts
 - :sparkles: made installation of termination handler more transparent
+- :sparkles: made client thread-safe
 - :checkered_flag: overworked Windows version detection
 - :construction_worker: added more compilers to CI
 - :white_check_mark: added code coverage check
