@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
+cmake_policy(SET CMP0048 NEW)
 project(crow VERSION 0.0.3)
 
 ##############################

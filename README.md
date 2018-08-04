@@ -1,7 +1,7 @@
 # Crow - a C++ client for Sentry
 
 [![Build Status](https://travis-ci.org/nlohmann/crow.svg?branch=master)](https://travis-ci.org/nlohmann/crow)
-[![Build status](https://ci.appveyor.com/api/projects/status/40wh0fwaevlheyjo?svg=true)](https://ci.appveyor.com/project/nlohmann/crow)
+[![Build status](https://ci.appveyor.com/api/projects/status/40wh0fwaevlheyjo/branch/master?svg=true)](https://ci.appveyor.com/project/nlohmann/crow/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/nlohmann/crow/badge.svg?branch=master)](https://coveralls.io/github/nlohmann/crow?branch=master)
 [![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](http://nlohmann.github.io/crow)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/nlohmann/crow/master/LICENSE.MIT)
