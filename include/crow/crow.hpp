@@ -37,6 +37,7 @@ SOFTWARE.
 #include <ctime>
 #include <exception>
 #include <future>
+#include <mutex>
 #include <random>
 #include <regex>
 #include <stdexcept>
@@ -270,7 +271,7 @@ class crow
         }
 
         // manage context
-        set_default_context();
+        clear_context();
         merge_context(context);
 
         // install termination handler
@@ -347,6 +348,7 @@ class crow
                          const json& context = nullptr,
                          const bool asynchronous = true)
     {
+        std::lock_guard<std::mutex> lock(m_payload_mutex);
         m_payload["message"] = message;
         m_payload["event_id"] = nlohmann::detail::generate_uuid();
         m_payload["timestamp"] = nlohmann::detail::get_iso8601();
@@ -380,6 +382,7 @@ class crow
     {
         std::stringstream thread_id;
         thread_id << std::this_thread::get_id();
+        std::lock_guard<std::mutex> lock(m_payload_mutex);
         m_payload["exception"].push_back({{"type", detail::pretty_name(typeid(exception).name())},
             {"value", exception.what()},
             {"module", detail::pretty_name(typeid(exception).name(), true)},
@@ -425,6 +428,7 @@ class crow
             breadcrumb["data"] = data;
         }
 
+        std::lock_guard<std::mutex> lock(m_payload_mutex);
         m_payload["breadcrumbs"]["values"].push_back(std::move(breadcrumb));
     }
 
@@ -477,6 +481,7 @@ class crow
      */
     void add_user_context(const json& data)
     {
+        std::lock_guard<std::mutex> lock(m_payload_mutex);
         m_payload["user"].update(data);
     }
 
@@ -489,6 +494,7 @@ class crow
      */
     void add_tags_context(const json& data)
     {
+        std::lock_guard<std::mutex> lock(m_payload_mutex);
         m_payload["tags"].update(data);
     }
 
@@ -501,6 +507,7 @@ class crow
      */
     void add_request_context(const json& data)
     {
+        std::lock_guard<std::mutex> lock(m_payload_mutex);
         m_payload["request"].update(data);
     }
 
@@ -513,6 +520,7 @@ class crow
      */
     void add_extra_context(const json& data)
     {
+        std::lock_guard<std::mutex> lock(m_payload_mutex);
         m_payload["extra"].update(data);
     }
 
@@ -530,6 +538,7 @@ class crow
     {
         if (context.is_object())
         {
+            std::lock_guard<std::mutex> lock(m_payload_mutex);
             for (const auto& el : context.items())
             {
                 if (el.key() == "user" or el.key() == "request" or el.key() == "extra" or el.key() == "tags")
@@ -553,46 +562,8 @@ class crow
      */
     void clear_context()
     {
+        std::lock_guard<std::mutex> lock(m_payload_mutex);
         m_payload.clear();
-        set_default_context();
-    }
-
-    /*!
-     * @}
-     */
-
-  private:
-    /*!
-     * @brief POST the payload to the Sentry sink URL
-     *
-     * @param[in] payload payload to send
-     * @return result
-     */
-    std::string post(const json& payload)
-    {
-        if (m_enabled)
-        {
-            curl_wrapper curl;
-
-            // add security header
-            std::string security_header = "X-Sentry-Auth: Sentry sentry_version=5,sentry_client=crow/";
-            security_header += std::string(NLOHMANN_CROW_VERSION) + ",sentry_timestamp=";
-            security_header += std::to_string(detail::get_timestamp());
-            security_header += ",sentry_key=" + m_public_key;
-            security_header += ",sentry_secret=" + m_secret_key;
-            curl.set_header(security_header.c_str());
-
-            return curl.post(m_store_url, payload, true);
-        }
-
-        return "";
-    }
-
-    /*!
-     * @brief set the default context
-     */
-    void set_default_context()
-    {
         m_payload["platform"] = "c";
         m_payload["sdk"]["name"] = "crow";
         m_payload["sdk"]["version"] = NLOHMANN_CROW_VERSION;
@@ -646,6 +617,37 @@ class crow
     }
 
     /*!
+     * @}
+     */
+
+  private:
+    /*!
+     * @brief POST the payload to the Sentry sink URL
+     *
+     * @param[in] payload payload to send
+     * @return result
+     */
+    std::string post(const json& payload)
+    {
+        if (m_enabled)
+        {
+            curl_wrapper curl;
+
+            // add security header
+            std::string security_header = "X-Sentry-Auth: Sentry sentry_version=5,sentry_client=crow/";
+            security_header += std::string(NLOHMANN_CROW_VERSION) + ",sentry_timestamp=";
+            security_header += std::to_string(detail::get_timestamp());
+            security_header += ",sentry_key=" + m_public_key;
+            security_header += ",sentry_secret=" + m_secret_key;
+            curl.set_header(security_header.c_str());
+
+            return curl.post(m_store_url, payload);
+        }
+
+        return "";
+    }
+
+    /*!
      * @brief termination handler that detects uncaught exceptions
      *
      * @post previously installed termination handler is executed
@@ -685,6 +687,8 @@ class crow
     mutable std::future<std::string> m_pending_future;
     /// the termination handler installed before initializing the client
     std::terminate_handler existing_termination_handler = nullptr;
+    /// a mutex to make payload thread-safe
+    std::mutex m_payload_mutex;
 };
 
 }
