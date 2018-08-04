@@ -65,6 +65,18 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
 # dependencies #
 ################
 
+option(CROW_EXTERNAL_ZLIB_PROJECT "the path to zlib" OFF)
+if(CROW_EXTERNAL_ZLIB_PROJECT)
+    add_subdirectory(${CROW_EXTERNAL_ZLIB_PROJECT})
+    set(ZLIB_INCLUDE_DIRS ${CROW_EXTERNAL_ZLIB_PROJECT})
+    if(WIN32)
+        add_definitions(-DZLIB_WINAPI)
+    endif()
+    set(ZLIB_LIBRARIES zlibstatic)
+else()
+    find_package(ZLIB REQUIRED ${CROW_EXTERNAL_ZLIB_PROJECT})
+endif()
+
 option(CROW_EXTERNAL_CURL_PROJECT "the path to curl" OFF)
 if(CROW_EXTERNAL_CURL_PROJECT)
     set(BUILD_TESTING OFF CACHE INTERNAL "")
@@ -80,18 +92,6 @@ if(CROW_EXTERNAL_CURL_PROJECT)
     set(CURL_LIBRARIES libcurl)
 else()
     find_package(CURL)
-endif()
-
-option(CROW_EXTERNAL_ZLIB_PROJECT "the path to zlib" OFF)
-if(CROW_EXTERNAL_ZLIB_PROJECT)
-    add_subdirectory(${CROW_EXTERNAL_ZLIB_PROJECT})
-    set(ZLIB_INCLUDE_DIRS ${CROW_EXTERNAL_ZLIB_PROJECT})
-    if(WIN32)
-        add_definitions(-DZLIB_WINAPI)
-    endif()
-    set(ZLIB_LIBRARIES zlib)
-else()
-    find_package(ZLIB REQUIRED ${CROW_EXTERNAL_ZLIB_PROJECT})
 endif()
 
 find_package(Threads)
