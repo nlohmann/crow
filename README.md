@@ -1,7 +1,7 @@
 # Crow - a C++ client for Sentry
 
 [![Build Status](https://travis-ci.org/nlohmann/crow.svg?branch=master)](https://travis-ci.org/nlohmann/crow)
-[![Build status](https://ci.appveyor.com/api/projects/status/40wh0fwaevlheyjo?svg=true)](https://ci.appveyor.com/project/nlohmann/crow)
+[![Build status](https://ci.appveyor.com/api/projects/status/40wh0fwaevlheyjo/branch/master?svg=true)](https://ci.appveyor.com/project/nlohmann/crow/branch/master)
 [![Coverage Status](https://coveralls.io/repos/github/nlohmann/crow/badge.svg?branch=master)](https://coveralls.io/github/nlohmann/crow?branch=master)
 [![Documentation](https://img.shields.io/badge/docs-doxygen-blue.svg)](http://nlohmann.github.io/crow)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/nlohmann/crow/master/LICENSE.MIT)
@@ -66,6 +66,7 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
 - :sparkles: added functions to manage contexts
 - :sparkles: made installation of termination handler more transparent
 - :sparkles: made client thread-safe
+- :sparkles: added gzip compression for requests
 - :checkered_flag: overworked Windows version detection
 - :construction_worker: added more compilers to CI
 - :white_check_mark: added code coverage check
@@ -87,7 +88,11 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
 
 ## Prerequisites
 
-You need [libcurl](https://curl.haxx.se/libcurl/) and a C++11 compiler to use the library. Curl should be detected by CMake. If this does not work, you can [download libcurl](https://curl.haxx.se/download.html) and pass the path to the source release folder to CMake via `-DCROW_EXTERNAL_CURL_PROJECT=curl-7.61.0`. This libcurl is then built and statically linked.
+You need [libcurl](https://curl.haxx.se/libcurl/), [zlib](https://zlib.net), and a C++11 compiler to use the library.
+Curl should be detected by CMake. If this does not work, you can download [libcurl](https://curl.haxx.se/download.html)
+and [zlib](https://zlib.net) and pass the path to the source release folder to CMake via
+`-DCROW_EXTERNAL_CURL_PROJECT=curl-7.61.0` and `-DCROW_EXTERNAL_ZLIB_PROJECT=zlib-1.2.11`.
+This libcurl and zlib is then built and linked.
 
 ## License
 

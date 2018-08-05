@@ -52,7 +52,9 @@ install:
 before_build:
 - curl https://curl.haxx.se/download/curl-7.61.0.zip -O
 - 7z x curl-7.61.0.zip
-- cmake . -G "%GENERATOR%" -DCMAKE_CXX_FLAGS="%FLAGS%" -DCMAKE_IGNORE_PATH="C:/Program Files/Git/usr/bin" -DCMAKE_BUILD_TYPE=Release -DCROW_EXTERNAL_CURL_PROJECT=curl-7.61.0
+- curl https://zlib.net/zlib1211.zip -O
+- 7z x zlib1211.zip
+- cmake . -G "%GENERATOR%" -DCMAKE_CXX_FLAGS="%FLAGS%" -DCMAKE_IGNORE_PATH="C:/Program Files/Git/usr/bin" -DCMAKE_BUILD_TYPE=Release -DCROW_EXTERNAL_CURL_PROJECT=curl-7.61.0 -DCROW_EXTERNAL_ZLIB_PROJECT=zlib-1.2.11
 
 build_script:
   - cmake --build . --config Release

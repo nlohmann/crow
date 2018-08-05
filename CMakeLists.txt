@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
+cmake_policy(SET CMP0048 NEW)
 project(crow VERSION 0.0.3)
 
 ##############################
@@ -65,6 +66,15 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
 # dependencies #
 ################
 
+option(CROW_EXTERNAL_ZLIB_PROJECT "the path to zlib" OFF)
+if(CROW_EXTERNAL_ZLIB_PROJECT)
+    add_subdirectory(${CROW_EXTERNAL_ZLIB_PROJECT})
+    set(ZLIB_INCLUDE_DIRS ${CROW_EXTERNAL_ZLIB_PROJECT})
+    set(ZLIB_LIBRARIES zlibstatic)
+else()
+    find_package(ZLIB REQUIRED ${CROW_EXTERNAL_ZLIB_PROJECT})
+endif()
+
 option(CROW_EXTERNAL_CURL_PROJECT "the path to curl" OFF)
 if(CROW_EXTERNAL_CURL_PROJECT)
     set(BUILD_TESTING OFF CACHE INTERNAL "")
@@ -118,8 +128,8 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
 
     add_executable(livetest tests/livetest.cpp)
     set_target_properties(livetest PROPERTIES CXX_STANDARD 11)
-    target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR})
-    target_link_libraries(livetest ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES})
+    target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
+    target_link_libraries(livetest ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
 
     add_test(tests tests)
     add_test(livetest livetest)
