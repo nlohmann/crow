@@ -22,7 +22,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Crow
-   &#160;<span id="projectnumber">0.0.2</span>
+   &#160;<span id="projectnumber">0.0.3</span>
    </div>
   </td>
  </tr>
@@ -66,15 +66,30 @@ $(function() {
 <div class="title">Crow - a C++ client for Sentry </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p class=""><a href="https://travis-ci.org/nlohmann/crow"></a> <a href="https://ci.appveyor.com/project/nlohmann/crow/branch/master"></a> <a href="http://nlohmann.github.io/crow"></a></p>
+<div class="textblock"><p class=""><a href="https://travis-ci.org/nlohmann/crow"></a> <a href="https://ci.appveyor.com/project/nlohmann/crow/branch/master"></a> <a href="https://coveralls.io/github/nlohmann/crow?branch=master"></a> <a href="http://nlohmann.github.io/crow"></a> <a href="https://raw.githubusercontent.com/nlohmann/crow/master/LICENSE.MIT"></a> <a href="http://github.com/nlohmann/crow/issues"></a> <a href="http://isitmaintained.com/project/nlohmann/crow"></a></p>
 <p class=""><a href="https://sentry.io/welcome/"><b>Sentry</b></a> is such a useful tool, but there is currently <a href="https://sentry.io/platforms/">no official support</a> for C++. <b>Crow</b> is an official Sentry client for C++ that tries to fill this gap to allow for Sentry notifications in long-running C++ applications where you do not want to constantly look at log files.</p>
 <h2>API</h2>
+<h3>Setup</h3>
 <ul>
-<li><code><a class="el" href="classnlohmann_1_1crow_a9d2b0a8b04ff15a830e4f9aed69a973a.html#a9d2b0a8b04ff15a830e4f9aed69a973a" title="create a client ">crow::crow</a>(dsn, attributes=null, install_handlers=true)</code> to create a client</li>
-<li><code><a class="el" href="classnlohmann_1_1crow_af5485af7830f6159176160ff66b9c871.html#af5485af7830f6159176160ff66b9c871" title="capture a message ">crow::capture_message</a>(message, options=nullptr, async=true)</code> to send a message</li>
-<li><code><a class="el" href="classnlohmann_1_1crow_a7d9e7ee833a210557ab2a35f02a05e1b.html#a7d9e7ee833a210557ab2a35f02a05e1b" title="capture an exception ">crow::capture_exception</a>(exception, async=true, handled=true)</code> to send an exception</li>
+<li><code><a class="el" href="classnlohmann_1_1crow_a944eacc8ea0e527708edd28530b6282b.html#a944eacc8ea0e527708edd28530b6282b" title="create a client ">crow::crow</a>(dsn, context=null, install_handlers=true)</code> to create a client</li>
+<li><code><a class="el" href="classnlohmann_1_1crow_a66791ec3a75dade17cab051489be223e.html#a66791ec3a75dade17cab051489be223e" title="install termination handler to handle uncaught exceptions ">crow::install_handler()</a></code> to later install termination handler</li>
+</ul>
+<h3>Reporting</h3>
+<ul>
+<li><code><a class="el" href="classnlohmann_1_1crow_ac01d1551bb34c3fe6a5a694918631aec.html#ac01d1551bb34c3fe6a5a694918631aec" title="capture a message ">crow::capture_message</a>(message, context=nullptr, async=true)</code> to send a message</li>
+<li><code><a class="el" href="classnlohmann_1_1crow_acdd05c906969842420fcc32b1d9ff6ef.html#acdd05c906969842420fcc32b1d9ff6ef" title="capture an exception ">crow::capture_exception</a>(exception, context=nullptr, async=true, handled=true)</code> to send an exception</li>
 <li><code><a class="el" href="classnlohmann_1_1crow_a478be96f95e06018f33ac167cdacd192.html#a478be96f95e06018f33ac167cdacd192" title="add a breadcrumb to the current context ">crow::add_breadcrumb</a>(message, type="default")</code> to add a breadcrumb</li>
 <li><code><a class="el" href="classnlohmann_1_1crow_a7c0b5fc5573a9e4a8b37b583422215cc.html#a7c0b5fc5573a9e4a8b37b583422215cc" title="return the id of the last reported event ">crow::get_last_event_id()</a></code> to get the id of the last event</li>
+</ul>
+<h3>Context management</h3>
+<ul>
+<li><code><a class="el" href="classnlohmann_1_1crow_a28f3b877a187a65de2d2fe2dec78c444.html#a28f3b877a187a65de2d2fe2dec78c444" title="return current context ">crow::get_context()</a></code> to return current context</li>
+<li><code><a class="el" href="classnlohmann_1_1crow_a44a6b98f07ef8acc6023001530366ed3.html#a44a6b98f07ef8acc6023001530366ed3" title="add elements to the &quot;user&quot; context for future events ">crow::add_user_context(const json&amp; data)</a></code> to add data to the user context</li>
+<li><code><a class="el" href="classnlohmann_1_1crow_a8866a92402df3048e6a8f134d15715df.html#a8866a92402df3048e6a8f134d15715df" title="add elements to the &quot;tags&quot; context for future events ">crow::add_tags_context(const json&amp; data)</a></code> to add data to the tags context</li>
+<li><code><a class="el" href="classnlohmann_1_1crow_ac5ada68ee5a1b43ac9f896933d3a9448.html#ac5ada68ee5a1b43ac9f896933d3a9448" title="add elements to the &quot;request&quot; context for future events ">crow::add_request_context(const json&amp; data)</a></code> to add data to the request context</li>
+<li><code><a class="el" href="classnlohmann_1_1crow_a78a8087ada8c3557f0edf9dadd2a451c.html#a78a8087ada8c3557f0edf9dadd2a451c" title="add elements to the &quot;extra&quot; context for future events ">crow::add_extra_context(const json&amp; data)</a></code> to add data to the extra context</li>
+<li><code><a class="el" href="classnlohmann_1_1crow_a506972cd05862e57386e9eb2c7cffa83.html#a506972cd05862e57386e9eb2c7cffa83" title="add context information to payload for future events ">crow::merge_context(const json&amp; context)</a></code> to merge context information</li>
+<li><code><a class="el" href="classnlohmann_1_1crow_a39c7b65aee63d30fe1c0384dd5750fd0.html#a39c7b65aee63d30fe1c0384dd5750fd0" title="reset context for future events ">crow::clear_context()</a></code> to reset context</li>
 </ul>
 <p class="">See <a href="https://nlohmann.github.io/crow/classnlohmann_1_1crow.html">the documentation</a> for a complete overview of the public API.</p>
 <h2>Requirements for Sentry SDKs</h2>
@@ -83,7 +98,7 @@ $(function() {
 <li>The following items are expected of production-ready SDKs:<ul>
 <li>[x] DSN configuration</li>
 <li>[ ] Graceful failures (e.g. Sentry server is unreachable)</li>
-<li>[ ] Setting attributes (e.g. tags and extra data)</li>
+<li>[x] Setting attributes (e.g. tags and extra data)</li>
 <li>[x] Support for Linux, Windows and OS X (where applicable)</li>
 </ul>
 </li>
@@ -106,6 +121,16 @@ $(function() {
 </li>
 </ul>
 <h2>Change Log</h2>
+<h3>Version 0.0.3</h3>
+<ul>
+<li>:sparkles: added functions to manage contexts</li>
+<li>:sparkles: made installation of termination handler more transparent</li>
+<li>:sparkles: made client thread-safe</li>
+<li>:sparkles: added gzip compression for requests</li>
+<li>:checkered_flag: overworked Windows version detection</li>
+<li>:construction_worker: added more compilers to CI</li>
+<li>:white_check_mark: added code coverage check</li>
+</ul>
 <h3>Version 0.0.2</h3>
 <ul>
 <li>:construction_worker: integrated Travis and AppVeyor CI (#1)</li>
@@ -122,7 +147,7 @@ $(function() {
 <li>:tada: initial release</li>
 </ul>
 <h2>Prerequisites</h2>
-<p class="">You need <a href="https://curl.haxx.se/libcurl/">libcurl</a> and a C++11 compiler to use the library. Curl should be detected by CMake. If this does not work, you can <a href="https://curl.haxx.se/download.html">download libcurl</a> and pass the path to the source release folder to CMake via <code>-DCROW_EXTERNAL_CURL_PROJECT=curl-7.61.0</code>. This libcurl is then built and statically linked.</p>
+<p class="">You need <a href="https://curl.haxx.se/libcurl/">libcurl</a>, <a href="https://zlib.net">zlib</a>, and a C++11 compiler to use the library. Curl should be detected by CMake. If this does not work, you can download <a href="https://curl.haxx.se/download.html">libcurl</a> and <a href="https://zlib.net">zlib</a> and pass the path to the source release folder to CMake via <code>-DCROW_EXTERNAL_CURL_PROJECT=curl-7.61.0</code> and <code>-DCROW_EXTERNAL_ZLIB_PROJECT=zlib-1.2.11</code>. This libcurl and zlib is then built and linked.</p>
 <h2>License</h2>
 <div class="image">
 <img src="http://opensource.org/trademarks/opensource/OSI-Approved-License-100x137.png" align="right"/>

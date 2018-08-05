@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.15"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Crow: nlohmann::crow::crow</title>
+<title>Crow: nlohmann::crow::merge_context</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -80,18 +80,18 @@ $(function() {
           <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_ac01d1551bb34c3fe6a5a694918631aec.html#ac01d1551bb34c3fe6a5a694918631aec">capture_message</a></td></tr>
           <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_a39c7b65aee63d30fe1c0384dd5750fd0.html#a39c7b65aee63d30fe1c0384dd5750fd0">clear_context</a></td></tr>
           <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_a944eacc8ea0e527708edd28530b6282b.html#a944eacc8ea0e527708edd28530b6282b">crow</a></td></tr>
-          <tr><td class="navtab"><a class="qindexHL" href="classnlohmann_1_1crow_af0899e2af28185ae075582118855e639.html#af0899e2af28185ae075582118855e639">crow</a></td></tr>
+          <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_af0899e2af28185ae075582118855e639.html#af0899e2af28185ae075582118855e639">crow</a></td></tr>
           <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_a28f3b877a187a65de2d2fe2dec78c444.html#a28f3b877a187a65de2d2fe2dec78c444">get_context</a></td></tr>
           <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_a7c0b5fc5573a9e4a8b37b583422215cc.html#a7c0b5fc5573a9e4a8b37b583422215cc">get_last_event_id</a></td></tr>
           <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_a66791ec3a75dade17cab051489be223e.html#a66791ec3a75dade17cab051489be223e">install_handler</a></td></tr>
-          <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_a506972cd05862e57386e9eb2c7cffa83.html#a506972cd05862e57386e9eb2c7cffa83">merge_context</a></td></tr>
+          <tr><td class="navtab"><a class="qindexHL" href="classnlohmann_1_1crow_a506972cd05862e57386e9eb2c7cffa83.html#a506972cd05862e57386e9eb2c7cffa83">merge_context</a></td></tr>
           <tr><td class="navtab"><a class="qindex" href="classnlohmann_1_1crow_ab33f4e8f830c20e0cdeae81ee93c3add.html#ab33f4e8f830c20e0cdeae81ee93c3add">~crow</a></td></tr>
         </table>
       </div>
    </td>
    <td valign="top" class="mempage">
-<a id="af0899e2af28185ae075582118855e639"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af0899e2af28185ae075582118855e639">&#9670;&nbsp;</a></span>crow() <span class="overload">[2/2]</span></h2>
+<a id="a506972cd05862e57386e9eb2c7cffa83"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a506972cd05862e57386e9eb2c7cffa83">&#9670;&nbsp;</a></span>merge_context()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -100,10 +100,10 @@ $(function() {
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">nlohmann::crow::crow </td>
+          <td class="memname">void nlohmann::crow::merge_context </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="classnlohmann_1_1crow.html">crow</a> &amp;&#160;</td>
-          <td class="paramname"><em>other</em></td><td>)</td>
+          <td class="paramtype">const json &amp;&#160;</td>
+          <td class="paramname"><em>context</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -115,14 +115,20 @@ $(function() {
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">other</td><td>client to copy</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">context</td><td>the context to add</td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>The last event id is not preserved by copying.</dd></dl>
-<dl class="section since"><dt>Since</dt><dd>0.0.2 </dd></dl>
+<dl class="section note"><dt>Note</dt><dd><em>context</em> must be an object; allowed keys are "user", "request", "extea", or "tags" </dd></dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname">std::invalid_argument</td><td>if context object contains invalid key</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section since"><dt>Since</dt><dd>0.0.3 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="crow_8hpp_source.html#l00309">309</a> of file <a class="el" href="crow_8hpp_source.html">crow.hpp</a>.</p>
+<p class="definition">Definition at line <a class="el" href="crow_8hpp_source.html#l00537">537</a> of file <a class="el" href="crow_8hpp_source.html">crow.hpp</a>.</p>
 
 </div>
 </div>
