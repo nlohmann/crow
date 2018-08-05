@@ -337,7 +337,7 @@ class crow
      * @brief capture a message
      *
      * @param[in] message the message to capture
-     * @param[in] context an optional context object
+     * @param[in] attributes an optional attributes object
      * @param[in] asynchronous whether the message should be sent asynchronously
      *
      * @throw std::invalid_argument if context object contains invalid key
@@ -345,7 +345,7 @@ class crow
      * @since 0.0.1
      */
     void capture_message(const std::string& message,
-                         const json& context = nullptr,
+                         const json& attributes = nullptr,
                          const bool asynchronous = true)
     {
         std::lock_guard<std::mutex> lock(m_payload_mutex);
@@ -353,8 +353,32 @@ class crow
         m_payload["event_id"] = nlohmann::detail::generate_uuid();
         m_payload["timestamp"] = nlohmann::detail::get_iso8601();
 
-        // add given context
-        merge_context(context);
+        if (attributes.is_object())
+        {
+            // logger
+            auto logger = attributes.find("logger");
+            if (logger != attributes.end())
+            {
+                m_payload["logger"] = *logger;
+            }
+
+            // level
+            m_payload["level"] = attributes.value("level", "error");
+
+            // context
+            auto context = attributes.find("context");
+            if (context != attributes.end())
+            {
+                merge_context(*context);
+            }
+
+            // extra
+            auto extra = attributes.find("extra");
+            if (extra != attributes.end())
+            {
+                m_payload["extra"] = *extra;
+            }
+        }
 
         m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
         if (not asynchronous)
@@ -406,26 +430,56 @@ class crow
      * @brief add a breadcrumb to the current context
      *
      * @param[in] message message for the breadcrumb
-     * @param[in] type type of the breadcrumb (optional)
-     * @param[in] data additional JSON object (optional)
+     * @param[in] attributes an optional attributes object
      *
      * @since 0.0.1
      */
     void add_breadcrumb(const std::string& message,
-                        const std::string& type = "default",
-                        const json& data = nullptr)
+                        const json& attributes = nullptr)
+    //const std::string& type = "default",
+    //const std::string& level = "info",
+    //const json& data = nullptr,
+    //const std::string& category = "log")
     {
         json breadcrumb =
         {
             {"event_id", detail::generate_uuid()},
             {"message", message},
-            {"type", type},
+            {"level", "info"},
+            {"type", "default"},
+            {"category", "log"},
             {"timestamp", detail::get_timestamp()}
         };
 
-        if (not data.is_null())
+        if (attributes.is_object())
         {
-            breadcrumb["data"] = data;
+            // type
+            auto type = attributes.find("type");
+            if (type != attributes.end())
+            {
+                breadcrumb["type"] = *type;
+            }
+
+            // level
+            auto level = attributes.find("level");
+            if (level != attributes.end())
+            {
+                breadcrumb["level"] = *level;
+            }
+
+            // category
+            auto category = attributes.find("category");
+            if (category != attributes.end())
+            {
+                breadcrumb["category"] = *category;
+            }
+
+            // data
+            auto data = attributes.find("data");
+            if (data != attributes.end())
+            {
+                breadcrumb["data"] = *data;
+            }
         }
 
         std::lock_guard<std::mutex> lock(m_payload_mutex);
@@ -658,7 +712,7 @@ class crow
         if (current_ex)
         {
             assert(detail::last != nullptr);
-            detail::last->add_breadcrumb("uncaught exception", "default", {{"level", "critical"}});
+            detail::last->add_breadcrumb("uncaught exception", {{"type", "exceptiomn"}, {"level", "critical"}});
             try
             {
                 std::rethrow_exception(current_ex);
@@ -692,7 +746,5 @@ class crow
 };
 
 }
-
-using crow = nlohmann::crow;
 
 #endif

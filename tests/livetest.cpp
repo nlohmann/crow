@@ -1,6 +1,8 @@
 #include <iostream>
 #include <crow/crow.hpp>
 
+using crow = nlohmann::crow;
+
 int main()
 {
     auto c = crow("https://fad7ed01056940969a519aba36dc0b2f:3787b21e465845a09d781ab9eb048ae7@sentry.io/1253079");
