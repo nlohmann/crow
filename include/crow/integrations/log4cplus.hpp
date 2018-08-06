@@ -18,7 +18,7 @@ class crow_log4cplus_appender : public log4cplus::Appender
   public:
     explicit crow_log4cplus_appender(crow& client,
                                      const std::string& appender_name = "sentry appender",
-                                     const std::unordered_map<log4cplus_loglevel_t, log_action>& config = {})
+                                     const std::unordered_map<log4cplus_loglevel_t, log_action>& config = std::unordered_map<log4cplus_loglevel_t, log_action>())
         : m_client(client)
     {
         setName(appender_name);
