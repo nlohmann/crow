@@ -8,6 +8,7 @@ namespace crow_integrations
 
 /*!
  * @brief different actions to be executed for a log event
+ * @since 0.0.4
  */
 enum log_action
 {
@@ -26,8 +27,11 @@ enum log_action
 
 /*!
  * @brief get Sentry level for each log action
+
  * @param action log action
  * @return string representation of Sentry level
+
+ * @since 0.0.4
  */
 const char* log_action_level(const log_action action) noexcept
 {

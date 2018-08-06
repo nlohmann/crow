@@ -1,5 +1,3 @@
-#include <iostream>
-#include <unordered_map>
 #include <crow/crow.hpp>
 #include <crow/integrations/log4cplus.hpp>
 #include <log4cplus/log4cplus.h>
@@ -15,7 +13,7 @@ int main()
     // create a Crow client
     crow crow_client("https://fad7ed01056940969a519aba36dc0b2f:3787b21e465845a09d781ab9eb048ae7@sentry.io/1253079");
 
-    log4cplus::SharedAppenderPtr append(new nlohmann::crow_integrations::crow_log4cplus_appender(crow_client));
+    log4cplus::SharedAppenderPtr append(new nlohmann::crow_integrations::log4cplus_appender(crow_client));
     test.addAppender(append);
 
     LOG4CPLUS_TRACE(test, "this is a trace message");
@@ -24,6 +22,4 @@ int main()
     LOG4CPLUS_WARN(test, "this is a warning message");
     LOG4CPLUS_ERROR(test, "this is an error message");
     LOG4CPLUS_FATAL(test, "this is a fatal message");
-
-    std::cout << "done" << std::endl;
 }

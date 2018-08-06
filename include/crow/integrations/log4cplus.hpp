@@ -13,12 +13,24 @@ namespace nlohmann
 namespace crow_integrations
 {
 
-class crow_log4cplus_appender : public log4cplus::Appender
+/*!
+ * @brief appender for Log4cplus
+ * @example log4cplus/example.cpp
+ * @since 0.0.4
+ */
+class log4cplus_appender : public log4cplus::Appender
 {
   public:
-    explicit crow_log4cplus_appender(crow& client,
-                                     const std::string& appender_name = "sentry appender",
-                                     const std::unordered_map<log4cplus_loglevel_t, log_action>& config = std::unordered_map<log4cplus_loglevel_t, log_action>())
+    /*!
+     * @brief create the appender
+     * @param[in] client the Crow client to use
+     * @param[in] appender_name the name of the appender (used internally of Log4cplus, defaults to "sentry appender")
+     * @param[in] config a configuration (see below)
+     * @since 0.0.4
+     */
+    explicit log4cplus_appender(crow& client,
+                                const std::string& appender_name = "sentry appender",
+                                const std::unordered_map<log4cplus_loglevel_t, log_action>& config = std::unordered_map<log4cplus_loglevel_t, log_action>())
         : m_client(client)
     {
         setName(appender_name);
@@ -35,15 +47,28 @@ class crow_log4cplus_appender : public log4cplus::Appender
         }
     }
 
-    ~crow_log4cplus_appender() override
+    /*!
+     * @brief clean up appender state
+     * @since 0.0.4
+     */
+    ~log4cplus_appender() override
     {
         // properly clean up appender
         destructorImpl();
     }
 
+    /*!
+     * @brief closing the appender
+     * @since 0.0.4
+     */
     void close() override {};
 
   protected:
+    /*!
+     * @brief the actual appender implementation
+     * @param[in] event log event to append
+     * @since 0.0.4
+     */
     void append(const log4cplus::spi::InternalLoggingEvent& event) override
     {
         // look up action in configuration or use default action

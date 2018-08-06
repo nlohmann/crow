@@ -114,6 +114,7 @@ WARN_LOGFILE           =
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
 INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/include/crow @CMAKE_CURRENT_SOURCE_DIR@/src \
+                         @CMAKE_CURRENT_SOURCE_DIR@/examples \
                          @CMAKE_CURRENT_BINARY_DIR@/include/crow @CMAKE_CURRENT_SOURCE_DIR@/README.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          = *.c \
@@ -165,7 +166,7 @@ EXCLUDE                =
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       =
 EXCLUDE_SYMBOLS        = nlohmann::detail
-EXAMPLE_PATH           =
+EXAMPLE_PATH           = @CMAKE_CURRENT_SOURCE_DIR@/examples
 EXAMPLE_PATTERNS       = *
 EXAMPLE_RECURSIVE      = NO
 IMAGE_PATH             =
@@ -236,7 +237,7 @@ QHG_LOCATION           =
 GENERATE_ECLIPSEHELP   = NO
 ECLIPSE_DOC_ID         = org.doxygen.Project
 DISABLE_INDEX          = NO
-GENERATE_TREEVIEW      = NO
+GENERATE_TREEVIEW      = YES
 ENUM_VALUES_PER_LINE   = 4
 TREEVIEW_WIDTH         = 250
 EXT_LINKS_IN_WINDOW    = NO
