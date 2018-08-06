@@ -94,6 +94,15 @@ endif()
 
 find_package(Threads)
 
+###########
+# library #
+###########
+
+add_library(crow src/crow.cpp)
+set_target_properties(crow PROPERTIES CXX_STANDARD 11)
+target_include_directories(crow PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
+target_link_libraries(crow ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
+
 #################
 # documentation #
 #################
@@ -121,15 +130,15 @@ option(CROW_BUILD_TESTING "build tests" ON)
 if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
     enable_testing()
 
-    add_executable(tests tests/unittests.cpp)
+    add_executable(tests tests/unittests.cpp src/crow.cpp)
     set_target_properties(tests PROPERTIES CXX_STANDARD 11)
     target_include_directories(tests PUBLIC tests include ${CMAKE_CURRENT_BINARY_DIR}/include)
     target_link_libraries(tests ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
-    add_executable(livetest tests/livetest.cpp)
+    add_executable(livetest tests/livetest.cpp src/crow.cpp)
     set_target_properties(livetest PROPERTIES CXX_STANDARD 11)
-    target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
-    target_link_libraries(livetest ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
+    target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include)
+    target_link_libraries(livetest crow)
 
     add_test(tests tests)
     add_test(livetest livetest)
@@ -147,7 +156,7 @@ if(CROW_CHECK_COVERAGE)
     set(CMAKE_CXX_FLAGS "--coverage -g -O0 -fprofile-arcs -ftest-coverage -Wno-unused-command-line-argument")
 
     # collect all source files that we are interested in
-    file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/include/crow/*)
+    file(GLOB_RECURSE SOURCE_FILES ${CMAKE_SOURCE_DIR}/include/crow/* ${CMAKE_SOURCE_DIR}/src/*)
 
     # define target to run lcov to collect coverage information, filter unwanted files, and create HTML report
     add_custom_target(crow_coverage_report

@@ -3,6 +3,7 @@
 #include <thirdparty/catch/catch.hpp>
 #include <crow/crow.hpp>
 #include <thirdparty/json/json.hpp>
+#include <crow/config.h>
 
 using json = nlohmann::json;
 using crow = nlohmann::crow;
