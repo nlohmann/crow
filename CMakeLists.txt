@@ -161,7 +161,7 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
         add_executable(log4cplus_example examples/log4cplus/example.cpp)
         set_target_properties(log4cplus_example PROPERTIES CXX_STANDARD 11)
         target_include_directories(log4cplus_example PUBLIC include ${install_dir}/include)
-        target_link_libraries(log4cplus_example crow log4cplus)
+        target_link_libraries(log4cplus_example log4cplus crow)
 
         add_test(log4cplus_example log4cplus_example)
     endif()
