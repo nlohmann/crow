@@ -150,12 +150,12 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
         ExternalProject_Add(log4cplus_project
                 URL https://github.com/log4cplus/log4cplus/releases/download/REL_2_0_1/log4cplus-2.0.1.zip
                 INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/log4cplus
-                CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/log4cplus
-                BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/log4cplus/lib/${CMAKE_SHARED_LIBRARY_PREFIX}log4cplus${CMAKE_SHARED_LIBRARY_SUFFIX}
+                CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/log4cplus -DBUILD_SHARED_LIBS=OFF
+                BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/log4cplus/lib/${CMAKE_STATIC_LIBRARY_PREFIX}log4cplus${CMAKE_STATIC_LIBRARY_SUFFIX}
                 )
         ExternalProject_Get_Property(log4cplus_project install_dir)
-        add_library(log4cplus SHARED IMPORTED)
-        set_target_properties(log4cplus PROPERTIES IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}log4cplus${CMAKE_SHARED_LIBRARY_SUFFIX})
+        add_library(log4cplus STATIC IMPORTED)
+        set_target_properties(log4cplus PROPERTIES IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}log4cplusS${CMAKE_STATIC_LIBRARY_SUFFIX})
         add_dependencies(log4cplus log4cplus_project)
 
         add_executable(log4cplus_example examples/log4cplus/example.cpp)
