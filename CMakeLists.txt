@@ -100,7 +100,7 @@ find_package(Threads)
 
 add_library(crow src/crow.cpp)
 set_target_properties(crow PROPERTIES CXX_STANDARD 11)
-target_include_directories(crow PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
+target_include_directories(crow PUBLIC include PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
 target_link_libraries(crow ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
 
 #################
@@ -127,21 +127,44 @@ endif()
 
 include(CTest)
 option(CROW_BUILD_TESTING "build tests" ON)
+option(CROW_BUILD_LOG4CPLUS "build log4cplus example" OFF)
 if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
     enable_testing()
 
-    add_executable(tests tests/unittests.cpp src/crow.cpp)
+    get_target_property(CROW_SOURCES crow SOURCES)
+    add_executable(tests tests/unittests.cpp ${CROW_SOURCES})
     set_target_properties(tests PROPERTIES CXX_STANDARD 11)
     target_include_directories(tests PUBLIC tests include ${CMAKE_CURRENT_BINARY_DIR}/include)
     target_link_libraries(tests ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
-    add_executable(livetest tests/livetest.cpp src/crow.cpp)
+    add_executable(livetest tests/livetest.cpp)
     set_target_properties(livetest PROPERTIES CXX_STANDARD 11)
     target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include)
     target_link_libraries(livetest crow)
 
     add_test(tests tests)
     add_test(livetest livetest)
+
+    if(CROW_BUILD_LOG4CPLUS)
+        include(ExternalProject)
+        ExternalProject_Add(log4cplus_project
+                URL https://github.com/log4cplus/log4cplus/releases/download/REL_2_0_1/log4cplus-2.0.1.zip
+                INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/log4cplus
+                CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/log4cplus
+                BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/log4cplus/lib/${CMAKE_SHARED_LIBRARY_PREFIX}log4cplus${CMAKE_SHARED_LIBRARY_SUFFIX}
+                )
+        ExternalProject_Get_Property(log4cplus_project install_dir)
+        add_library(log4cplus SHARED IMPORTED)
+        set_target_properties(log4cplus PROPERTIES IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}log4cplus${CMAKE_SHARED_LIBRARY_SUFFIX})
+        add_dependencies(log4cplus log4cplus_project)
+
+        add_executable(log4cplus_example examples/log4cplus/example.cpp)
+        set_target_properties(log4cplus_example PROPERTIES CXX_STANDARD 11)
+        target_include_directories(log4cplus_example PUBLIC include ${install_dir}/include)
+        target_link_libraries(log4cplus_example crow log4cplus)
+
+        add_test(log4cplus_example log4cplus_example)
+    endif()
 endif()
 
 ############
