@@ -28,8 +28,8 @@ SOFTWARE.
 */
 
 #include <typeinfo>
-#include <crow/config.h>
-#include "crow_utilities.hpp"
+#include <src/crow_config.hpp>
+#include <src/crow_utilities.hpp>
 
 #ifndef NLOHMANN_CROW_MINGW
     #include <random>

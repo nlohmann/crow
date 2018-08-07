@@ -30,8 +30,8 @@ SOFTWARE.
 #ifndef NLOHMANN_CROW_UTILITIES_HPP
 #define NLOHMANN_CROW_UTILITIES_HPP
 
-#include "../../../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/string"
-#include "../include/thirdparty/json/json.hpp"
+#include <string>
+#include <thirdparty/json/json.hpp>
 
 using json = nlohmann::json;
 

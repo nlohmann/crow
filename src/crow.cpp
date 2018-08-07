@@ -36,9 +36,9 @@ SOFTWARE.
 #include <mutex>
 #include <regex>
 #include <stdexcept>
-#include <crow/config.h>
 #include <crow/crow.hpp>
-#include "crow_utilities.hpp"
+#include <src/crow_config.hpp>
+#include <src/crow_utilities.hpp>
 #include <thirdparty/curl_wrapper/curl_wrapper.hpp>
 #include <thirdparty/json/json.hpp>
 
