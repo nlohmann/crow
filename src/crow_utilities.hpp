@@ -30,6 +30,7 @@ SOFTWARE.
 #ifndef NLOHMANN_CROW_UTILITIES_HPP
 #define NLOHMANN_CROW_UTILITIES_HPP
 
+#include <cstdint>
 #include <string>
 #include <thirdparty/json/json.hpp>
 

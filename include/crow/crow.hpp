@@ -120,7 +120,7 @@ class crow
      */
     void capture_message(const std::string& message,
                          const json& attributes = nullptr,
-                         const bool asynchronous = true);
+                         bool asynchronous = true);
 
     /*!
      * @brief capture an exception
@@ -136,8 +136,8 @@ class crow
      */
     void capture_exception(const std::exception& exception,
                            const json& context = nullptr,
-                           const bool asynchronous = true,
-                           const bool handled = true);
+                           bool asynchronous = true,
+                           bool handled = true);
 
     /*!
      * @brief add a breadcrumb to the current context

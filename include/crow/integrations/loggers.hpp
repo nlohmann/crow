@@ -12,12 +12,12 @@ namespace crow_integrations
  */
 enum log_action
 {
-    message_fatal,    ///< send a message with level "fatal"
+    message_fatal,       ///< send a message with level "fatal"
     message_error,       ///< send a message with level "error"
     message_warning,     ///< send a message with level "warning"
     message_info,        ///< send a message with level "info"
     message_debug,       ///< send a message with level "debug"
-    breadcrumb_fatal, ///< add a breadcrumb with level "fatal"
+    breadcrumb_fatal,    ///< add a breadcrumb with level "fatal"
     breadcrumb_error,    ///< add a breadcrumb with level "error"
     breadcrumb_warning,  ///< add a breadcrumb with level "warning"
     breadcrumb_info,     ///< add a breadcrumb with level "info"
