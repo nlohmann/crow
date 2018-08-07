@@ -41,39 +41,6 @@ namespace nlohmann
 {
 class crow;
 
-namespace detail
-{
-json get_backtrace(int skip = 1);
-
-/*!
- * @brief return pretty type name
- * @param[in] type_id_name result of type_id().name()
- * @param[in] only_module whether only the module name should be returned
- * @return demangled prettified name
- */
-std::string pretty_name(const char* type_id_name,
-                        const bool only_module = false);
-
-/*!
- * @brief get the seconds since epoch
- * @return seconds since epoch
- */
-std::int64_t get_timestamp();
-
-/*!
- * @brief get the current date and time as ISO 8601 string
- * @return ISO 8601 string
- */
-std::string get_iso8601();
-
-/*!
- * @brief generate a UUID4 without dashes
- * @return UUID4
- */
-std::string generate_uuid();
-
-}
-
 /*!
  * @brief a C++ client for Sentry
  */
@@ -85,7 +52,6 @@ class crow
      *
      * @param[in] dsn the DNS string
      * @param[in] context an optional attributes object
-     * @param[in] sample_rate probability of events actually sent to the server (defaults to 1.0)
      * @param[in] install_handlers whether to install a termination handler
      *
      * @throw std::invalid_argument if DNS string is invalid
@@ -106,7 +72,6 @@ class crow
      */
     explicit crow(const std::string& dsn,
                   const json& context = nullptr,
-                  double sample_rate = 1.0,
                   bool install_handlers = true);
 
     /*!
@@ -300,14 +265,14 @@ class crow
     std::string m_store_url;
     /// the payload of all events
     json m_payload = {};
-    /// sample rate
-    const double m_sample_rate = 1.0;
     /// the result of the last HTTP POST
     mutable std::future<std::string> m_pending_future;
     /// the termination handler installed before initializing the client
     std::terminate_handler existing_termination_handler = nullptr;
     /// a mutex to make payload thread-safe
     std::mutex m_payload_mutex;
+    /// a pointer to the last client (used for termination handling)
+    static crow* m_client_that_installed_termination_handler;
 };
 
 }

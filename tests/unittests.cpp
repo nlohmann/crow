@@ -2,6 +2,7 @@
 
 #include <thirdparty/catch/catch.hpp>
 #include <crow/crow.hpp>
+#include "../src/crow_utilities.hpp"
 #include <thirdparty/json/json.hpp>
 #include <crow/config.h>
 
@@ -22,18 +23,18 @@ void verify_message_structure(const json& msg)
     CHECK(msg.at("sdk").at("version").is_string());
 }
 
-TEST_CASE("basics")
+TEST_CASE("utilities")
 {
     SECTION("get_timestamp")
     {
-        auto x = nlohmann::detail::get_timestamp();
+        auto x = nlohmann::crow_utilities::get_timestamp();
         CAPTURE(x);
         CHECK(x > 1533027000);
     }
 
     SECTION("get_iso8601")
     {
-        auto x = nlohmann::detail::get_iso8601();
+        auto x = nlohmann::crow_utilities::get_iso8601();
         CAPTURE(x);
         CHECK(x.size() == 20);
         CHECK(x[4] == '-');
@@ -47,10 +48,13 @@ TEST_CASE("basics")
 
     SECTION("generate_uuid")
     {
-        auto x = nlohmann::detail::generate_uuid();
+        auto x = nlohmann::crow_utilities::generate_uuid();
         CAPTURE(x);
         CHECK(x.size() == 32);
         CHECK(x[12] == '4');
+
+        auto y = nlohmann::crow_utilities::generate_uuid();
+        CHECK(x != y);
     }
 }
 
@@ -85,34 +89,6 @@ TEST_CASE("DSN parsing")
     }
 }
 
-TEST_CASE("sample rate")
-{
-    SECTION("sample rate 0.0")
-    {
-        results.clear();
-
-        crow crow_client("https://abc:def@sentry.io/123", nullptr, 0.0);
-        CHECK(crow_client.get_last_event_id() == "");
-        crow_client.capture_message("message", nullptr, false);
-
-        // make sure no message was sent
-        CHECK(crow_client.get_last_event_id() == "");
-    }
-
-    SECTION("sample rate 1.0")
-    {
-        results.clear();
-
-        crow crow_client("https://abc:def@sentry.io/123", nullptr, 1.0);
-        CHECK(crow_client.get_last_event_id() == "");
-        crow_client.capture_message("message", nullptr, false);
-
-        // make sure a message was sent
-        CHECK(crow_client.get_last_event_id() == "0");
-    }
-}
-
-
 TEST_CASE("creating messages")
 {
     crow crow_client("https://abc:def@sentry.io/123");
@@ -132,7 +108,7 @@ TEST_CASE("creating messages")
             CHECK(message.at("message") == msg_string);
             CHECK(results.at(0).at("url") == url);
 
-            CHECK(crow_client.get_last_event_id() == "1");
+            CHECK(crow_client.get_last_event_id() == "0");
         }
     }
 
@@ -157,7 +133,7 @@ TEST_CASE("creating messages")
             CHECK(exception.at("mechanism").at("handled"));
             CHECK(results.at(0).at("url") == url);
 
-            CHECK(crow_client.get_last_event_id() == "2");
+            CHECK(crow_client.get_last_event_id() == "1");
         }
 
         SECTION("marked as unhandled")
@@ -178,7 +154,7 @@ TEST_CASE("creating messages")
             CHECK(not exception.at("mechanism").at("handled"));
             CHECK(results.at(0).at("url") == url);
 
-            CHECK(crow_client.get_last_event_id() == "3");
+            CHECK(crow_client.get_last_event_id() == "2");
         }
     }
 
@@ -211,7 +187,7 @@ TEST_CASE("creating messages")
         CHECK(message.at("breadcrumbs").at("values").at(1).at("type") == "navigation");
         CHECK(message.at("breadcrumbs").at("values").at(1).at("data") == data2);
 
-        CHECK(crow_client.get_last_event_id() == "4");
+        CHECK(crow_client.get_last_event_id() == "3");
     }
 }
 

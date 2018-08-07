@@ -14,7 +14,7 @@
 
 ### Setup
 
-- `nlohmann::crow::crow(dsn, context={}, install_handlers=true, sample_rate=1.0)` to create a client
+- `nlohmann::crow::crow(dsn, context={}, install_handlers=true)` to create a client
 - `nlohmann::crow::install_handler()` to later install termination handler
 
 ### Reporting
@@ -54,7 +54,7 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
     - [x] Non-blocking event submission
     - [ ] Basic data sanitization (e.g. filtering out values that look like passwords)
     - [x] Context data helpers (e.g. setting the current user, recording breadcrumbs)
-    - [x] Event sampling
+    - [ ] Event sampling
     - [ ] Honor Sentry’s HTTP 429 Retry-After header
     - [ ] Pre and Post event send hooks
     - [ ] Local variable values in stacktrace (on platforms where this is possible)
@@ -64,7 +64,6 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
 ### Version 0.0.4
 
 - :sparkles: added Log4cplus integration
-- :sparkles: added event sampling
 
 ### Version 0.0.3
 
