@@ -3,8 +3,10 @@
 #include <thirdparty/catch/catch.hpp>
 #include <crow/crow.hpp>
 #include <thirdparty/json/json.hpp>
+#include <crow/config.h>
 
 using json = nlohmann::json;
+using crow = nlohmann::crow;
 json results;
 
 void verify_message_structure(const json& msg);
@@ -161,7 +163,7 @@ TEST_CASE("creating messages")
 
         // add breadcrumbs
         crow_client.add_breadcrumb(msg1);
-        crow_client.add_breadcrumb(msg2, "navigation", data2);
+        crow_client.add_breadcrumb(msg2, {{"type", "navigation"}, {"level", "info"}, {"data", data2}});
 
         // capture message
         std::string msg_string = "message text";
