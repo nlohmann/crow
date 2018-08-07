@@ -51,6 +51,9 @@ TEST_CASE("basics")
         CAPTURE(x);
         CHECK(x.size() == 32);
         CHECK(x[12] == '4');
+
+        auto y = nlohmann::detail::generate_uuid();
+        CHECK(x != y);
     }
 }
 

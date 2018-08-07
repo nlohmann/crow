@@ -142,8 +142,8 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
     target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include)
     target_link_libraries(livetest crow)
 
-    add_test(tests tests)
-    add_test(livetest livetest)
+    add_test(NAME tests COMMAND tests -s)
+    add_test(NAME livetest COMMAND livetest)
 
     if(CROW_BUILD_LOG4CPLUS)
         include(ExternalProject)
@@ -163,7 +163,7 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
         target_include_directories(log4cplus_example PUBLIC include ${install_dir}/include)
         target_link_libraries(log4cplus_example log4cplus crow)
 
-        add_test(log4cplus_example log4cplus_example)
+        add_test(NAME log4cplus_example COMMAND log4cplus_example)
     endif()
 endif()
 

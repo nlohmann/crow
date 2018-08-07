@@ -132,7 +132,7 @@ std::string get_iso8601()
 std::string generate_uuid()
 {
     std::random_device random_device;
-    std::default_random_engine random_engine(random_device());
+    std::mt19937 random_engine(random_device());
     std::uniform_int_distribution<int> uniform_dist(0, 15);
 
     std::string result(32, ' ');
@@ -477,8 +477,8 @@ std::string crow::post(const json& payload)
     {
         // event sampling, see https://docs.sentry.io/clientdev/features/#event-sampling
         std::random_device random_device;
-        std::default_random_engine random_engine(random_device());
-        std::uniform_real_distribution<double> uniform_dist(0, 1);
+        std::mt19937 random_engine(random_device());
+        std::uniform_real_distribution<> uniform_dist(0, 1);
         const auto random = uniform_dist(random_engine);
 
         if (random < m_sample_rate)
