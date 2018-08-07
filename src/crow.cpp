@@ -166,8 +166,9 @@ std::string generate_uuid()
 
 crow::crow(const std::string& dsn,
            const json& context,
+           const double sample_rate,
            const bool install_handlers)
-    : m_enabled(not dsn.empty())
+    : m_sample_rate(sample_rate), m_enabled(not dsn.empty())
 {
     // process DSN
     if (not dsn.empty())
@@ -216,7 +217,8 @@ crow::crow(const crow& other)
       m_public_key(other.m_public_key),
       m_secret_key(other.m_secret_key),
       m_store_url(other.m_store_url),
-      m_payload(other.m_payload)
+      m_payload(other.m_payload),
+      m_sample_rate(other.m_sample_rate)
 {}
 
 crow::~crow()
@@ -350,7 +352,14 @@ std::string crow::get_last_event_id() const
 {
     if (m_pending_future.valid())
     {
-        return json::parse(m_pending_future.get()).at("id");
+        try
+        {
+            return json::parse(m_pending_future.get()).at("id");
+        }
+        catch (const json::exception&)
+        {
+            return "";
+        }
     }
     else
     {
@@ -466,17 +475,26 @@ std::string crow::post(const json& payload)
 {
     if (m_enabled)
     {
-        curl_wrapper curl;
+        // event sampling, see https://docs.sentry.io/clientdev/features/#event-sampling
+        std::random_device random_device;
+        std::default_random_engine random_engine(random_device());
+        std::uniform_real_distribution<double> uniform_dist(0, 1);
+        const auto random = uniform_dist(random_engine);
 
-        // add security header
-        std::string security_header = "X-Sentry-Auth: Sentry sentry_version=5,sentry_client=crow/";
-        security_header += std::string(NLOHMANN_CROW_VERSION) + ",sentry_timestamp=";
-        security_header += std::to_string(detail::get_timestamp());
-        security_header += ",sentry_key=" + m_public_key;
-        security_header += ",sentry_secret=" + m_secret_key;
-        curl.set_header(security_header.c_str());
+        if (random < m_sample_rate)
+        {
+            curl_wrapper curl;
 
-        return curl.post(m_store_url, payload);
+            // add security header
+            std::string security_header = "X-Sentry-Auth: Sentry sentry_version=5,sentry_client=crow/";
+            security_header += std::string(NLOHMANN_CROW_VERSION) + ",sentry_timestamp=";
+            security_header += std::to_string(detail::get_timestamp());
+            security_header += ",sentry_key=" + m_public_key;
+            security_header += ",sentry_secret=" + m_secret_key;
+            curl.set_header(security_header.c_str());
+
+            return curl.post(m_store_url, payload);
+        }
     }
 
     return "";

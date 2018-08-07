@@ -1,7 +1,7 @@
 /*
  _____ _____ _____ _ _ _
 |     | __  |     | | | |  Crow - a Sentry client for C++
-|   --|    -|  |  | | | |  version 0.0.3
+|   --|    -|  |  | | | |  version 0.0.4
 |_____|__|__|_____|_____|  https://github.com/nlohmann/crow
 
 Licensed under the MIT License <http://opensource.org/licenses/MIT>.
@@ -85,6 +85,7 @@ class crow
      *
      * @param[in] dsn the DNS string
      * @param[in] context an optional attributes object
+     * @param[in] sample_rate probability of events actually sent to the server (defaults to 1.0)
      * @param[in] install_handlers whether to install a termination handler
      *
      * @throw std::invalid_argument if DNS string is invalid
@@ -105,7 +106,8 @@ class crow
      */
     explicit crow(const std::string& dsn,
                   const json& context = nullptr,
-                  const bool install_handlers = true);
+                  double sample_rate = 1.0,
+                  bool install_handlers = true);
 
     /*!
      * @brief install termination handler to handle uncaught exceptions
@@ -298,6 +300,8 @@ class crow
     std::string m_store_url;
     /// the payload of all events
     json m_payload = {};
+    /// sample rate
+    const double m_sample_rate = 1.0;
     /// the result of the last HTTP POST
     mutable std::future<std::string> m_pending_future;
     /// the termination handler installed before initializing the client
