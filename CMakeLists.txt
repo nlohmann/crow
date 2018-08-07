@@ -132,7 +132,7 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
     enable_testing()
 
     get_target_property(CROW_SOURCES crow SOURCES)
-    add_executable(tests tests/unittests.cpp ${CROW_SOURCES})
+    add_executable(tests tests/unittests.cpp tests/thirdparty/curl_wrapper/curl_wrapper.cpp ${CROW_SOURCES})
     set_target_properties(tests PROPERTIES CXX_STANDARD 11)
     target_include_directories(tests PUBLIC tests include ${CMAKE_CURRENT_BINARY_DIR}/include)
     target_link_libraries(tests ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})

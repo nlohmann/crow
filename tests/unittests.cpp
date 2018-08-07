@@ -3,11 +3,11 @@
 #include <thirdparty/catch/catch.hpp>
 #include <crow/crow.hpp>
 #include <thirdparty/json/json.hpp>
+#include <thirdparty/curl_wrapper/curl_wrapper.hpp>
 #include <crow/config.h>
 
 using json = nlohmann::json;
 using crow = nlohmann::crow;
-json results = json::array();
 
 void verify_message_structure(const json& msg);
 void verify_message_structure(const json& msg)
@@ -89,7 +89,7 @@ TEST_CASE("sample rate")
 {
     SECTION("sample rate 0.0")
     {
-        results.clear();
+        curl_wrapper::reset();
 
         crow crow_client("https://abc:def@sentry.io/123", nullptr, 0.0);
         CHECK(crow_client.get_last_event_id() == "");
@@ -101,7 +101,7 @@ TEST_CASE("sample rate")
 
     SECTION("sample rate 1.0")
     {
-        results.clear();
+        curl_wrapper::reset();
 
         crow crow_client("https://abc:def@sentry.io/123", nullptr, 1.0);
         CHECK(crow_client.get_last_event_id() == "");
@@ -112,7 +112,6 @@ TEST_CASE("sample rate")
     }
 }
 
-
 TEST_CASE("creating messages")
 {
     crow crow_client("https://abc:def@sentry.io/123");
@@ -122,17 +121,17 @@ TEST_CASE("creating messages")
     {
         SECTION("without payload")
         {
-            results.clear();
+            curl_wrapper::reset();
             std::string msg_string = "message text";
             crow_client.capture_message(msg_string, nullptr, false);
 
-            CHECK(results.size() == 1);
-            const auto& message = results.at(0).at("payload");
+            CHECK(curl_wrapper::results.size() == 1);
+            const auto& message = curl_wrapper::results.at(0).at("payload");
             verify_message_structure(message);
             CHECK(message.at("message") == msg_string);
-            CHECK(results.at(0).at("url") == url);
+            CHECK(curl_wrapper::results.at(0).at("url") == url);
 
-            CHECK(crow_client.get_last_event_id() == "1");
+            CHECK(crow_client.get_last_event_id() == "0");
         }
     }
 
@@ -140,12 +139,12 @@ TEST_CASE("creating messages")
     {
         SECTION("marked as handled")
         {
-            results.clear();
+            curl_wrapper::reset();
             std::string ex_string = "exception text";
             crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false, true);
 
-            CHECK(results.size() == 1);
-            const auto& message = results.at(0).at("payload");
+            CHECK(curl_wrapper::results.size() == 1);
+            const auto& message = curl_wrapper::results.at(0).at("payload");
             CAPTURE(message);
             verify_message_structure(message);
             CHECK(message.at("exception").size() == 1);
@@ -155,18 +154,18 @@ TEST_CASE("creating messages")
 #endif
             CHECK(exception.at("value") == ex_string);
             CHECK(exception.at("mechanism").at("handled"));
-            CHECK(results.at(0).at("url") == url);
+            CHECK(curl_wrapper::results.at(0).at("url") == url);
 
-            CHECK(crow_client.get_last_event_id() == "2");
+            CHECK(crow_client.get_last_event_id() == "0");
         }
 
         SECTION("marked as unhandled")
         {
-            results.clear();
+            curl_wrapper::reset();
             std::string ex_string = "exception text";
             crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false, false);
 
-            const auto& message = results.at(0).at("payload");
+            const auto& message = curl_wrapper::results.at(0).at("payload");
             CAPTURE(message);
             verify_message_structure(message);
             CHECK(message.at("exception").size() == 1);
@@ -176,15 +175,15 @@ TEST_CASE("creating messages")
 #endif
             CHECK(exception.at("value") == ex_string);
             CHECK(not exception.at("mechanism").at("handled"));
-            CHECK(results.at(0).at("url") == url);
+            CHECK(curl_wrapper::results.at(0).at("url") == url);
 
-            CHECK(crow_client.get_last_event_id() == "3");
+            CHECK(crow_client.get_last_event_id() == "0");
         }
     }
 
     SECTION("add_breadcrumb")
     {
-        results.clear();
+        curl_wrapper::reset();
         const std::string msg1 = "breadcrumb 1";
         const std::string msg2 = "breadcrumb 2";
         const json data2 = {{"from", "origin"}, {"to", "destination"}};
@@ -197,11 +196,11 @@ TEST_CASE("creating messages")
         std::string msg_string = "message text";
         crow_client.capture_message(msg_string, nullptr, false);
 
-        CHECK(results.size() == 1);
-        const auto& message = results.at(0).at("payload");
+        CHECK(curl_wrapper::results.size() == 1);
+        const auto& message = curl_wrapper::results.at(0).at("payload");
         verify_message_structure(message);
         CHECK(message.at("message") == msg_string);
-        CHECK(results.at(0).at("url") == url);
+        CHECK(curl_wrapper::results.at(0).at("url") == url);
 
         CHECK(message.at("breadcrumbs").at("values").size() == 2);
         CHECK(message.at("breadcrumbs").at("values").at(0).at("message") == msg1);
@@ -211,7 +210,7 @@ TEST_CASE("creating messages")
         CHECK(message.at("breadcrumbs").at("values").at(1).at("type") == "navigation");
         CHECK(message.at("breadcrumbs").at("values").at(1).at("data") == data2);
 
-        CHECK(crow_client.get_last_event_id() == "4");
+        CHECK(crow_client.get_last_event_id() == "0");
     }
 }
 

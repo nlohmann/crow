@@ -3,10 +3,6 @@
 #include <thirdparty/json/json.hpp>
 
 using json = nlohmann::json;
-extern json results;
-
-/// a counter how often POST has been called
-size_t message_count = 0;
 
 class curl_wrapper
 {
@@ -25,4 +21,15 @@ class curl_wrapper
 
     void set_header(const char*)
     {}
+
+    static void reset()
+    {
+        message_count = 0;
+        results.clear();
+    }
+
+    /// a counter how often POST has been called
+    static size_t message_count;
+    /// a list of sent messages
+    static json results;
 };
