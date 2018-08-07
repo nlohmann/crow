@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0048 NEW)
-project(crow VERSION 0.0.3)
+project(crow VERSION 0.0.4)
 
 ##############################
 # check for required headers #
@@ -132,7 +132,7 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
     enable_testing()
 
     get_target_property(CROW_SOURCES crow SOURCES)
-    add_executable(tests tests/unittests.cpp ${CROW_SOURCES})
+    add_executable(tests tests/unittests.cpp tests/thirdparty/curl_wrapper/curl_wrapper.cpp ${CROW_SOURCES})
     set_target_properties(tests PROPERTIES CXX_STANDARD 11)
     target_include_directories(tests PUBLIC tests include ${CMAKE_CURRENT_BINARY_DIR}/include)
     target_link_libraries(tests ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
@@ -142,8 +142,8 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
     target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include)
     target_link_libraries(livetest crow)
 
-    add_test(tests tests)
-    add_test(livetest livetest)
+    add_test(NAME tests COMMAND tests -s)
+    add_test(NAME livetest COMMAND livetest)
 
     if(CROW_BUILD_LOG4CPLUS)
         include(ExternalProject)
@@ -163,7 +163,7 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
         target_include_directories(log4cplus_example PUBLIC include ${install_dir}/include)
         target_link_libraries(log4cplus_example log4cplus crow)
 
-        add_test(log4cplus_example log4cplus_example)
+        add_test(NAME log4cplus_example COMMAND log4cplus_example)
     endif()
 endif()
 
