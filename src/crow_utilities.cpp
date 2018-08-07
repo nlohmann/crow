@@ -27,6 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <chrono>
 #include <typeinfo>
 #include <src/crow_config.hpp>
 #include <src/crow_utilities.hpp>
