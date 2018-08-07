@@ -128,11 +128,11 @@ TEST_CASE("creating messages")
             std::string msg_string = "message text";
             crow_client.capture_message(msg_string, nullptr, false);
 
-            CHECK(curl_wrapper::results.size() == 1);
-            const auto& message = curl_wrapper::results.at(0).at("payload");
+            CHECK(curl_wrapper::results().size() == 1);
+            const auto& message = curl_wrapper::results().at(0).at("payload");
             verify_message_structure(message);
             CHECK(message.at("message") == msg_string);
-            CHECK(curl_wrapper::results.at(0).at("url") == url);
+            CHECK(curl_wrapper::results().at(0).at("url") == url);
 
             CHECK(crow_client.get_last_event_id() == "0");
         }
@@ -146,8 +146,8 @@ TEST_CASE("creating messages")
             std::string ex_string = "exception text";
             crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false, true);
 
-            CHECK(curl_wrapper::results.size() == 1);
-            const auto& message = curl_wrapper::results.at(0).at("payload");
+            CHECK(curl_wrapper::results().size() == 1);
+            const auto& message = curl_wrapper::results().at(0).at("payload");
             CAPTURE(message);
             verify_message_structure(message);
             CHECK(message.at("exception").size() == 1);
@@ -157,7 +157,7 @@ TEST_CASE("creating messages")
 #endif
             CHECK(exception.at("value") == ex_string);
             CHECK(exception.at("mechanism").at("handled"));
-            CHECK(curl_wrapper::results.at(0).at("url") == url);
+            CHECK(curl_wrapper::results().at(0).at("url") == url);
 
             CHECK(crow_client.get_last_event_id() == "0");
         }
@@ -168,7 +168,7 @@ TEST_CASE("creating messages")
             std::string ex_string = "exception text";
             crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false, false);
 
-            const auto& message = curl_wrapper::results.at(0).at("payload");
+            const auto& message = curl_wrapper::results().at(0).at("payload");
             CAPTURE(message);
             verify_message_structure(message);
             CHECK(message.at("exception").size() == 1);
@@ -178,7 +178,7 @@ TEST_CASE("creating messages")
 #endif
             CHECK(exception.at("value") == ex_string);
             CHECK(not exception.at("mechanism").at("handled"));
-            CHECK(curl_wrapper::results.at(0).at("url") == url);
+            CHECK(curl_wrapper::results().at(0).at("url") == url);
 
             CHECK(crow_client.get_last_event_id() == "0");
         }
@@ -199,11 +199,11 @@ TEST_CASE("creating messages")
         std::string msg_string = "message text";
         crow_client.capture_message(msg_string, nullptr, false);
 
-        CHECK(curl_wrapper::results.size() == 1);
-        const auto& message = curl_wrapper::results.at(0).at("payload");
+        CHECK(curl_wrapper::results().size() == 1);
+        const auto& message = curl_wrapper::results().at(0).at("payload");
         verify_message_structure(message);
         CHECK(message.at("message") == msg_string);
-        CHECK(curl_wrapper::results.at(0).at("url") == url);
+        CHECK(curl_wrapper::results().at(0).at("url") == url);
 
         CHECK(message.at("breadcrumbs").at("values").size() == 2);
         CHECK(message.at("breadcrumbs").at("values").at(0).at("message") == msg1);
