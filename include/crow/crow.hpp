@@ -242,10 +242,12 @@ class crow
     /*!
      * @brief POST the payload to the Sentry sink URL
      *
-     * @param[in] payload payload to send
+     * @param[in] payload payload to send (copy intended)
      * @return result
      */
-    std::string post(const json& payload);
+    std::string post(json payload) const;
+
+    void enqueue_post(bool asynchronous);
 
     /*!
      * @brief termination handler that detects uncaught exceptions
@@ -271,6 +273,8 @@ class crow
     std::terminate_handler existing_termination_handler = nullptr;
     /// a mutex to make payload thread-safe
     std::mutex m_payload_mutex;
+    /// a mutex to make the posting thread-safe
+    mutable std::mutex m_pending_future_mutex;
     /// a pointer to the last client (used for termination handling)
     static crow* m_client_that_installed_termination_handler;
 };

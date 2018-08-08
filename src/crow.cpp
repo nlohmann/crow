@@ -99,15 +99,16 @@ void crow::install_handler()
 }
 
 crow::crow(const crow& other)
-    : m_enabled(other.m_enabled),
-      m_public_key(other.m_public_key),
-      m_secret_key(other.m_secret_key),
-      m_store_url(other.m_store_url),
-      m_payload(other.m_payload)
+    : m_enabled(other.m_enabled)
+    , m_public_key(other.m_public_key)
+    , m_secret_key(other.m_secret_key)
+    , m_store_url(other.m_store_url)
+    , m_payload(other.m_payload)
 {}
 
 crow::~crow()
 {
+    // wait fur running request to finish
     if (m_pending_future.valid())
     {
         m_pending_future.wait();
@@ -150,11 +151,7 @@ void crow::capture_message(const std::string& message,
         }
     }
 
-    m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
-    if (not asynchronous)
-    {
-        m_pending_future.wait();
-    }
+    enqueue_post(asynchronous);
 }
 
 
@@ -178,11 +175,7 @@ void crow::capture_exception(const std::exception& exception,
     // add given context
     merge_context(context);
 
-    m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
-    if (not asynchronous)
-    {
-        m_pending_future.wait();
-    }
+    enqueue_post(asynchronous);
 }
 
 void crow::add_breadcrumb(const std::string& message,
@@ -235,6 +228,7 @@ void crow::add_breadcrumb(const std::string& message,
 
 std::string crow::get_last_event_id() const
 {
+    std::lock_guard<std::mutex> lock(m_pending_future_mutex);
     if (m_pending_future.valid())
     {
         try
@@ -356,7 +350,7 @@ void crow::clear_context()
     }
 }
 
-std::string crow::post(const json& payload)
+std::string crow::post(json payload) const
 {
     if (m_enabled)
     {
@@ -396,5 +390,23 @@ void crow::new_termination_handler()
 
     m_client_that_installed_termination_handler->existing_termination_handler();
 }
+
+    void crow::enqueue_post(const bool asynchronous)
+    {
+        std::lock_guard<std::mutex> lock(m_pending_future_mutex);
+
+        // wait for running post requests
+        if (m_pending_future.valid())
+        {
+            m_pending_future.wait();
+        }
+
+        // start a new post request
+        m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
+        if (not asynchronous)
+        {
+            m_pending_future.wait();
+        }
+    }
 
 }
