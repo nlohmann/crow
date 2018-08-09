@@ -252,7 +252,7 @@ implementations of some @ref basic_json methods, and meta-programming helpers.
 
 @since version 2.1.0
 */
-namespace detail
+namespace crow_utilities
 {
 /////////////
 // helpers //
@@ -499,7 +499,7 @@ constexpr T static_const<T>::value;
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 ////////////////
 // exceptions //
@@ -832,7 +832,7 @@ class other_error : public exception
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 ///////////////////////////
 // JSON type enumeration //
@@ -925,7 +925,7 @@ inline bool operator<(const value_t lhs, const value_t rhs) noexcept
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 // overloads for basic_json template parameters
 template<typename BasicJsonType, typename ArithmeticType,
@@ -1223,7 +1223,7 @@ struct from_json_fn
 /// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4381.html
 namespace
 {
-constexpr const auto& from_json = detail::static_const<detail::from_json_fn>::value;
+constexpr const auto& from_json = crow_utilities::static_const<crow_utilities::from_json_fn>::value;
 }
 }
 
@@ -1245,7 +1245,7 @@ constexpr const auto& from_json = detail::static_const<detail::from_json_fn>::va
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 //////////////////
 // constructors //
@@ -1565,7 +1565,7 @@ struct to_json_fn
 /// namespace to hold default `to_json` function
 namespace
 {
-constexpr const auto& to_json = detail::static_const<detail::to_json_fn>::value;
+constexpr const auto& to_json = crow_utilities::static_const<crow_utilities::to_json_fn>::value;
 }
 }
 
@@ -1591,7 +1591,7 @@ constexpr const auto& to_json = detail::static_const<detail::to_json_fn>::value;
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 ////////////////////
 // input adapters //
@@ -1854,7 +1854,7 @@ class input_adapter
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 ///////////
 // lexer //
@@ -1938,7 +1938,7 @@ class lexer
         }
     }
 
-    explicit lexer(detail::input_adapter_t adapter)
+    explicit lexer(crow_utilities::input_adapter_t adapter)
         : ia(std::move(adapter)), decimal_point_char(get_decimal_point()) {}
 
     // delete because of pointer members
@@ -3088,7 +3088,7 @@ scan_number_done:
 
   private:
     /// input adapter
-    detail::input_adapter_t ia = nullptr;
+    crow_utilities::input_adapter_t ia = nullptr;
 
     /// the current character
     std::char_traits<char>::int_type current = std::char_traits<char>::eof();
@@ -3139,7 +3139,7 @@ scan_number_done:
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 ////////////
 // parser //
@@ -3181,7 +3181,7 @@ class parser
         std::function<bool(int depth, parse_event_t event, BasicJsonType& parsed)>;
 
     /// a parser reading from an input adapter
-    explicit parser(detail::input_adapter_t adapter,
+    explicit parser(crow_utilities::input_adapter_t adapter,
                     const parser_callback_t cb = nullptr,
                     const bool allow_exceptions_ = true)
         : callback(cb), m_lexer(adapter), allow_exceptions(allow_exceptions_)
@@ -3722,7 +3722,7 @@ class parser
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 /*
 @brief an iterator for primitive JSON types
@@ -3844,7 +3844,7 @@ class primitive_iterator_t
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 /*!
 @brief an iterator value
@@ -3886,7 +3886,7 @@ template<typename BasicJsonType> struct internal_iterator
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 // forward declare, to be able to friend it later on
 template<typename IteratorType> class iteration_proxy;
@@ -4497,7 +4497,7 @@ class iter_impl
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 /// proxy class for the items() function
 template<typename IteratorType> class iteration_proxy
@@ -4596,7 +4596,7 @@ template<typename IteratorType> class iteration_proxy
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 //////////////////////
 // reverse_iterator //
@@ -4722,7 +4722,7 @@ class json_reverse_iterator : public std::reverse_iterator<Base>
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 /// abstract output adapter interface
 template<typename CharType> struct output_adapter_protocol
@@ -4852,7 +4852,7 @@ class output_adapter
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 ///////////////////
 // binary reader //
@@ -6219,7 +6219,7 @@ class binary_reader
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 ///////////////////
 // binary writer //
@@ -7158,7 +7158,7 @@ class binary_writer
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 
 /*!
@@ -8255,7 +8255,7 @@ char* to_chars(char* first, char* last, FloatType value)
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 ///////////////////
 // serialization //
@@ -8662,7 +8662,7 @@ class serializer
     @param[in] x  integer number (signed or unsigned) to dump
     @tparam NumberType either @a number_integer_t or @a number_unsigned_t
     */
-    template<typename NumberType, detail::enable_if_t<
+    template<typename NumberType, crow_utilities::enable_if_t<
                  std::is_same<NumberType, number_unsigned_t>::value or
                  std::is_same<NumberType, number_integer_t>::value,
                  int> = 0>
@@ -8731,7 +8731,7 @@ class serializer
     void dump_float(number_float_t x, std::true_type /*is_ieee_single_or_double*/)
     {
         char* begin = number_buffer.data();
-        char* end = ::nlohmann::detail::to_chars(begin, begin + number_buffer.size(), x);
+        char* end = ::nlohmann::crow_utilities::to_chars(begin, begin + number_buffer.size(), x);
 
         o->write_characters(begin, static_cast<size_t>(end - begin));
     }
@@ -8871,7 +8871,7 @@ class serializer
 
 namespace nlohmann
 {
-namespace detail
+namespace crow_utilities
 {
 template<typename BasicJsonType>
 class json_ref
@@ -9024,7 +9024,7 @@ class json_pointer
         // check if the string was completely read
         if (JSON_UNLIKELY(processed_chars != s.size()))
         {
-            JSON_THROW(detail::out_of_range::create(404, "unresolved reference token '" + s + "'"));
+            JSON_THROW(crow_utilities::out_of_range::create(404, "unresolved reference token '" + s + "'"));
         }
 
         return res;
@@ -9039,7 +9039,7 @@ class json_pointer
     {
         if (JSON_UNLIKELY(is_root()))
         {
-            JSON_THROW(detail::out_of_range::create(405, "JSON pointer has no parent"));
+            JSON_THROW(crow_utilities::out_of_range::create(405, "JSON pointer has no parent"));
         }
 
         auto last = reference_tokens.back();
@@ -9057,7 +9057,7 @@ class json_pointer
     {
         if (JSON_UNLIKELY(is_root()))
         {
-            JSON_THROW(detail::out_of_range::create(405, "JSON pointer has no parent"));
+            JSON_THROW(crow_utilities::out_of_range::create(405, "JSON pointer has no parent"));
         }
 
         json_pointer result = *this;
@@ -9084,7 +9084,7 @@ class json_pointer
         {
             switch (result->m_type)
             {
-                case detail::value_t::null:
+                case crow_utilities::value_t::null:
                 {
                     if (reference_token == "0")
                     {
@@ -9099,14 +9099,14 @@ class json_pointer
                     break;
                 }
 
-                case detail::value_t::object:
+                case crow_utilities::value_t::object:
                 {
                     // create an entry in the object
                     result = &result->operator[](reference_token);
                     break;
                 }
 
-                case detail::value_t::array:
+                case crow_utilities::value_t::array:
                 {
                     // create an entry in the array
                     JSON_TRY
@@ -9115,7 +9115,7 @@ class json_pointer
                     }
                     JSON_CATCH(std::invalid_argument&)
                     {
-                        JSON_THROW(detail::parse_error::create(109, 0, "array index '" + reference_token + "' is not a number"));
+                        JSON_THROW(crow_utilities::parse_error::create(109, 0, "array index '" + reference_token + "' is not a number"));
                     }
                     break;
                 }
@@ -9127,7 +9127,7 @@ class json_pointer
                 single value; that is, with an empty list of reference tokens.
                 */
                 default:
-                    JSON_THROW(detail::type_error::create(313, "invalid value to unflatten"));
+                    JSON_THROW(crow_utilities::type_error::create(313, "invalid value to unflatten"));
             }
         }
 
@@ -9159,7 +9159,7 @@ class json_pointer
         for (const auto& reference_token : reference_tokens)
         {
             // convert null values to arrays or objects before continuing
-            if (ptr->m_type == detail::value_t::null)
+            if (ptr->m_type == crow_utilities::value_t::null)
             {
                 // check if reference token is a number
                 const bool nums =
@@ -9171,25 +9171,25 @@ class json_pointer
 
                 // change value to array for numbers or "-" or to object otherwise
                 *ptr = (nums or reference_token == "-")
-                       ? detail::value_t::array
-                       : detail::value_t::object;
+                       ? crow_utilities::value_t::array
+                       : crow_utilities::value_t::object;
             }
 
             switch (ptr->m_type)
             {
-                case detail::value_t::object:
+                case crow_utilities::value_t::object:
                 {
                     // use unchecked object access
                     ptr = &ptr->operator[](reference_token);
                     break;
                 }
 
-                case detail::value_t::array:
+                case crow_utilities::value_t::array:
                 {
                     // error condition (cf. RFC 6901, Sect. 4)
                     if (JSON_UNLIKELY(reference_token.size() > 1 and reference_token[0] == '0'))
                     {
-                        JSON_THROW(detail::parse_error::create(106, 0,
+                        JSON_THROW(crow_utilities::parse_error::create(106, 0,
                                                                "array index '" + reference_token +
                                                                "' must not begin with '0'"));
                     }
@@ -9209,14 +9209,14 @@ class json_pointer
                         }
                         JSON_CATCH(std::invalid_argument&)
                         {
-                            JSON_THROW(detail::parse_error::create(109, 0, "array index '" + reference_token + "' is not a number"));
+                            JSON_THROW(crow_utilities::parse_error::create(109, 0, "array index '" + reference_token + "' is not a number"));
                         }
                     }
                     break;
                 }
 
                 default:
-                    JSON_THROW(detail::out_of_range::create(404, "unresolved reference token '" + reference_token + "'"));
+                    JSON_THROW(crow_utilities::out_of_range::create(404, "unresolved reference token '" + reference_token + "'"));
             }
         }
 
@@ -9236,19 +9236,19 @@ class json_pointer
         {
             switch (ptr->m_type)
             {
-                case detail::value_t::object:
+                case crow_utilities::value_t::object:
                 {
                     // note: at performs range check
                     ptr = &ptr->at(reference_token);
                     break;
                 }
 
-                case detail::value_t::array:
+                case crow_utilities::value_t::array:
                 {
                     if (JSON_UNLIKELY(reference_token == "-"))
                     {
                         // "-" always fails the range check
-                        JSON_THROW(detail::out_of_range::create(402,
+                        JSON_THROW(crow_utilities::out_of_range::create(402,
                                                                 "array index '-' (" + std::to_string(ptr->m_value.array->size()) +
                                                                 ") is out of range"));
                     }
@@ -9256,7 +9256,7 @@ class json_pointer
                     // error condition (cf. RFC 6901, Sect. 4)
                     if (JSON_UNLIKELY(reference_token.size() > 1 and reference_token[0] == '0'))
                     {
-                        JSON_THROW(detail::parse_error::create(106, 0,
+                        JSON_THROW(crow_utilities::parse_error::create(106, 0,
                                                                "array index '" + reference_token +
                                                                "' must not begin with '0'"));
                     }
@@ -9268,13 +9268,13 @@ class json_pointer
                     }
                     JSON_CATCH(std::invalid_argument&)
                     {
-                        JSON_THROW(detail::parse_error::create(109, 0, "array index '" + reference_token + "' is not a number"));
+                        JSON_THROW(crow_utilities::parse_error::create(109, 0, "array index '" + reference_token + "' is not a number"));
                     }
                     break;
                 }
 
                 default:
-                    JSON_THROW(detail::out_of_range::create(404, "unresolved reference token '" + reference_token + "'"));
+                    JSON_THROW(crow_utilities::out_of_range::create(404, "unresolved reference token '" + reference_token + "'"));
             }
         }
 
@@ -9301,19 +9301,19 @@ class json_pointer
         {
             switch (ptr->m_type)
             {
-                case detail::value_t::object:
+                case crow_utilities::value_t::object:
                 {
                     // use unchecked object access
                     ptr = &ptr->operator[](reference_token);
                     break;
                 }
 
-                case detail::value_t::array:
+                case crow_utilities::value_t::array:
                 {
                     if (JSON_UNLIKELY(reference_token == "-"))
                     {
                         // "-" cannot be used for const access
-                        JSON_THROW(detail::out_of_range::create(402,
+                        JSON_THROW(crow_utilities::out_of_range::create(402,
                                                                 "array index '-' (" + std::to_string(ptr->m_value.array->size()) +
                                                                 ") is out of range"));
                     }
@@ -9321,7 +9321,7 @@ class json_pointer
                     // error condition (cf. RFC 6901, Sect. 4)
                     if (JSON_UNLIKELY(reference_token.size() > 1 and reference_token[0] == '0'))
                     {
-                        JSON_THROW(detail::parse_error::create(106, 0,
+                        JSON_THROW(crow_utilities::parse_error::create(106, 0,
                                                                "array index '" + reference_token +
                                                                "' must not begin with '0'"));
                     }
@@ -9334,13 +9334,13 @@ class json_pointer
                     }
                     JSON_CATCH(std::invalid_argument&)
                     {
-                        JSON_THROW(detail::parse_error::create(109, 0, "array index '" + reference_token + "' is not a number"));
+                        JSON_THROW(crow_utilities::parse_error::create(109, 0, "array index '" + reference_token + "' is not a number"));
                     }
                     break;
                 }
 
                 default:
-                    JSON_THROW(detail::out_of_range::create(404, "unresolved reference token '" + reference_token + "'"));
+                    JSON_THROW(crow_utilities::out_of_range::create(404, "unresolved reference token '" + reference_token + "'"));
             }
         }
 
@@ -9360,19 +9360,19 @@ class json_pointer
         {
             switch (ptr->m_type)
             {
-                case detail::value_t::object:
+                case crow_utilities::value_t::object:
                 {
                     // note: at performs range check
                     ptr = &ptr->at(reference_token);
                     break;
                 }
 
-                case detail::value_t::array:
+                case crow_utilities::value_t::array:
                 {
                     if (JSON_UNLIKELY(reference_token == "-"))
                     {
                         // "-" always fails the range check
-                        JSON_THROW(detail::out_of_range::create(402,
+                        JSON_THROW(crow_utilities::out_of_range::create(402,
                                                                 "array index '-' (" + std::to_string(ptr->m_value.array->size()) +
                                                                 ") is out of range"));
                     }
@@ -9380,7 +9380,7 @@ class json_pointer
                     // error condition (cf. RFC 6901, Sect. 4)
                     if (JSON_UNLIKELY(reference_token.size() > 1 and reference_token[0] == '0'))
                     {
-                        JSON_THROW(detail::parse_error::create(106, 0,
+                        JSON_THROW(crow_utilities::parse_error::create(106, 0,
                                                                "array index '" + reference_token +
                                                                "' must not begin with '0'"));
                     }
@@ -9392,13 +9392,13 @@ class json_pointer
                     }
                     JSON_CATCH(std::invalid_argument&)
                     {
-                        JSON_THROW(detail::parse_error::create(109, 0, "array index '" + reference_token + "' is not a number"));
+                        JSON_THROW(crow_utilities::parse_error::create(109, 0, "array index '" + reference_token + "' is not a number"));
                     }
                     break;
                 }
 
                 default:
-                    JSON_THROW(detail::out_of_range::create(404, "unresolved reference token '" + reference_token + "'"));
+                    JSON_THROW(crow_utilities::out_of_range::create(404, "unresolved reference token '" + reference_token + "'"));
             }
         }
 
@@ -9427,7 +9427,7 @@ class json_pointer
         // check if nonempty reference string begins with slash
         if (JSON_UNLIKELY(reference_string[0] != '/'))
         {
-            JSON_THROW(detail::parse_error::create(107, 1,
+            JSON_THROW(crow_utilities::parse_error::create(107, 1,
                                                    "JSON pointer must be empty or begin with '/' - was: '" +
                                                    reference_string + "'"));
         }
@@ -9464,7 +9464,7 @@ class json_pointer
                                   (reference_token[pos + 1] != '0' and
                                    reference_token[pos + 1] != '1')))
                 {
-                    JSON_THROW(detail::parse_error::create(108, 0, "escape character '~' must be followed with '0' or '1'"));
+                    JSON_THROW(crow_utilities::parse_error::create(108, 0, "escape character '~' must be followed with '0' or '1'"));
                 }
             }
 
@@ -9528,7 +9528,7 @@ class json_pointer
     {
         switch (value.m_type)
         {
-            case detail::value_t::array:
+            case crow_utilities::value_t::array:
             {
                 if (value.m_value.array->empty())
                 {
@@ -9547,7 +9547,7 @@ class json_pointer
                 break;
             }
 
-            case detail::value_t::object:
+            case crow_utilities::value_t::object:
             {
                 if (value.m_value.object->empty())
                 {
@@ -9589,7 +9589,7 @@ class json_pointer
     {
         if (JSON_UNLIKELY(not value.is_object()))
         {
-            JSON_THROW(detail::type_error::create(314, "only objects can be unflattened"));
+            JSON_THROW(crow_utilities::type_error::create(314, "only objects can be unflattened"));
         }
 
         BasicJsonType result;
@@ -9599,7 +9599,7 @@ class json_pointer
         {
             if (JSON_UNLIKELY(not element.second.is_primitive()))
             {
-                JSON_THROW(detail::type_error::create(315, "values in object must be primitive"));
+                JSON_THROW(crow_utilities::type_error::create(315, "values in object must be primitive"));
             }
 
             // assign value to reference pointed to by JSON pointer; Note that if
@@ -9772,49 +9772,49 @@ NLOHMANN_BASIC_JSON_TPL_DECLARATION
 class basic_json
 {
   private:
-    template<detail::value_t> friend struct detail::external_constructor;
+    template<crow_utilities::value_t> friend struct crow_utilities::external_constructor;
     friend ::nlohmann::json_pointer<basic_json>;
-    friend ::nlohmann::detail::parser<basic_json>;
-    friend ::nlohmann::detail::serializer<basic_json>;
+    friend ::nlohmann::crow_utilities::parser<basic_json>;
+    friend ::nlohmann::crow_utilities::serializer<basic_json>;
     template<typename BasicJsonType>
-    friend class ::nlohmann::detail::iter_impl;
+    friend class ::nlohmann::crow_utilities::iter_impl;
     template<typename BasicJsonType, typename CharType>
-    friend class ::nlohmann::detail::binary_writer;
+    friend class ::nlohmann::crow_utilities::binary_writer;
     template<typename BasicJsonType>
-    friend class ::nlohmann::detail::binary_reader;
+    friend class ::nlohmann::crow_utilities::binary_reader;
 
     /// workaround type for MSVC
     using basic_json_t = NLOHMANN_BASIC_JSON_TPL;
 
     // convenience aliases for types residing in namespace detail;
-    using lexer = ::nlohmann::detail::lexer<basic_json>;
-    using parser = ::nlohmann::detail::parser<basic_json>;
+    using lexer = ::nlohmann::crow_utilities::lexer<basic_json>;
+    using parser = ::nlohmann::crow_utilities::parser<basic_json>;
 
-    using primitive_iterator_t = ::nlohmann::detail::primitive_iterator_t;
+    using primitive_iterator_t = ::nlohmann::crow_utilities::primitive_iterator_t;
     template<typename BasicJsonType>
-    using internal_iterator = ::nlohmann::detail::internal_iterator<BasicJsonType>;
+    using internal_iterator = ::nlohmann::crow_utilities::internal_iterator<BasicJsonType>;
     template<typename BasicJsonType>
-    using iter_impl = ::nlohmann::detail::iter_impl<BasicJsonType>;
+    using iter_impl = ::nlohmann::crow_utilities::iter_impl<BasicJsonType>;
     template<typename Iterator>
-    using iteration_proxy = ::nlohmann::detail::iteration_proxy<Iterator>;
-    template<typename Base> using json_reverse_iterator = ::nlohmann::detail::json_reverse_iterator<Base>;
+    using iteration_proxy = ::nlohmann::crow_utilities::iteration_proxy<Iterator>;
+    template<typename Base> using json_reverse_iterator = ::nlohmann::crow_utilities::json_reverse_iterator<Base>;
 
     template<typename CharType>
-    using output_adapter_t = ::nlohmann::detail::output_adapter_t<CharType>;
+    using output_adapter_t = ::nlohmann::crow_utilities::output_adapter_t<CharType>;
 
-    using binary_reader = ::nlohmann::detail::binary_reader<basic_json>;
-    template<typename CharType> using binary_writer = ::nlohmann::detail::binary_writer<basic_json, CharType>;
+    using binary_reader = ::nlohmann::crow_utilities::binary_reader<basic_json>;
+    template<typename CharType> using binary_writer = ::nlohmann::crow_utilities::binary_writer<basic_json, CharType>;
 
-    using serializer = ::nlohmann::detail::serializer<basic_json>;
+    using serializer = ::nlohmann::crow_utilities::serializer<basic_json>;
 
   public:
-    using value_t = detail::value_t;
+    using value_t = crow_utilities::value_t;
     /// @copydoc nlohmann::json_pointer
     using json_pointer = ::nlohmann::json_pointer<basic_json>;
     template<typename T, typename SFINAE>
     using json_serializer = JSONSerializer<T, SFINAE>;
     /// helper type for initializer lists of basic_json values
-    using initializer_list_t = std::initializer_list<detail::json_ref<basic_json>>;
+    using initializer_list_t = std::initializer_list<crow_utilities::json_ref<basic_json>>;
 
     ////////////////
     // exceptions //
@@ -9825,17 +9825,17 @@ class basic_json
     /// @{
 
     /// @copydoc detail::exception
-    using exception = detail::exception;
+    using exception = crow_utilities::exception;
     /// @copydoc detail::parse_error
-    using parse_error = detail::parse_error;
+    using parse_error = crow_utilities::parse_error;
     /// @copydoc detail::invalid_iterator
-    using invalid_iterator = detail::invalid_iterator;
+    using invalid_iterator = crow_utilities::invalid_iterator;
     /// @copydoc detail::type_error
-    using type_error = detail::type_error;
+    using type_error = crow_utilities::type_error;
     /// @copydoc detail::out_of_range
-    using out_of_range = detail::out_of_range;
+    using out_of_range = crow_utilities::out_of_range;
     /// @copydoc detail::other_error
-    using other_error = detail::other_error;
+    using other_error = crow_utilities::other_error;
 
     /// @}
 
@@ -10843,9 +10843,9 @@ class basic_json
     @since version 2.1.0
     */
     template <typename CompatibleType,
-              typename U = detail::uncvref_t<CompatibleType>,
-              detail::enable_if_t<
-                  detail::is_compatible_type<basic_json_t, U>::value, int> = 0>
+              typename U = crow_utilities::uncvref_t<CompatibleType>,
+              crow_utilities::enable_if_t<
+                  crow_utilities::is_compatible_type<basic_json_t, U>::value, int> = 0>
     basic_json(CompatibleType && val) noexcept(noexcept(
                 JSONSerializer<U>::to_json(std::declval<basic_json_t&>(),
                                            std::forward<CompatibleType>(val))))
@@ -10881,8 +10881,8 @@ class basic_json
     @since version 3.1.2
     */
     template <typename BasicJsonType,
-              detail::enable_if_t<
-                  detail::is_basic_json<BasicJsonType>::value and not std::is_same<basic_json, BasicJsonType>::value, int> = 0>
+              crow_utilities::enable_if_t<
+                  crow_utilities::is_basic_json<BasicJsonType>::value and not std::is_same<basic_json, BasicJsonType>::value, int> = 0>
     basic_json(const BasicJsonType& val)
     {
         using other_boolean_t = typename BasicJsonType::boolean_t;
@@ -11007,7 +11007,7 @@ class basic_json
         // check if each element is an array with two elements whose first
         // element is a string
         bool is_an_object = std::all_of(init.begin(), init.end(),
-                                        [](const detail::json_ref<basic_json>& element_ref)
+                                        [](const crow_utilities::json_ref<basic_json>& element_ref)
         {
             return (element_ref->is_array() and element_ref->size() == 2 and (*element_ref)[0].is_string());
         });
@@ -11034,7 +11034,7 @@ class basic_json
             m_type = value_t::object;
             m_value = value_t::object;
 
-            std::for_each(init.begin(), init.end(), [this](const detail::json_ref<basic_json>& element_ref)
+            std::for_each(init.begin(), init.end(), [this](const crow_utilities::json_ref<basic_json>& element_ref)
             {
                 auto element = element_ref.moved_or_copied();
                 m_value.object->emplace(
@@ -11319,7 +11319,7 @@ class basic_json
     ///////////////////////////////////////
 
     /// @private
-    basic_json(const detail::json_ref<basic_json>& ref)
+    basic_json(const crow_utilities::json_ref<basic_json>& ref)
         : basic_json(ref.moved_or_copied())
     {}
 
@@ -11558,7 +11558,7 @@ class basic_json
                   const bool ensure_ascii = false) const
     {
         string_t result;
-        serializer s(detail::output_adapter<char, string_t>(result), indent_char);
+        serializer s(crow_utilities::output_adapter<char, string_t>(result), indent_char);
 
         if (indent >= 0)
         {
@@ -12090,7 +12090,7 @@ class basic_json
 
     @since version 2.1.0
     */
-    template<typename BasicJsonType, detail::enable_if_t<
+    template<typename BasicJsonType, crow_utilities::enable_if_t<
                  std::is_same<typename std::remove_const<BasicJsonType>::type, basic_json_t>::value,
                  int> = 0>
     basic_json get() const
@@ -12113,9 +12113,9 @@ class basic_json
 
     @since version 3.1.2
     */
-    template<typename BasicJsonType, detail::enable_if_t<
+    template<typename BasicJsonType, crow_utilities::enable_if_t<
                  not std::is_same<BasicJsonType, basic_json>::value and
-                 detail::is_basic_json<BasicJsonType>::value, int> = 0>
+                 crow_utilities::is_basic_json<BasicJsonType>::value, int> = 0>
     BasicJsonType get() const
     {
         return *this;
@@ -12160,11 +12160,11 @@ class basic_json
 
     @since version 2.1.0
     */
-    template<typename ValueTypeCV, typename ValueType = detail::uncvref_t<ValueTypeCV>,
-             detail::enable_if_t <
-                 not detail::is_basic_json<ValueType>::value and
-                 detail::has_from_json<basic_json_t, ValueType>::value and
-                 not detail::has_non_default_from_json<basic_json_t, ValueType>::value,
+    template<typename ValueTypeCV, typename ValueType = crow_utilities::uncvref_t<ValueTypeCV>,
+             crow_utilities::enable_if_t <
+                 not crow_utilities::is_basic_json<ValueType>::value and
+                 crow_utilities::has_from_json<basic_json_t, ValueType>::value and
+                 not crow_utilities::has_non_default_from_json<basic_json_t, ValueType>::value,
                  int> = 0>
     ValueType get() const noexcept(noexcept(
                                        JSONSerializer<ValueType>::from_json(std::declval<const basic_json_t&>(), std::declval<ValueType&>())))
@@ -12213,9 +12213,9 @@ class basic_json
 
     @since version 2.1.0
     */
-    template<typename ValueTypeCV, typename ValueType = detail::uncvref_t<ValueTypeCV>,
-             detail::enable_if_t<not std::is_same<basic_json_t, ValueType>::value and
-                                 detail::has_non_default_from_json<basic_json_t, ValueType>::value,
+    template<typename ValueTypeCV, typename ValueType = crow_utilities::uncvref_t<ValueTypeCV>,
+             crow_utilities::enable_if_t<not std::is_same<basic_json_t, ValueType>::value and
+                                 crow_utilities::has_non_default_from_json<basic_json_t, ValueType>::value,
                                  int> = 0>
     ValueType get() const noexcept(noexcept(
                                        JSONSerializer<ValueTypeCV>::from_json(std::declval<const basic_json_t&>())))
@@ -12427,9 +12427,9 @@ class basic_json
     */
     template < typename ValueType, typename std::enable_if <
                    not std::is_pointer<ValueType>::value and
-                   not std::is_same<ValueType, detail::json_ref<basic_json>>::value and
+                   not std::is_same<ValueType, crow_utilities::json_ref<basic_json>>::value and
                    not std::is_same<ValueType, typename string_t::value_type>::value and
-                   not detail::is_basic_json<ValueType>::value
+                   not crow_utilities::is_basic_json<ValueType>::value
 #ifndef _MSC_VER  // fix for issue #167 operator<< ambiguity under VS2015
                    and not std::is_same<ValueType, std::initializer_list<typename string_t::value_type>>::value
 #endif
@@ -15511,7 +15511,7 @@ class basic_json
         o.width(0);
 
         // do the actual serialization
-        serializer s(detail::output_adapter<char>(o), o.fill());
+        serializer s(crow_utilities::output_adapter<char>(o), o.fill());
         s.dump(j, pretty_print, false, static_cast<unsigned int>(indentation));
         return o;
     }
@@ -15602,7 +15602,7 @@ class basic_json
 
     @since version 2.0.3 (contiguous containers)
     */
-    static basic_json parse(detail::input_adapter i,
+    static basic_json parse(crow_utilities::input_adapter i,
                             const parser_callback_t cb = nullptr,
                             const bool allow_exceptions = true)
     {
@@ -15614,7 +15614,7 @@ class basic_json
     /*!
     @copydoc basic_json parse(detail::input_adapter, const parser_callback_t)
     */
-    static basic_json parse(detail::input_adapter& i,
+    static basic_json parse(crow_utilities::input_adapter& i,
                             const parser_callback_t cb = nullptr,
                             const bool allow_exceptions = true)
     {
@@ -15623,12 +15623,12 @@ class basic_json
         return result;
     }
 
-    static bool accept(detail::input_adapter i)
+    static bool accept(crow_utilities::input_adapter i)
     {
         return parser(i).accept(true);
     }
 
-    static bool accept(detail::input_adapter& i)
+    static bool accept(crow_utilities::input_adapter& i)
     {
         return parser(i).accept(true);
     }
@@ -15689,7 +15689,7 @@ class basic_json
                             const bool allow_exceptions = true)
     {
         basic_json result;
-        parser(detail::input_adapter(first, last), cb, allow_exceptions).parse(true, result);
+        parser(crow_utilities::input_adapter(first, last), cb, allow_exceptions).parse(true, result);
         return result;
     }
 
@@ -15699,7 +15699,7 @@ class basic_json
                      typename std::iterator_traits<IteratorType>::iterator_category>::value, int>::type = 0>
     static bool accept(IteratorType first, IteratorType last)
     {
-        return parser(detail::input_adapter(first, last)).accept(true);
+        return parser(crow_utilities::input_adapter(first, last)).accept(true);
     }
 
     /*!
@@ -15743,7 +15743,7 @@ class basic_json
     */
     friend std::istream& operator>>(std::istream& i, basic_json& j)
     {
-        parser(detail::input_adapter(i)).parse(false, j);
+        parser(crow_utilities::input_adapter(i)).parse(false, j);
         return i;
     }
 
@@ -15921,12 +15921,12 @@ class basic_json
         return result;
     }
 
-    static void to_cbor(const basic_json& j, detail::output_adapter<uint8_t> o)
+    static void to_cbor(const basic_json& j, crow_utilities::output_adapter<uint8_t> o)
     {
         binary_writer<uint8_t>(o).write_cbor(j);
     }
 
-    static void to_cbor(const basic_json& j, detail::output_adapter<char> o)
+    static void to_cbor(const basic_json& j, crow_utilities::output_adapter<char> o)
     {
         binary_writer<char>(o).write_cbor(j);
     }
@@ -16018,12 +16018,12 @@ class basic_json
         return result;
     }
 
-    static void to_msgpack(const basic_json& j, detail::output_adapter<uint8_t> o)
+    static void to_msgpack(const basic_json& j, crow_utilities::output_adapter<uint8_t> o)
     {
         binary_writer<uint8_t>(o).write_msgpack(j);
     }
 
-    static void to_msgpack(const basic_json& j, detail::output_adapter<char> o)
+    static void to_msgpack(const basic_json& j, crow_utilities::output_adapter<char> o)
     {
         binary_writer<char>(o).write_msgpack(j);
     }
@@ -16117,13 +16117,13 @@ class basic_json
         return result;
     }
 
-    static void to_ubjson(const basic_json& j, detail::output_adapter<uint8_t> o,
+    static void to_ubjson(const basic_json& j, crow_utilities::output_adapter<uint8_t> o,
                           const bool use_size = false, const bool use_type = false)
     {
         binary_writer<uint8_t>(o).write_ubjson(j, use_size, use_type);
     }
 
-    static void to_ubjson(const basic_json& j, detail::output_adapter<char> o,
+    static void to_ubjson(const basic_json& j, crow_utilities::output_adapter<char> o,
                           const bool use_size = false, const bool use_type = false)
     {
         binary_writer<char>(o).write_ubjson(j, use_size, use_type);
@@ -16222,7 +16222,7 @@ class basic_json
            consume input adapters, removed start_index parameter, and added
            @a strict parameter since 3.0.0
     */
-    static basic_json from_cbor(detail::input_adapter i,
+    static basic_json from_cbor(crow_utilities::input_adapter i,
                                 const bool strict = true)
     {
         return binary_reader(i).parse_cbor(strict);
@@ -16232,10 +16232,10 @@ class basic_json
     @copydoc from_cbor(detail::input_adapter, const bool)
     */
     template<typename A1, typename A2,
-             detail::enable_if_t<std::is_constructible<detail::input_adapter, A1, A2>::value, int> = 0>
+             crow_utilities::enable_if_t<std::is_constructible<crow_utilities::input_adapter, A1, A2>::value, int> = 0>
     static basic_json from_cbor(A1 && a1, A2 && a2, const bool strict = true)
     {
-        return binary_reader(detail::input_adapter(std::forward<A1>(a1), std::forward<A2>(a2))).parse_cbor(strict);
+        return binary_reader(crow_utilities::input_adapter(std::forward<A1>(a1), std::forward<A2>(a2))).parse_cbor(strict);
     }
 
     /*!
@@ -16311,7 +16311,7 @@ class basic_json
            consume input adapters, removed start_index parameter, and added
            @a strict parameter since 3.0.0
     */
-    static basic_json from_msgpack(detail::input_adapter i,
+    static basic_json from_msgpack(crow_utilities::input_adapter i,
                                    const bool strict = true)
     {
         return binary_reader(i).parse_msgpack(strict);
@@ -16321,10 +16321,10 @@ class basic_json
     @copydoc from_msgpack(detail::input_adapter, const bool)
     */
     template<typename A1, typename A2,
-             detail::enable_if_t<std::is_constructible<detail::input_adapter, A1, A2>::value, int> = 0>
+             crow_utilities::enable_if_t<std::is_constructible<crow_utilities::input_adapter, A1, A2>::value, int> = 0>
     static basic_json from_msgpack(A1 && a1, A2 && a2, const bool strict = true)
     {
-        return binary_reader(detail::input_adapter(std::forward<A1>(a1), std::forward<A2>(a2))).parse_msgpack(strict);
+        return binary_reader(crow_utilities::input_adapter(std::forward<A1>(a1), std::forward<A2>(a2))).parse_msgpack(strict);
     }
 
     /*!
@@ -16380,17 +16380,17 @@ class basic_json
 
     @since version 3.1.0
     */
-    static basic_json from_ubjson(detail::input_adapter i,
+    static basic_json from_ubjson(crow_utilities::input_adapter i,
                                   const bool strict = true)
     {
         return binary_reader(i).parse_ubjson(strict);
     }
 
     template<typename A1, typename A2,
-             detail::enable_if_t<std::is_constructible<detail::input_adapter, A1, A2>::value, int> = 0>
+             crow_utilities::enable_if_t<std::is_constructible<crow_utilities::input_adapter, A1, A2>::value, int> = 0>
     static basic_json from_ubjson(A1 && a1, A2 && a2, const bool strict = true)
     {
-        return binary_reader(detail::input_adapter(std::forward<A1>(a1), std::forward<A2>(a2))).parse_ubjson(strict);
+        return binary_reader(crow_utilities::input_adapter(std::forward<A1>(a1), std::forward<A2>(a2))).parse_ubjson(strict);
     }
 
     /// @}
@@ -17221,16 +17221,16 @@ struct hash<nlohmann::json>
 /// @note: do not remove the space after '<',
 ///        see https://github.com/nlohmann/json/pull/679
 template<>
-struct less< ::nlohmann::detail::value_t>
+struct less< ::nlohmann::crow_utilities::value_t>
 {
     /*!
     @brief compare two value_t enum values
     @since version 3.0.0
     */
-    bool operator()(nlohmann::detail::value_t lhs,
-                    nlohmann::detail::value_t rhs) const noexcept
+    bool operator()(nlohmann::crow_utilities::value_t lhs,
+                    nlohmann::crow_utilities::value_t rhs) const noexcept
     {
-        return nlohmann::detail::operator<(lhs, rhs);
+        return nlohmann::crow_utilities::operator<(lhs, rhs);
     }
 };
 

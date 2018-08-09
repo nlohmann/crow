@@ -1,6 +1,6 @@
 #include <iostream>
 #include <crow/crow.hpp>
-#include <crow/config.h>
+#include <src/crow_config.hpp>
 
 using crow = nlohmann::crow;
 

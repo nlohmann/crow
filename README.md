@@ -61,6 +61,10 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
 
 ## Change Log
 
+### Version 0.0.4
+
+- :sparkles: added Log4cplus integration
+
 ### Version 0.0.3
 
 - :sparkles: added functions to manage contexts

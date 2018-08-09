@@ -1,7 +1,7 @@
 /*
  _____ _____ _____ _ _ _
 |     | __  |     | | | |  Crow - a Sentry client for C++
-|   --|    -|  |  | | | |  version 0.0.3
+|   --|    -|  |  | | | |  version 0.0.4
 |_____|__|__|_____|_____|  https://github.com/nlohmann/crow
 
 Licensed under the MIT License <http://opensource.org/licenses/MIT>.
@@ -41,39 +41,6 @@ namespace nlohmann
 {
 class crow;
 
-namespace detail
-{
-json get_backtrace(int skip = 1);
-
-/*!
- * @brief return pretty type name
- * @param[in] type_id_name result of type_id().name()
- * @param[in] only_module whether only the module name should be returned
- * @return demangled prettified name
- */
-std::string pretty_name(const char* type_id_name,
-                        const bool only_module = false);
-
-/*!
- * @brief get the seconds since epoch
- * @return seconds since epoch
- */
-std::int64_t get_timestamp();
-
-/*!
- * @brief get the current date and time as ISO 8601 string
- * @return ISO 8601 string
- */
-std::string get_iso8601();
-
-/*!
- * @brief generate a UUID4 without dashes
- * @return UUID4
- */
-std::string generate_uuid();
-
-}
-
 /*!
  * @brief a C++ client for Sentry
  */
@@ -105,7 +72,7 @@ class crow
      */
     explicit crow(const std::string& dsn,
                   const json& context = nullptr,
-                  const bool install_handlers = true);
+                  bool install_handlers = true);
 
     /*!
      * @brief install termination handler to handle uncaught exceptions
@@ -153,7 +120,7 @@ class crow
      */
     void capture_message(const std::string& message,
                          const json& attributes = nullptr,
-                         const bool asynchronous = true);
+                         bool asynchronous = true);
 
     /*!
      * @brief capture an exception
@@ -169,8 +136,8 @@ class crow
      */
     void capture_exception(const std::exception& exception,
                            const json& context = nullptr,
-                           const bool asynchronous = true,
-                           const bool handled = true);
+                           bool asynchronous = true,
+                           bool handled = true);
 
     /*!
      * @brief add a breadcrumb to the current context
@@ -275,10 +242,12 @@ class crow
     /*!
      * @brief POST the payload to the Sentry sink URL
      *
-     * @param[in] payload payload to send
+     * @param[in] payload payload to send (copy intended)
      * @return result
      */
-    std::string post(const json& payload);
+    std::string post(json payload) const;
+
+    void enqueue_post(bool asynchronous);
 
     /*!
      * @brief termination handler that detects uncaught exceptions
@@ -304,6 +273,10 @@ class crow
     std::terminate_handler existing_termination_handler = nullptr;
     /// a mutex to make payload thread-safe
     std::mutex m_payload_mutex;
+    /// a mutex to make the posting thread-safe
+    mutable std::mutex m_pending_future_mutex;
+    /// a pointer to the last client (used for termination handling)
+    static crow* m_client_that_installed_termination_handler;
 };
 
 }
