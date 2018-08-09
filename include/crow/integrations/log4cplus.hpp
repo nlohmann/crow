@@ -1,7 +1,7 @@
 #ifndef NLOHMANN_CROW_LOG4CPLUS_HPP
 #define NLOHMANN_CROW_LOG4CPLUS_HPP
 
-#include <iostream>
+#include <string>
 #include <unordered_map>
 #include <crow/crow.hpp>
 #include <crow/integrations/loggers.hpp>

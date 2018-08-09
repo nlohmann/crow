@@ -55,12 +55,17 @@ if(NLOHMANN_CROW_SYSCTL_HW_MODEL)
     string(REGEX REPLACE ".*: (.*)" "\\1" NLOHMANN_CROW_SYSCTL_HW_MODEL ${NLOHMANN_CROW_SYSCTL_HW_MODEL})
 endif()
 
+# check for MinGW which has a broken <random> header
+if(MINGW)
+    set(NLOHMANN_CROW_MINGW ${MINGW})
+endif()
+
 ########################
 # create config header #
 ########################
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/crow/config.h.in
-        ${CMAKE_CURRENT_BINARY_DIR}/include/crow/config.h)
+configure_file(src/crow_config.hpp.in
+        ${CMAKE_CURRENT_BINARY_DIR}/src/crow_config.hpp)
 
 ################
 # dependencies #
@@ -98,9 +103,9 @@ find_package(Threads)
 # library #
 ###########
 
-add_library(crow src/crow.cpp)
+add_library(crow src/crow.cpp src/crow_utilities.cpp)
 set_target_properties(crow PROPERTIES CXX_STANDARD 11)
-target_include_directories(crow PUBLIC include PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/include ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
+target_include_directories(crow PUBLIC include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
 target_link_libraries(crow ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
 
 #################
@@ -134,12 +139,12 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
     get_target_property(CROW_SOURCES crow SOURCES)
     add_executable(tests tests/unittests.cpp ${CROW_SOURCES})
     set_target_properties(tests PROPERTIES CXX_STANDARD 11)
-    target_include_directories(tests PUBLIC tests include ${CMAKE_CURRENT_BINARY_DIR}/include)
+    target_include_directories(tests PUBLIC tests include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
     target_link_libraries(tests ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
     add_executable(livetest tests/livetest.cpp)
     set_target_properties(livetest PROPERTIES CXX_STANDARD 11)
-    target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR}/include)
+    target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
     target_link_libraries(livetest crow)
 
     add_test(tests tests)

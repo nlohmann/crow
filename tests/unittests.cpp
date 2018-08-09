@@ -2,8 +2,9 @@
 
 #include <thirdparty/catch/catch.hpp>
 #include <crow/crow.hpp>
+#include <src/crow_utilities.hpp>
+#include <src/crow_config.hpp>
 #include <thirdparty/json/json.hpp>
-#include <crow/config.h>
 
 using json = nlohmann::json;
 using crow = nlohmann::crow;
@@ -22,18 +23,18 @@ void verify_message_structure(const json& msg)
     CHECK(msg.at("sdk").at("version").is_string());
 }
 
-TEST_CASE("basics")
+TEST_CASE("utilities")
 {
     SECTION("get_timestamp")
     {
-        auto x = nlohmann::detail::get_timestamp();
+        auto x = nlohmann::crow_utilities::get_timestamp();
         CAPTURE(x);
         CHECK(x > 1533027000);
     }
 
     SECTION("get_iso8601")
     {
-        auto x = nlohmann::detail::get_iso8601();
+        auto x = nlohmann::crow_utilities::get_iso8601();
         CAPTURE(x);
         CHECK(x.size() == 20);
         CHECK(x[4] == '-');
@@ -47,10 +48,13 @@ TEST_CASE("basics")
 
     SECTION("generate_uuid")
     {
-        auto x = nlohmann::detail::generate_uuid();
+        auto x = nlohmann::crow_utilities::generate_uuid();
         CAPTURE(x);
         CHECK(x.size() == 32);
         CHECK(x[12] == '4');
+
+        auto y = nlohmann::crow_utilities::generate_uuid();
+        CHECK(x != y);
     }
 }
 
