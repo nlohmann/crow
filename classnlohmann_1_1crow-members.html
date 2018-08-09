@@ -9,6 +9,14 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+  $(document).ready(initResizable);
+/* @license-end */</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -22,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Crow
-   &#160;<span id="projectnumber">0.0.3</span>
+   &#160;<span id="projectnumber">0.0.4</span>
    </div>
   </td>
  </tr>
@@ -46,6 +54,23 @@ $(function() {
 });
 /* @license-end */</script>
 <div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('classnlohmann_1_1crow.html','');});
+/* @license-end */
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -60,11 +85,6 @@ $(function() {
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="namespacenlohmann.html">nlohmann</a></li><li class="navelem"><a class="el" href="classnlohmann_1_1crow.html">crow</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="headertitle">
 <div class="title">nlohmann::crow Member List</div>  </div>
@@ -73,27 +93,30 @@ $(function() {
 
 <p>This is the complete list of members for <a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a>, including all inherited members.</p>
 <table class="directory">
-  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_a478be96f95e06018f33ac167cdacd192.html#a478be96f95e06018f33ac167cdacd192">add_breadcrumb</a>(const std::string &amp;message, const std::string &amp;type=&quot;default&quot;, const json &amp;data=nullptr)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_a78a8087ada8c3557f0edf9dadd2a451c.html#a78a8087ada8c3557f0edf9dadd2a451c">add_extra_context</a>(const json &amp;data)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_ac5ada68ee5a1b43ac9f896933d3a9448.html#ac5ada68ee5a1b43ac9f896933d3a9448">add_request_context</a>(const json &amp;data)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_a8866a92402df3048e6a8f134d15715df.html#a8866a92402df3048e6a8f134d15715df">add_tags_context</a>(const json &amp;data)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_a44a6b98f07ef8acc6023001530366ed3.html#a44a6b98f07ef8acc6023001530366ed3">add_user_context</a>(const json &amp;data)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_acdd05c906969842420fcc32b1d9ff6ef.html#acdd05c906969842420fcc32b1d9ff6ef">capture_exception</a>(const std::exception &amp;exception, const json &amp;context=nullptr, const bool asynchronous=true, const bool handled=true)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_ac01d1551bb34c3fe6a5a694918631aec.html#ac01d1551bb34c3fe6a5a694918631aec">capture_message</a>(const std::string &amp;message, const json &amp;context=nullptr, const bool asynchronous=true)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_a39c7b65aee63d30fe1c0384dd5750fd0.html#a39c7b65aee63d30fe1c0384dd5750fd0">clear_context</a>()</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_a944eacc8ea0e527708edd28530b6282b.html#a944eacc8ea0e527708edd28530b6282b">crow</a>(const std::string &amp;dsn, const json &amp;context=nullptr, const bool install_handlers=true)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span><span class="mlabel">explicit</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_af0899e2af28185ae075582118855e639.html#af0899e2af28185ae075582118855e639">crow</a>(const crow &amp;other)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_a28f3b877a187a65de2d2fe2dec78c444.html#a28f3b877a187a65de2d2fe2dec78c444">get_context</a>() const</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_a7c0b5fc5573a9e4a8b37b583422215cc.html#a7c0b5fc5573a9e4a8b37b583422215cc">get_last_event_id</a>() const</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_a66791ec3a75dade17cab051489be223e.html#a66791ec3a75dade17cab051489be223e">install_handler</a>()</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_a506972cd05862e57386e9eb2c7cffa83.html#a506972cd05862e57386e9eb2c7cffa83">merge_context</a>(const json &amp;context)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
-  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_ab33f4e8f830c20e0cdeae81ee93c3add.html#ab33f4e8f830c20e0cdeae81ee93c3add">~crow</a>()</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">inline</span></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_ad88be0b0f9ce72eb97eb9a30c54434a0.html#ad88be0b0f9ce72eb97eb9a30c54434a0">add_breadcrumb</a>(const std::string &amp;message, const json &amp;attributes=nullptr)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_a78a8087ada8c3557f0edf9dadd2a451c.html#a78a8087ada8c3557f0edf9dadd2a451c">add_extra_context</a>(const json &amp;data)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_ac5ada68ee5a1b43ac9f896933d3a9448.html#ac5ada68ee5a1b43ac9f896933d3a9448">add_request_context</a>(const json &amp;data)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_a8866a92402df3048e6a8f134d15715df.html#a8866a92402df3048e6a8f134d15715df">add_tags_context</a>(const json &amp;data)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_a44a6b98f07ef8acc6023001530366ed3.html#a44a6b98f07ef8acc6023001530366ed3">add_user_context</a>(const json &amp;data)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_a7dfd5fe6810a3ce38179884596e54493.html#a7dfd5fe6810a3ce38179884596e54493">capture_exception</a>(const std::exception &amp;exception, const json &amp;context=nullptr, bool asynchronous=true, bool handled=true)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_abb013502c9f33ddeff78d8afbcb48763.html#abb013502c9f33ddeff78d8afbcb48763">capture_message</a>(const std::string &amp;message, const json &amp;attributes=nullptr, bool asynchronous=true)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_a39c7b65aee63d30fe1c0384dd5750fd0.html#a39c7b65aee63d30fe1c0384dd5750fd0">clear_context</a>()</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_a74db830e9dd1cea72c7b13ca488e073e.html#a74db830e9dd1cea72c7b13ca488e073e">crow</a>(const std::string &amp;dsn, const json &amp;context=nullptr, bool install_handlers=true)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"><span class="mlabel">explicit</span></td></tr>
+  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_af0899e2af28185ae075582118855e639.html#af0899e2af28185ae075582118855e639">crow</a>(const crow &amp;other)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_ae983920ba6394daa67f132c86dd1fdc0.html#ae983920ba6394daa67f132c86dd1fdc0">get_context</a>() const</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_a7c0b5fc5573a9e4a8b37b583422215cc.html#a7c0b5fc5573a9e4a8b37b583422215cc">get_last_event_id</a>() const</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_a66791ec3a75dade17cab051489be223e.html#a66791ec3a75dade17cab051489be223e">install_handler</a>()</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr><td class="entry"><a class="el" href="classnlohmann_1_1crow_a506972cd05862e57386e9eb2c7cffa83.html#a506972cd05862e57386e9eb2c7cffa83">merge_context</a>(const json &amp;context)</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
+  <tr class="even"><td class="entry"><a class="el" href="classnlohmann_1_1crow_ab33f4e8f830c20e0cdeae81ee93c3add.html#ab33f4e8f830c20e0cdeae81ee93c3add">~crow</a>()</td><td class="entry"><a class="el" href="classnlohmann_1_1crow.html">nlohmann::crow</a></td><td class="entry"></td></tr>
 </table></div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.15
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="footer">Generated by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.15 </li>
+  </ul>
+</div>
 </body>
 </html>

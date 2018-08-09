@@ -9,6 +9,14 @@
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+  $(document).ready(initResizable);
+/* @license-end */</script>
 <link href="search/search.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="search/searchdata.js"></script>
 <script type="text/javascript" src="search/search.js"></script>
@@ -22,7 +30,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">Crow
-   &#160;<span id="projectnumber">0.0.3</span>
+   &#160;<span id="projectnumber">0.0.4</span>
    </div>
   </td>
  </tr>
@@ -46,6 +54,23 @@ $(function() {
 });
 /* @license-end */</script>
 <div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:cf05388f2679ee054f2beb29a391d25f4e673ac3&amp;dn=gpl-2.0.txt GPL-v2 */
+$(document).ready(function(){initNavTree('classnlohmann_1_1crow.html','');});
+/* @license-end */
+</script>
+<div id="doc-content">
 <!-- window showing the filter options -->
 <div id="MSearchSelectWindow"
      onmouseover="return searchBox.OnSearchSelectShow()"
@@ -60,11 +85,6 @@ $(function() {
 </iframe>
 </div>
 
-<div id="nav-path" class="navpath">
-  <ul>
-<li class="navelem"><a class="el" href="namespacenlohmann.html">nlohmann</a></li><li class="navelem"><a class="el" href="classnlohmann_1_1crow.html">crow</a></li>  </ul>
-</div>
-</div><!-- top -->
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
@@ -81,9 +101,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a944eacc8ea0e527708edd28530b6282b"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_a944eacc8ea0e527708edd28530b6282b.html#a944eacc8ea0e527708edd28530b6282b">crow</a> (const std::string &amp;dsn, const json &amp;context=nullptr, const bool install_handlers=true)</td></tr>
-<tr class="memdesc:a944eacc8ea0e527708edd28530b6282b"><td class="mdescLeft">&#160;</td><td class="mdescRight">create a client  <a href="classnlohmann_1_1crow_a944eacc8ea0e527708edd28530b6282b.html#a944eacc8ea0e527708edd28530b6282b">More...</a><br /></td></tr>
-<tr class="separator:a944eacc8ea0e527708edd28530b6282b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a74db830e9dd1cea72c7b13ca488e073e"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_a74db830e9dd1cea72c7b13ca488e073e.html#a74db830e9dd1cea72c7b13ca488e073e">crow</a> (const std::string &amp;dsn, const json &amp;context=nullptr, bool install_handlers=true)</td></tr>
+<tr class="memdesc:a74db830e9dd1cea72c7b13ca488e073e"><td class="mdescLeft">&#160;</td><td class="mdescRight">create a client  <a href="classnlohmann_1_1crow_a74db830e9dd1cea72c7b13ca488e073e.html#a74db830e9dd1cea72c7b13ca488e073e">More...</a><br /></td></tr>
+<tr class="separator:a74db830e9dd1cea72c7b13ca488e073e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a66791ec3a75dade17cab051489be223e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_a66791ec3a75dade17cab051489be223e.html#a66791ec3a75dade17cab051489be223e">install_handler</a> ()</td></tr>
 <tr class="memdesc:a66791ec3a75dade17cab051489be223e"><td class="mdescLeft">&#160;</td><td class="mdescRight">install termination handler to handle uncaught exceptions  <a href="classnlohmann_1_1crow_a66791ec3a75dade17cab051489be223e.html#a66791ec3a75dade17cab051489be223e">More...</a><br /></td></tr>
 <tr class="separator:a66791ec3a75dade17cab051489be223e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -94,22 +114,22 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ab33f4e8f830c20e0cdeae81ee93c3add"><td class="mdescLeft">&#160;</td><td class="mdescRight">destructor  <a href="classnlohmann_1_1crow_ab33f4e8f830c20e0cdeae81ee93c3add.html#ab33f4e8f830c20e0cdeae81ee93c3add">More...</a><br /></td></tr>
 <tr class="separator:ab33f4e8f830c20e0cdeae81ee93c3add"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">event capturing</div></td></tr>
-<tr class="memitem:ac01d1551bb34c3fe6a5a694918631aec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_ac01d1551bb34c3fe6a5a694918631aec.html#ac01d1551bb34c3fe6a5a694918631aec">capture_message</a> (const std::string &amp;message, const json &amp;context=nullptr, const bool asynchronous=true)</td></tr>
-<tr class="memdesc:ac01d1551bb34c3fe6a5a694918631aec"><td class="mdescLeft">&#160;</td><td class="mdescRight">capture a message  <a href="classnlohmann_1_1crow_ac01d1551bb34c3fe6a5a694918631aec.html#ac01d1551bb34c3fe6a5a694918631aec">More...</a><br /></td></tr>
-<tr class="separator:ac01d1551bb34c3fe6a5a694918631aec"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acdd05c906969842420fcc32b1d9ff6ef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_acdd05c906969842420fcc32b1d9ff6ef.html#acdd05c906969842420fcc32b1d9ff6ef">capture_exception</a> (const std::exception &amp;exception, const json &amp;context=nullptr, const bool asynchronous=true, const bool handled=true)</td></tr>
-<tr class="memdesc:acdd05c906969842420fcc32b1d9ff6ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">capture an exception  <a href="classnlohmann_1_1crow_acdd05c906969842420fcc32b1d9ff6ef.html#acdd05c906969842420fcc32b1d9ff6ef">More...</a><br /></td></tr>
-<tr class="separator:acdd05c906969842420fcc32b1d9ff6ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a478be96f95e06018f33ac167cdacd192"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_a478be96f95e06018f33ac167cdacd192.html#a478be96f95e06018f33ac167cdacd192">add_breadcrumb</a> (const std::string &amp;message, const std::string &amp;type=&quot;default&quot;, const json &amp;data=nullptr)</td></tr>
-<tr class="memdesc:a478be96f95e06018f33ac167cdacd192"><td class="mdescLeft">&#160;</td><td class="mdescRight">add a breadcrumb to the current context  <a href="classnlohmann_1_1crow_a478be96f95e06018f33ac167cdacd192.html#a478be96f95e06018f33ac167cdacd192">More...</a><br /></td></tr>
-<tr class="separator:a478be96f95e06018f33ac167cdacd192"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb013502c9f33ddeff78d8afbcb48763"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_abb013502c9f33ddeff78d8afbcb48763.html#abb013502c9f33ddeff78d8afbcb48763">capture_message</a> (const std::string &amp;message, const json &amp;attributes=nullptr, bool asynchronous=true)</td></tr>
+<tr class="memdesc:abb013502c9f33ddeff78d8afbcb48763"><td class="mdescLeft">&#160;</td><td class="mdescRight">capture a message  <a href="classnlohmann_1_1crow_abb013502c9f33ddeff78d8afbcb48763.html#abb013502c9f33ddeff78d8afbcb48763">More...</a><br /></td></tr>
+<tr class="separator:abb013502c9f33ddeff78d8afbcb48763"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7dfd5fe6810a3ce38179884596e54493"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_a7dfd5fe6810a3ce38179884596e54493.html#a7dfd5fe6810a3ce38179884596e54493">capture_exception</a> (const std::exception &amp;exception, const json &amp;context=nullptr, bool asynchronous=true, bool handled=true)</td></tr>
+<tr class="memdesc:a7dfd5fe6810a3ce38179884596e54493"><td class="mdescLeft">&#160;</td><td class="mdescRight">capture an exception  <a href="classnlohmann_1_1crow_a7dfd5fe6810a3ce38179884596e54493.html#a7dfd5fe6810a3ce38179884596e54493">More...</a><br /></td></tr>
+<tr class="separator:a7dfd5fe6810a3ce38179884596e54493"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad88be0b0f9ce72eb97eb9a30c54434a0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_ad88be0b0f9ce72eb97eb9a30c54434a0.html#ad88be0b0f9ce72eb97eb9a30c54434a0">add_breadcrumb</a> (const std::string &amp;message, const json &amp;attributes=nullptr)</td></tr>
+<tr class="memdesc:ad88be0b0f9ce72eb97eb9a30c54434a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">add a breadcrumb to the current context  <a href="classnlohmann_1_1crow_ad88be0b0f9ce72eb97eb9a30c54434a0.html#ad88be0b0f9ce72eb97eb9a30c54434a0">More...</a><br /></td></tr>
+<tr class="separator:ad88be0b0f9ce72eb97eb9a30c54434a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7c0b5fc5573a9e4a8b37b583422215cc"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_a7c0b5fc5573a9e4a8b37b583422215cc.html#a7c0b5fc5573a9e4a8b37b583422215cc">get_last_event_id</a> () const</td></tr>
 <tr class="memdesc:a7c0b5fc5573a9e4a8b37b583422215cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">return the id of the last reported event  <a href="classnlohmann_1_1crow_a7c0b5fc5573a9e4a8b37b583422215cc.html#a7c0b5fc5573a9e4a8b37b583422215cc">More...</a><br /></td></tr>
 <tr class="separator:a7c0b5fc5573a9e4a8b37b583422215cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr><td colspan="2"><div class="groupHeader">context management</div></td></tr>
-<tr class="memitem:a28f3b877a187a65de2d2fe2dec78c444"><td class="memItemLeft" align="right" valign="top">const json &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_a28f3b877a187a65de2d2fe2dec78c444.html#a28f3b877a187a65de2d2fe2dec78c444">get_context</a> () const</td></tr>
-<tr class="memdesc:a28f3b877a187a65de2d2fe2dec78c444"><td class="mdescLeft">&#160;</td><td class="mdescRight">return current context  <a href="classnlohmann_1_1crow_a28f3b877a187a65de2d2fe2dec78c444.html#a28f3b877a187a65de2d2fe2dec78c444">More...</a><br /></td></tr>
-<tr class="separator:a28f3b877a187a65de2d2fe2dec78c444"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae983920ba6394daa67f132c86dd1fdc0"><td class="memItemLeft" align="right" valign="top">const json &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_ae983920ba6394daa67f132c86dd1fdc0.html#ae983920ba6394daa67f132c86dd1fdc0">get_context</a> () const</td></tr>
+<tr class="memdesc:ae983920ba6394daa67f132c86dd1fdc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">return current context  <a href="classnlohmann_1_1crow_ae983920ba6394daa67f132c86dd1fdc0.html#ae983920ba6394daa67f132c86dd1fdc0">More...</a><br /></td></tr>
+<tr class="separator:ae983920ba6394daa67f132c86dd1fdc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a44a6b98f07ef8acc6023001530366ed3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnlohmann_1_1crow_a44a6b98f07ef8acc6023001530366ed3.html#a44a6b98f07ef8acc6023001530366ed3">add_user_context</a> (const json &amp;data)</td></tr>
 <tr class="memdesc:a44a6b98f07ef8acc6023001530366ed3"><td class="mdescLeft">&#160;</td><td class="mdescRight">add elements to the "user" context for future events  <a href="classnlohmann_1_1crow_a44a6b98f07ef8acc6023001530366ed3.html#a44a6b98f07ef8acc6023001530366ed3">More...</a><br /></td></tr>
 <tr class="separator:a44a6b98f07ef8acc6023001530366ed3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -130,14 +150,19 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a39c7b65aee63d30fe1c0384dd5750fd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="crow_8hpp_source.html#l00221">221</a> of file <a class="el" href="crow_8hpp_source.html">crow.hpp</a>.</p>
+<div class="textblock"><dl><dt><b>Examples: </b></dt><dd><a class="el" href="log4cplus_2example_8cpp-example.html#_a0">log4cplus/example.cpp</a>.</dd>
+</dl>
+<p class="definition">Definition at line <a class="el" href="crow_8hpp_source.html#l00047">47</a> of file <a class="el" href="crow_8hpp_source.html">crow.hpp</a>.</p>
 </div></div><!-- contents -->
+</div><!-- doc-content -->
 <!-- start footer part -->
-<hr class="footer"/><address class="footer"><small>
-Generated by &#160;<a href="http://www.doxygen.org/index.html">
-<img class="footer" src="doxygen.png" alt="doxygen"/>
-</a> 1.8.15
-</small></address>
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="namespacenlohmann.html">nlohmann</a></li><li class="navelem"><a class="el" href="classnlohmann_1_1crow.html">crow</a></li>
+    <li class="footer">Generated by
+    <a href="http://www.doxygen.org/index.html">
+    <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.8.15 </li>
+  </ul>
+</div>
 </body>
 </html>
