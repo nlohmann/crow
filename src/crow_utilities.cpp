@@ -150,14 +150,6 @@ std::string get_iso8601()
     return buf;
 }
 
-/*!
- * @brief return a random integer
- * @param[in] lower lower bound
- * @param[in] upper upper bound
- * @return lower <= x <= upper
- *
- * @note The C++11 random implementation is broken in MinGW, so we need to fall back to std::rand().
- */
 int get_random_number(int lower, int upper)
 {
 #ifdef NLOHMANN_CROW_MINGW
@@ -169,9 +161,9 @@ int get_random_number(int lower, int upper)
     }
     return std::rand() % upper + lower;
 #else
-    static std::random_device random_device;
-    static std::default_random_engine random_engine(random_device());
-    static std::uniform_int_distribution<int> uniform_dist(lower, upper);
+    std::random_device random_device;
+    std::default_random_engine random_engine(random_device());
+    std::uniform_int_distribution<int> uniform_dist(lower, upper);
     return uniform_dist(random_engine);
 #endif
 }

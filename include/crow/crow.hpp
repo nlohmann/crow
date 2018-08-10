@@ -52,7 +52,8 @@ class crow
      *
      * @param[in] dsn the DNS string
      * @param[in] context an optional attributes object
-     * @param[in] install_handlers whether to install a termination handler
+     * @param[in] sample_rate the sample rate (0.0 .. 1.0, default: 1.0)
+     * @param[in] install_handlers whether to install a termination handler (default: off)
      *
      * @throw std::invalid_argument if DNS string is invalid
      * @throw std::invalid_argument if context object contains invalid key
@@ -72,7 +73,8 @@ class crow
      */
     explicit crow(const std::string& dsn,
                   const json& context = nullptr,
-                  bool install_handlers = true);
+                  double sample_rate = 1.0,
+                  bool install_handlers = false);
 
     /*!
      * @brief install termination handler to handle uncaught exceptions
@@ -257,6 +259,9 @@ class crow
     static void new_termination_handler();
 
   private:
+    /// the sample rate
+    const double m_sample_rate;
+
     /// whether the client is enabled
     const bool m_enabled = true;
     /// the public key to be used in requests
@@ -265,16 +270,19 @@ class crow
     std::string m_secret_key;
     /// the URL to send events to
     std::string m_store_url;
+
     /// the payload of all events
     json m_payload = {};
-    /// the result of the last HTTP POST
-    mutable std::future<std::string> m_pending_future;
-    /// the termination handler installed before initializing the client
-    std::terminate_handler existing_termination_handler = nullptr;
     /// a mutex to make payload thread-safe
     std::mutex m_payload_mutex;
+
+    /// the result of the last HTTP POST
+    mutable std::future<std::string> m_pending_future;
     /// a mutex to make the posting thread-safe
     mutable std::mutex m_pending_future_mutex;
+
+    /// the termination handler installed before initializing the client
+    std::terminate_handler existing_termination_handler = nullptr;
     /// a pointer to the last client (used for termination handling)
     static crow* m_client_that_installed_termination_handler;
 };

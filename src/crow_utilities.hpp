@@ -53,6 +53,16 @@ std::string pretty_name(const char* type_id_name,
                         bool only_module = false);
 
 /*!
+ * @brief return a random integer
+ * @param[in] lower lower bound
+ * @param[in] upper upper bound
+ * @return lower <= x <= upper
+ *
+ * @note The C++11 random implementation is broken in MinGW, so we need to fall back to std::rand().
+ */
+int get_random_number(int lower, int upper);
+
+/*!
  * @brief get the seconds since epoch
  * @return seconds since epoch
  */

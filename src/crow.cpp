@@ -50,8 +50,10 @@ crow* crow::m_client_that_installed_termination_handler = nullptr;
 
 crow::crow(const std::string& dsn,
            const json& context,
+           const double sample_rate,
            const bool install_handlers)
-    : m_enabled(not dsn.empty())
+    : m_sample_rate(sample_rate)
+    , m_enabled(not dsn.empty())
 {
     // process DSN
     if (not dsn.empty())
@@ -89,7 +91,7 @@ void crow::install_handler()
 {
     if (existing_termination_handler == nullptr)
     {
-        existing_termination_handler = std::set_terminate([]() {});
+        existing_termination_handler = std::get_terminate();
         std::set_terminate(&new_termination_handler);
 
         // we remember this client, because we will use it to report
@@ -99,7 +101,8 @@ void crow::install_handler()
 }
 
 crow::crow(const crow& other)
-    : m_enabled(other.m_enabled)
+    : m_sample_rate(other.m_sample_rate)
+    , m_enabled(other.m_enabled)
     , m_public_key(other.m_public_key)
     , m_secret_key(other.m_secret_key)
     , m_store_url(other.m_store_url)
@@ -352,22 +355,17 @@ void crow::clear_context()
 
 std::string crow::post(json payload) const
 {
-    if (m_enabled)
-    {
-        curl_wrapper curl;
+    curl_wrapper curl;
 
-        // add security header
-        std::string security_header = "X-Sentry-Auth: Sentry sentry_version=5,sentry_client=crow/";
-        security_header += std::string(NLOHMANN_CROW_VERSION) + ",sentry_timestamp=";
-        security_header += std::to_string(crow_utilities::get_timestamp());
-        security_header += ",sentry_key=" + m_public_key;
-        security_header += ",sentry_secret=" + m_secret_key;
-        curl.set_header(security_header.c_str());
+    // add security header
+    std::string security_header = "X-Sentry-Auth: Sentry sentry_version=5,sentry_client=crow/";
+    security_header += std::string(NLOHMANN_CROW_VERSION) + ",sentry_timestamp=";
+    security_header += std::to_string(crow_utilities::get_timestamp());
+    security_header += ",sentry_key=" + m_public_key;
+    security_header += ",sentry_secret=" + m_secret_key;
+    curl.set_header(security_header.c_str());
 
-        return curl.post(m_store_url, payload);
-    }
-
-    return "";
+    return curl.post(m_store_url, payload);
 }
 
 void crow::new_termination_handler()
@@ -391,22 +389,34 @@ void crow::new_termination_handler()
     m_client_that_installed_termination_handler->existing_termination_handler();
 }
 
-    void crow::enqueue_post(const bool asynchronous)
+void crow::enqueue_post(const bool asynchronous)
+{
+    if (not m_enabled)
     {
-        std::lock_guard<std::mutex> lock(m_pending_future_mutex);
-
-        // wait for running post requests
-        if (m_pending_future.valid())
-        {
-            m_pending_future.wait();
-        }
-
-        // start a new post request
-        m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
-        if (not asynchronous)
-        {
-            m_pending_future.wait();
-        }
+        return;
     }
+
+    // https://docs.sentry.io/clientdev/features/#event-sampling
+    const auto rand = crow_utilities::get_random_number(0, 100) / 100.0;
+    if (rand >= m_sample_rate)
+    {
+        return;
+    }
+
+    std::lock_guard<std::mutex> lock(m_pending_future_mutex);
+
+    // wait for running post requests
+    if (m_pending_future.valid())
+    {
+        m_pending_future.wait();
+    }
+
+    // start a new post request
+    m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
+    if (not asynchronous)
+    {
+        m_pending_future.wait();
+    }
+}
 
 }
