@@ -1,15 +1,16 @@
 #include <exception>
 #include <crow/crow.hpp>
 #include <iostream>
+#include <thirdparty/curl_wrapper/curl_wrapper.hpp>
 
 using crow = nlohmann::crow;
-json results = json::array();
 
 // a termination handler that checks the state of the messages sent to Sentry
 void my_termination_handler()
 {
-    std::cout << "payload = " << std::setw(4) << results << std::endl;
-    if (results[0]["payload"]["exception"][0]["value"] != "oops!")
+    std::lock_guard<std::mutex> lock(curl_wrapper::mutex);
+    std::cout << "payload = " << std::setw(4) << curl_wrapper::results << std::endl;
+    if (curl_wrapper::results[0]["payload"]["exception"][0]["value"] != "oops!")
     {
         std::exit(1);
     }
