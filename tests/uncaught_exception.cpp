@@ -8,7 +8,7 @@ json results = json::array();
 // a termination handler that checks the state of the messages sent to Sentry
 void my_termination_handler()
 {
-    std::cout << std::setw(4) << results << std::endl;
+    std::cout << "payload = " << std::setw(4) << results << std::endl;
     assert(results[0]["payload"]["exception"][0]["value"] == "oops!");
     std::exit(0);
 }
