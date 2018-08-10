@@ -9,8 +9,14 @@ json results = json::array();
 void my_termination_handler()
 {
     std::cout << "payload = " << std::setw(4) << results << std::endl;
-    assert(results[0]["payload"]["exception"][0]["value"] == "oops!");
-    std::exit(0);
+    if (results[0]["payload"]["exception"][0]["value"] != "oops!")
+    {
+        std::exit(1);
+    }
+    else
+    {
+        std::exit(0);
+    }
 }
 
 int main()
