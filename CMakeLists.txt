@@ -135,20 +135,26 @@ option(CROW_BUILD_TESTING "build tests" ON)
 option(CROW_BUILD_LOG4CPLUS "build log4cplus example" OFF)
 if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
     enable_testing()
-
     get_target_property(CROW_SOURCES crow SOURCES)
-    add_executable(tests tests/unittests.cpp ${CROW_SOURCES})
-    set_target_properties(tests PROPERTIES CXX_STANDARD 11)
-    target_include_directories(tests PUBLIC tests include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-    target_link_libraries(tests ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+
+    add_executable(unittests tests/unittests.cpp ${CROW_SOURCES})
+    set_target_properties(unittests PROPERTIES CXX_STANDARD 11)
+    target_include_directories(unittests PUBLIC tests include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+    target_link_libraries(unittests ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+
+    add_executable(uncaught_exception tests/uncaught_exception.cpp ${CROW_SOURCES})
+    set_target_properties(uncaught_exception PROPERTIES CXX_STANDARD 11)
+    target_include_directories(uncaught_exception PUBLIC tests include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+    target_link_libraries(uncaught_exception ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
     add_executable(livetest tests/livetest.cpp)
     set_target_properties(livetest PROPERTIES CXX_STANDARD 11)
     target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
     target_link_libraries(livetest crow)
 
-    add_test(tests tests)
-    add_test(livetest livetest)
+    add_test(NAME unittests COMMAND unittests)
+    add_test(NAME uncaught_exception COMMAND uncaught_exception)
+    add_test(NAME livetest COMMAND livetest)
 
     if(CROW_BUILD_LOG4CPLUS)
         include(ExternalProject)
