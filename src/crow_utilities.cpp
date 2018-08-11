@@ -28,6 +28,10 @@ SOFTWARE.
 */
 
 #include <chrono>
+#include <cstdlib>
+#include <cstddef>
+#include <cstring>
+#include <ctime>
 #include <typeinfo>
 #include <src/crow_config.hpp>
 #include <src/crow_utilities.hpp>

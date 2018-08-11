@@ -27,15 +27,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <cstdlib>
-#include <cstddef>
-#include <cstring>
-#include <ctime>
-#include <exception>
-#include <future>
-#include <mutex>
-#include <regex>
-#include <stdexcept>
+#include <exception> // current_exception, exception, get_terminate, rethrow_exception, set_terminate
+#include <regex> // regex, regex_match, smatch
+#include <stdexcept> // invalid_argument
+#include <sstream> // stringstream
 #include <crow/crow.hpp>
 #include <src/crow_config.hpp>
 #include <src/crow_utilities.hpp>

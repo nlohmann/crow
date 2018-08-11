@@ -30,8 +30,9 @@ SOFTWARE.
 #ifndef NLOHMANN_CROW_HPP
 #define NLOHMANN_CROW_HPP
 
-#include <future>
-#include <mutex>
+#include <future> // future
+#include <mutex> // mutex
+#include <string> //string
 #include <thirdparty/json/json.hpp>
 
 using json = nlohmann::json;
