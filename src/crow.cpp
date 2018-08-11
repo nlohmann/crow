@@ -412,9 +412,12 @@ void crow::enqueue_post(const bool asynchronous)
     }
 
     // start a new post request
-    m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
-    if (not asynchronous)
+    if (asynchronous)
     {
+        m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
+    } else
+    {
+        m_pending_future = std::async(std::launch::deferred, [this] { return post(m_payload); });
         m_pending_future.wait();
     }
 }
