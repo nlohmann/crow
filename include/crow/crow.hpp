@@ -40,8 +40,6 @@ using json = nlohmann::json;
 /// namespace for Niels Lohmann
 namespace nlohmann
 {
-class crow;
-
 /*!
  * @brief a C++ client for Sentry
  */

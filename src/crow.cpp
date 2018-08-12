@@ -41,6 +41,8 @@ using json = nlohmann::json;
 
 namespace nlohmann
 {
+class crow;
+
 crow* crow::m_client_that_installed_termination_handler = nullptr;
 
 crow::crow(const std::string& dsn,
@@ -360,7 +362,7 @@ std::string crow::post(json payload) const
     security_header += ",sentry_secret=" + m_secret_key;
     curl.set_header(security_header.c_str());
 
-    return curl.post(m_store_url, payload);
+    return curl.post(m_store_url, payload, true).data;
 }
 
 void crow::new_termination_handler()
@@ -410,7 +412,8 @@ void crow::enqueue_post(const bool asynchronous)
     if (asynchronous)
     {
         m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
-    } else
+    }
+    else
     {
         m_pending_future = std::async(std::launch::deferred, [this] { return post(m_payload); });
         m_pending_future.wait();
