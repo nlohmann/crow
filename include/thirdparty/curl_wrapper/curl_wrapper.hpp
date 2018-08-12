@@ -6,8 +6,6 @@
 #include <zlib.h>
 #include "thirdparty/json/json.hpp"
 
-using json = nlohmann::json;
-
 class curl_wrapper
 {
   public:
@@ -22,9 +20,9 @@ class curl_wrapper
         std::string data;
         int status_code;
 
-        json json()
+        nlohmann::json json()
         {
-            return json::parse(data);
+            return nlohmann::json::parse(data);
         }
     };
 
@@ -44,7 +42,7 @@ class curl_wrapper
         curl_global_cleanup();
     }
 
-    response post(const std::string& url, const json& payload, const bool compress = false)
+    response post(const std::string& url, const nlohmann::json& payload, const bool compress = false)
     {
         set_header("Content-Type: application/json");
         return post(url, payload.dump(), compress);
