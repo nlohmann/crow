@@ -245,6 +245,8 @@ install:
 
   # install node forever module
   - npm install -g forever
+  # start test server
+  - forever start tests/server/server.js
 
   # make sure CXX is correctly set
   - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; export CC=${CCOMPILER}; fi
@@ -253,10 +255,6 @@ install:
   - uname -a
   - $CC --version
   - $CXX --version
-
-before_script:
-  # start test server
-  - forever start tests/server/server.js
 
 script:
   # compile and execute unit tests
