@@ -158,7 +158,7 @@ void crow::capture_exception(const std::exception& exception,
     merge_context(context);
 
     const bool send_synchronously = not handled;
-    enqueue_post(m_payload, not send_synchronously);
+    enqueue_post(m_payload, send_synchronously);
 }
 
 void crow::add_breadcrumb(const std::string& message,
@@ -214,12 +214,10 @@ std::string crow::get_last_event_id() const
     std::lock_guard<std::mutex> lock(m_jobs_mutex);
     if (not m_jobs.empty() and m_jobs.back().valid())
     {
-        return m_jobs.back().get();
+        m_last_event_id = m_jobs.back().get();
     }
-    else
-    {
-        return "";
-    }
+
+    return m_last_event_id;
 }
 
 const json& crow::get_context() const
@@ -365,12 +363,18 @@ void crow::enqueue_post(const json& payload, bool synchronous)
     }
 
     // add the new job
-    m_jobs.emplace_back(std::move(std::async(std::launch::async, [this, payload](){ return json::parse(post(payload)).at("id").get<std::string>(); })));
+    m_jobs.emplace_back(std::move(std::async(std::launch::async, [this, payload]()
+    {
+        return json::parse(post(payload)).at("id").get<std::string>();
+    })));
 
-    // in case of a synchronous call, immediately wait for the added job
+    // in case of a synchronous call, immediately get the result
     if (synchronous)
     {
-        m_jobs.back().get();
+        if (m_jobs.back().valid())
+        {
+            m_last_event_id = m_jobs.back().get();
+        }
     }
 }
 

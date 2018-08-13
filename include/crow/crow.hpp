@@ -256,6 +256,8 @@ class crow
     mutable std::vector<std::future<std::string>> m_jobs;
     /// a mutex to make m_jobs thread-safe
     mutable std::mutex m_jobs_mutex;
+    /// a cache for the last event id
+    mutable std::string m_last_event_id = "";
 
     /// the termination handler installed before initializing the client
     std::terminate_handler existing_termination_handler = nullptr;
