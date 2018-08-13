@@ -103,22 +103,18 @@ class crow
      *
      * @param[in] message the message to capture
      * @param[in] attributes an optional attributes object
-     * @param[in] asynchronous whether the message should be sent asynchronously
      *
      * @throw std::invalid_argument if context object contains invalid key
      *
      * @since 0.0.1
      */
     void capture_message(const std::string& message,
-                         const json& attributes = nullptr,
-                         bool asynchronous = true);
-
+                         const json& attributes = nullptr);
     /*!
      * @brief capture an exception
      *
      * @param[in] exception the passed exception
      * @param[in] context an optional context object
-     * @param[in] asynchronous whether the message should be sent asynchronously
      * @param[in] handled whether the exception was handled and only reported
      *
      * @throw std::invalid_argument if context object contains invalid key
@@ -127,7 +123,6 @@ class crow
      */
     void capture_exception(const std::exception& exception,
                            const json& context = nullptr,
-                           bool asynchronous = true,
                            bool handled = true);
 
     /*!
@@ -233,13 +228,13 @@ class crow
     /*!
      * @brief POST the payload to the Sentry sink URL
      *
-     * @param[in] payload payload to send (copy intended)
+     * @param[in] payload payload to send
      * @return result
      */
-    std::string post(json payload) const;
+    std::string post(const json& payload) const;
 
     void process_post_queue();
-    void enqueue_post(bool asynchronous);
+    void enqueue_post();
 
     /*!
      * @brief termination handler that detects uncaught exceptions

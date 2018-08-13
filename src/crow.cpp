@@ -114,8 +114,7 @@ crow::~crow()
 }
 
 void crow::capture_message(const std::string& message,
-                           const json& attributes,
-                           const bool asynchronous)
+                           const json& attributes)
 {
     std::lock_guard<std::mutex> lock(m_payload_mutex);
     m_payload["message"] = message;
@@ -149,13 +148,12 @@ void crow::capture_message(const std::string& message,
         }
     }
 
-    enqueue_post(asynchronous);
+    enqueue_post();
 }
 
 
 void crow::capture_exception(const std::exception& exception,
                              const json& context,
-                             const bool asynchronous,
                              const bool handled)
 {
     std::stringstream thread_id;
@@ -173,7 +171,7 @@ void crow::capture_exception(const std::exception& exception,
     // add given context
     merge_context(context);
 
-    enqueue_post(asynchronous);
+    enqueue_post();
 }
 
 void crow::add_breadcrumb(const std::string& message,
@@ -228,17 +226,13 @@ const std::string& crow::get_last_event_id() const
 {
     // we need to check if the queue is empty
     std::unique_lock<std::mutex> queue_lock(m_queue_mutex);
-
-    // if the queue is not empty, we must wait until it is
     if (not m_queue.empty())
     {
-        // return the queue lock
-        queue_lock.unlock();
         // wait until queue is empty
-        std::unique_lock<std::mutex> event_id_lock(m_last_event_id_mutex);
-        m_post_to_last_event_id.wait(event_id_lock);
+        m_post_to_last_event_id.wait(queue_lock);
     }
 
+    std::lock_guard<std::mutex> lock(m_last_event_id_mutex);
     return m_last_event_id;
 }
 
@@ -346,7 +340,7 @@ void crow::clear_context()
     }
 }
 
-std::string crow::post(json payload) const
+std::string crow::post(const json& payload) const
 {
     curl_wrapper curl;
 
@@ -361,7 +355,7 @@ std::string crow::post(json payload) const
     return curl.post(m_store_url, payload, true).data;
 }
 
-void crow::enqueue_post(const bool asynchronous)
+void crow::enqueue_post()
 {
     if (not m_enabled)
     {
@@ -383,16 +377,13 @@ void crow::enqueue_post(const bool asynchronous)
 
 void crow::process_post_queue()
 {
-    /// whether we actually got a new last_event_id
-    bool updated_last_event_id = false;
-
     // we want to access m_client_running
     std::unique_lock<std::mutex> running_lock(m_client_running_mutex);
 
     // loop until client stopped running and queue is empty
     while (m_client_running or not m_queue.empty())
     {
-        // allow others to change m_client_running
+        // allow others (~crow()) to change m_client_running
         running_lock.unlock();
 
         // we want to access the queue
@@ -416,15 +407,13 @@ void crow::process_post_queue()
             // update m_last_event_id
             std::lock_guard<std::mutex> lock2(m_last_event_id_mutex);
             m_last_event_id = json::parse(result).at("id");
-            updated_last_event_id = true;
         }
 
-        // the queue is empty and we updated the last event id
-        if (updated_last_event_id)
-        {
-            // now notify get_last_event_id() about new data
-            m_post_to_last_event_id.notify_one();
-        }
+        // we are done with the queue
+        queue_lock.unlock();
+
+        // we processed the queue - wake up get_last_event_id()
+        m_post_to_last_event_id.notify_all();
 
         // we want to access m_client_running in the next iteration
         running_lock.lock();
@@ -445,7 +434,7 @@ void crow::new_termination_handler()
         }
         catch (const std::exception& e)
         {
-            m_client_that_installed_termination_handler->capture_exception(e, nullptr, false, false);
+            m_client_that_installed_termination_handler->capture_exception(e, nullptr, false);
         }
     }
 

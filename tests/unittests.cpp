@@ -95,7 +95,7 @@ TEST_CASE("sample rate")
     SECTION("sample rate 0.0")
     {
         crow crow_client("http://abc:def@127.0.0.1:5000/1", nullptr, 0.0);
-        crow_client.capture_message("message", nullptr, false);
+        crow_client.capture_message("message", nullptr);
 
         // make sure no message was sent
         CHECK(crow_client.get_last_event_id().empty());
@@ -104,7 +104,7 @@ TEST_CASE("sample rate")
     SECTION("sample rate 1.0")
     {
         crow crow_client("http://abc:def@127.0.0.1:5000/1", nullptr, 1.0);
-        crow_client.capture_message("message", nullptr, false);
+        crow_client.capture_message("message", nullptr);
 
         // make sure a message was sent
         CHECK(not crow_client.get_last_event_id().empty());
@@ -121,7 +121,7 @@ TEST_CASE("creating messages")
         SECTION("without payload")
         {
             std::string msg_string = "message text";
-            crow_client.capture_message(msg_string, nullptr, false);
+            crow_client.capture_message(msg_string, nullptr);
 
             // check payload sent to Sentry
             auto msg = parse_msg(crow_client.get_last_event_id());
@@ -134,7 +134,7 @@ TEST_CASE("creating messages")
         SECTION("marked as handled")
         {
             std::string ex_string = "exception text";
-            crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false, true);
+            crow_client.capture_exception(std::runtime_error(ex_string), nullptr, true);
 
             // check payload sent to Sentry
             auto msg = parse_msg(crow_client.get_last_event_id());
@@ -145,7 +145,7 @@ TEST_CASE("creating messages")
         SECTION("marked as unhandled")
         {
             std::string ex_string = "exception text";
-            crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false, false);
+            crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false);
 
             // check payload sent to Sentry
             auto msg = parse_msg(crow_client.get_last_event_id());
@@ -166,7 +166,7 @@ TEST_CASE("creating messages")
 
         // capture message
         std::string msg_string = "message text";
-        crow_client.capture_message(msg_string, nullptr, false);
+        crow_client.capture_message(msg_string, nullptr);
 
         // check payload sent to Sentry
         auto msg = parse_msg(crow_client.get_last_event_id());
@@ -187,7 +187,7 @@ TEST_CASE("context")
         crow_client.add_user_context({{"email", email}});
 
         // capture message
-        crow_client.capture_message("msg", nullptr, false);
+        crow_client.capture_message("msg", nullptr);
 
         // check payload sent to Sentry
         auto msg = parse_msg(crow_client.get_last_event_id());
@@ -201,7 +201,7 @@ TEST_CASE("context")
         crow_client.add_tags_context(tag);
 
         // capture message
-        crow_client.capture_message("msg", nullptr, false);
+        crow_client.capture_message("msg", nullptr);
 
         // check payload sent to Sentry
         auto msg = parse_msg(crow_client.get_last_event_id());
@@ -214,7 +214,7 @@ TEST_CASE("context")
         crow_client.add_request_context({{"url", "http://example.com"}, {"method", "GET"}});
 
         // capture message
-        crow_client.capture_message("msg", nullptr, false);
+        crow_client.capture_message("msg", nullptr);
 
         // check payload sent to Sentry
         auto msg = parse_msg(crow_client.get_last_event_id());
@@ -231,7 +231,7 @@ TEST_CASE("context")
         crow_client.add_extra_context(extra);
 
         // capture message
-        crow_client.capture_message("msg", nullptr, false);
+        crow_client.capture_message("msg", nullptr);
 
         // check payload sent to Sentry
         auto msg = parse_msg(crow_client.get_last_event_id());
