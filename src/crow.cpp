@@ -156,7 +156,9 @@ void crow::capture_exception(const std::exception& exception,
 
     // add given context
     merge_context(context);
-    enqueue_post(m_payload);
+
+    const bool send_synchronously = not handled;
+    enqueue_post(m_payload, not send_synchronously);
 }
 
 void crow::add_breadcrumb(const std::string& message,
@@ -339,7 +341,7 @@ std::string crow::post(json payload) const
     return curl.post(m_store_url, payload, true).data;
 }
 
-void crow::enqueue_post(const json& payload)
+void crow::enqueue_post(const json& payload, bool synchronous)
 {
     if (not m_enabled)
     {
@@ -364,6 +366,12 @@ void crow::enqueue_post(const json& payload)
 
     // add the new job
     m_jobs.emplace_back(std::move(std::async(std::launch::async, [this, payload](){ return json::parse(post(payload)).at("id").get<std::string>(); })));
+
+    // in case of a synchronous call, immediately wait for the added job
+    if (synchronous)
+    {
+        m_jobs.back().get();
+    }
 }
 
 void crow::new_termination_handler()

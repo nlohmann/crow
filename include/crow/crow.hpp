@@ -220,11 +220,12 @@ class crow
      * @brief POST the payload to the Sentry sink URL
      *
      * @param[in] payload payload to send
+     * @param[in] synchronous whether the payload should be sent immediately
      * @return result
      */
     std::string post(json payload) const;
 
-    void enqueue_post(const json& payload);
+    void enqueue_post(const json& payload, bool synchronous = false);
 
     /*!
      * @brief termination handler that detects uncaught exceptions
