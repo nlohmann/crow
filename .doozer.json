@@ -1,7 +1,7 @@
 {
   "targets": {
     "xenial-amd64": {
-      "buildenv": "xenial-amd64",
+      "buildenv": "centos7-x86_64",
       "builddeps": ["build-essential", "cmake"],
       "buildcmd": ["cmake .", "make"]
     }

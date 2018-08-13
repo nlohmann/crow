@@ -82,6 +82,9 @@ crow::crow(const std::string& dsn,
     {
         install_handler();
     }
+
+    // initialization succeeded: start worker thread
+    m_post_thread = std::thread(&crow::process_post_queue, this);
 }
 
 void crow::install_handler()
@@ -97,22 +100,17 @@ void crow::install_handler()
     }
 }
 
-crow::crow(const crow& other)
-    : m_sample_rate(other.m_sample_rate)
-    , m_enabled(other.m_enabled)
-    , m_public_key(other.m_public_key)
-    , m_secret_key(other.m_secret_key)
-    , m_store_url(other.m_store_url)
-    , m_payload(other.m_payload)
-{}
-
 crow::~crow()
 {
-    // wait fur running request to finish
-    if (m_pending_future.valid())
     {
-        m_pending_future.wait();
+        // we want to access the m_client_running_mutex variable
+        std::lock_guard<std::mutex> lock(m_client_running_mutex);
+        m_client_running = false;
     }
+
+    // wake up and join thread
+    m_main_to_post.notify_one();
+    m_post_thread.join();
 }
 
 void crow::capture_message(const std::string& message,
@@ -226,24 +224,22 @@ void crow::add_breadcrumb(const std::string& message,
     m_payload["breadcrumbs"]["values"].push_back(std::move(breadcrumb));
 }
 
-std::string crow::get_last_event_id() const
+const std::string& crow::get_last_event_id() const
 {
-    std::lock_guard<std::mutex> lock(m_pending_future_mutex);
-    if (m_pending_future.valid())
+    // we need to check if the queue is empty
+    std::unique_lock<std::mutex> queue_lock(m_last_event_id_mutex);
+
+    // if the queue is not empty, we must wait until it is
+    if (not m_queue.empty())
     {
-        try
-        {
-            return json::parse(m_pending_future.get()).at("id");
-        }
-        catch (const json::exception&)
-        {
-            return "";
-        }
+        // return the queue lock
+        queue_lock.unlock();
+        // wait until queue is empty
+        std::unique_lock<std::mutex> event_id_lock(m_last_event_id_mutex);
+        m_post_to_last_event_id.wait(event_id_lock);
     }
-    else
-    {
-        return "";
-    }
+
+    return m_last_event_id;
 }
 
 const json& crow::get_context() const
@@ -365,6 +361,76 @@ std::string crow::post(json payload) const
     return curl.post(m_store_url, payload, true).data;
 }
 
+void crow::enqueue_post(const bool asynchronous)
+{
+    if (not m_enabled)
+    {
+        return;
+    }
+
+    // https://docs.sentry.io/clientdev/features/#event-sampling
+    const auto rand = crow_utilities::get_random_number(0, 100) / 100.0;
+    if (rand >= m_sample_rate)
+    {
+        return;
+    }
+
+    // enqueue payload to post queue
+    std::lock_guard<std::mutex> lock(m_queue_mutex);
+    m_queue.push_back(m_payload);
+    m_main_to_post.notify_one();
+}
+
+void crow::process_post_queue()
+{
+    /// whether we actually got a new last_event_id
+    bool updated_last_event_id = false;
+
+    // we want to access m_client_running
+    std::unique_lock<std::mutex> running_lock(m_client_running_mutex);
+
+    // loop until client stopped running and queue is empty
+    while (m_client_running or not m_queue.empty())
+    {
+        // allow others to change m_client_running
+        running_lock.unlock();
+
+        // we want to access the queue
+        std::unique_lock<std::mutex> lock(m_queue_mutex);
+        // wait until main thread wakes us up (i.e., put something into the queue)
+        m_main_to_post.wait(lock);
+
+        // If we reach this line, either (1) enqueue_post or (2) the destructor woke us.
+        // In any case: empty the queue. In case (1) we continue looping, because
+        // m_client_running is still true. In case (2) m_client_running is false and we
+        // exit the loop.
+
+        // process the queue
+        while (not m_queue.empty())
+        {
+            // post the payload from the beginning of the queue
+            std::string result = post(m_queue.front());
+            // remove the payload from queue
+            m_queue.pop_front();
+
+            // update m_last_event_id
+            std::lock_guard<std::mutex> lock2(m_last_event_id_mutex);
+            m_last_event_id = json::parse(result).at("id");
+            updated_last_event_id = true;
+        }
+
+        // the queue is empty and we updated the last event id
+        if (updated_last_event_id)
+        {
+            // now notify get_last_event_id() about new data
+            m_post_to_last_event_id.notify_one();
+        }
+
+        // we want to access m_client_running in the next iteration
+        running_lock.lock();
+    }
+}
+
 void crow::new_termination_handler()
 {
     assert(m_client_that_installed_termination_handler != nullptr);
@@ -384,40 +450,6 @@ void crow::new_termination_handler()
     }
 
     m_client_that_installed_termination_handler->existing_termination_handler();
-}
-
-void crow::enqueue_post(const bool asynchronous)
-{
-    if (not m_enabled)
-    {
-        return;
-    }
-
-    // https://docs.sentry.io/clientdev/features/#event-sampling
-    const auto rand = crow_utilities::get_random_number(0, 100) / 100.0;
-    if (rand >= m_sample_rate)
-    {
-        return;
-    }
-
-    std::lock_guard<std::mutex> lock(m_pending_future_mutex);
-
-    // wait for running post requests
-    if (m_pending_future.valid())
-    {
-        m_pending_future.wait();
-    }
-
-    // start a new post request
-    if (asynchronous)
-    {
-        m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
-    }
-    else
-    {
-        m_pending_future = std::async(std::launch::deferred, [this] { return post(m_payload); });
-        m_pending_future.wait();
-    }
 }
 
 }

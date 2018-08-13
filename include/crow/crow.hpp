@@ -30,6 +30,7 @@ SOFTWARE.
 #ifndef NLOHMANN_CROW_HPP
 #define NLOHMANN_CROW_HPP
 
+#include <deque> // deque
 #include <future> // future
 #include <mutex> // mutex
 #include <string> //string
@@ -82,17 +83,6 @@ class crow
      * @since 0.0.3
      */
     void install_handler();
-
-    /*!
-     * @brief copy constructor
-     *
-     * @param[in] other client to copy
-     *
-     * @note The last event id is not preserved by copying.
-     *
-     * @since 0.0.2
-     */
-    crow(const crow& other);
 
     /*!
      * @brief destructor
@@ -158,7 +148,7 @@ class crow
      *
      * @since 0.0.2
      */
-    std::string get_last_event_id() const;
+    const std::string& get_last_event_id() const;
 
     /*!
      * @}
@@ -248,6 +238,7 @@ class crow
      */
     std::string post(json payload) const;
 
+    void process_post_queue();
     void enqueue_post(bool asynchronous);
 
     /*!
@@ -275,10 +266,28 @@ class crow
     /// a mutex to make payload thread-safe
     std::mutex m_payload_mutex;
 
-    /// the result of the last HTTP POST
-    mutable std::future<std::string> m_pending_future;
-    /// a mutex to make the posting thread-safe
-    mutable std::mutex m_pending_future_mutex;
+    /// whether the client is still running
+    bool m_client_running = true;
+    /// a mutex to make m_client_running thread-safe
+    std::mutex m_client_running_mutex;
+
+    /// a queue of payloads to send
+    std::deque<json> m_queue;
+    /// a mutex to make m_queue thread-safe
+    std::mutex m_queue_mutex;
+
+    /// communication: main thread (~crow, ) -> post thread
+    std::condition_variable m_main_to_post;
+    /// communication: post thread -> main thread (get_last_event_id)
+    mutable std::condition_variable m_post_to_last_event_id;
+
+    /// a worker thread to post messages to Sentry
+    std::thread m_post_thread;
+
+    /// the id of the last event
+    std::string m_last_event_id;
+    /// a mutex to make m_last_event_id thread-safe
+    mutable std::mutex m_last_event_id_mutex;
 
     /// the termination handler installed before initializing the client
     std::terminate_handler existing_termination_handler = nullptr;
