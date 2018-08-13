@@ -109,7 +109,7 @@ crow::~crow()
     }
 
     // wake up and join thread
-    m_main_to_post.notify_one();
+    m_main_to_post.notify_all();
     m_post_thread.join();
 }
 
@@ -227,7 +227,7 @@ void crow::add_breadcrumb(const std::string& message,
 const std::string& crow::get_last_event_id() const
 {
     // we need to check if the queue is empty
-    std::unique_lock<std::mutex> queue_lock(m_last_event_id_mutex);
+    std::unique_lock<std::mutex> queue_lock(m_queue_mutex);
 
     // if the queue is not empty, we must wait until it is
     if (not m_queue.empty())
@@ -396,9 +396,9 @@ void crow::process_post_queue()
         running_lock.unlock();
 
         // we want to access the queue
-        std::unique_lock<std::mutex> lock(m_queue_mutex);
+        std::unique_lock<std::mutex> queue_lock(m_queue_mutex);
         // wait until main thread wakes us up (i.e., put something into the queue)
-        m_main_to_post.wait(lock);
+        m_main_to_post.wait(queue_lock);
 
         // If we reach this line, either (1) enqueue_post or (2) the destructor woke us.
         // In any case: empty the queue. In case (1) we continue looping, because

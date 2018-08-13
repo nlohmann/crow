@@ -274,7 +274,7 @@ class crow
     /// a queue of payloads to send
     std::deque<json> m_queue;
     /// a mutex to make m_queue thread-safe
-    std::mutex m_queue_mutex;
+    mutable std::mutex m_queue_mutex;
 
     /// communication: main thread (~crow, ) -> post thread
     std::condition_variable m_main_to_post;
