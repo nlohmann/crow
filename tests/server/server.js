@@ -2,7 +2,6 @@ const http = require('http');
 const zlib = require('zlib');
 
 http.createServer((request, response) => {
-    const { headers, method, url } = request;
     let body = [];
     request.on('error', (err) => {
         console.error(err);

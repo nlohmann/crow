@@ -114,7 +114,6 @@ TEST_CASE("sample rate")
 TEST_CASE("creating messages")
 {
     crow crow_client("http://abc:def@127.0.0.1:5000/1");
-    std::string url = "http://127.0.0.1:5000/api/200/store/";
 
     SECTION("capture_message")
     {
@@ -174,6 +173,22 @@ TEST_CASE("creating messages")
         CHECK(msg["breadcrumbs"]["values"][0]["message"] == msg1);
         CHECK(msg["breadcrumbs"]["values"][1]["message"] == msg2);
     }
+}
+
+TEST_CASE("job list")
+{
+    crow crow_client("http://abc:def@127.0.0.1:5000/1");
+    crow_client.capture_message("message_1");
+    crow_client.capture_message("message_2");
+    crow_client.capture_message("message_3");
+    crow_client.capture_message("message_4");
+    crow_client.capture_message("message_5");
+    crow_client.capture_message("message_6");
+    crow_client.capture_message("message_7");
+    crow_client.capture_message("message_8");
+    crow_client.capture_message("message_9");
+    crow_client.capture_message("message_10");
+    crow_client.capture_message("message_11");
 }
 
 TEST_CASE("context")

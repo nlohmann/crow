@@ -30,7 +30,7 @@ SOFTWARE.
 #ifndef NLOHMANN_CROW_HPP
 #define NLOHMANN_CROW_HPP
 
-#include <deque> // deque
+#include <vector> // vector
 #include <future> // future
 #include <mutex> // mutex
 #include <string> //string
@@ -85,15 +85,6 @@ class crow
     void install_handler();
 
     /*!
-     * @brief destructor
-     *
-     * @note Waits until pending HTTP requests complete.
-     *
-     * @since 0.0.2
-     */
-    ~crow();
-
-    /*!
      * @name event capturing
      * @{
      */
@@ -143,7 +134,7 @@ class crow
      *
      * @since 0.0.2
      */
-    const std::string& get_last_event_id() const;
+    std::string get_last_event_id() const;
 
     /*!
      * @}
@@ -231,10 +222,9 @@ class crow
      * @param[in] payload payload to send
      * @return result
      */
-    std::string post(const json& payload) const;
+    std::string post(json payload) const;
 
-    void process_post_queue();
-    void enqueue_post();
+    void enqueue_post(const json& payload);
 
     /*!
      * @brief termination handler that detects uncaught exceptions
@@ -261,33 +251,17 @@ class crow
     /// a mutex to make payload thread-safe
     std::mutex m_payload_mutex;
 
-    /// whether the client is still running
-    bool m_client_running = true;
-    /// a mutex to make m_client_running thread-safe
-    std::mutex m_client_running_mutex;
-
-    /// a queue of payloads to send
-    std::deque<json> m_queue;
-    /// a mutex to make m_queue thread-safe
-    mutable std::mutex m_queue_mutex;
-
-    /// communication: main thread (~crow, ) -> post thread
-    std::condition_variable m_main_to_post;
-    /// communication: post thread -> main thread (get_last_event_id)
-    mutable std::condition_variable m_post_to_last_event_id;
-
-    /// a worker thread to post messages to Sentry
-    std::thread m_post_thread;
-
-    /// the id of the last event
-    std::string m_last_event_id;
-    /// a mutex to make m_last_event_id thread-safe
-    mutable std::mutex m_last_event_id_mutex;
+    /// a vector of POST jobs
+    mutable std::vector<std::future<std::string>> m_jobs;
+    /// a mutex to make m_jobs thread-safe
+    mutable std::mutex m_jobs_mutex;
 
     /// the termination handler installed before initializing the client
     std::terminate_handler existing_termination_handler = nullptr;
     /// a pointer to the last client (used for termination handling)
     static crow* m_client_that_installed_termination_handler;
+    /// the maximal number of concurrent jobs (length of m_jobs)
+    constexpr static size_t maximal_jobs = 1;
 };
 
 }

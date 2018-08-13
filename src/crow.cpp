@@ -83,8 +83,7 @@ crow::crow(const std::string& dsn,
         install_handler();
     }
 
-    // initialization succeeded: start worker thread
-    m_post_thread = std::thread(&crow::process_post_queue, this);
+    m_jobs.reserve(maximal_jobs);
 }
 
 void crow::install_handler()
@@ -98,19 +97,6 @@ void crow::install_handler()
         // uncaught exceptions with it
         m_client_that_installed_termination_handler = this;
     }
-}
-
-crow::~crow()
-{
-    {
-        // we want to access the m_client_running_mutex variable
-        std::lock_guard<std::mutex> lock(m_client_running_mutex);
-        m_client_running = false;
-    }
-
-    // wake up and join thread
-    m_main_to_post.notify_all();
-    m_post_thread.join();
 }
 
 void crow::capture_message(const std::string& message,
@@ -148,7 +134,7 @@ void crow::capture_message(const std::string& message,
         }
     }
 
-    enqueue_post();
+    enqueue_post(m_payload);
 }
 
 
@@ -170,8 +156,7 @@ void crow::capture_exception(const std::exception& exception,
 
     // add given context
     merge_context(context);
-
-    enqueue_post();
+    enqueue_post(m_payload);
 }
 
 void crow::add_breadcrumb(const std::string& message,
@@ -222,18 +207,17 @@ void crow::add_breadcrumb(const std::string& message,
     m_payload["breadcrumbs"]["values"].push_back(std::move(breadcrumb));
 }
 
-const std::string& crow::get_last_event_id() const
+std::string crow::get_last_event_id() const
 {
-    // we need to check if the queue is empty
-    std::unique_lock<std::mutex> queue_lock(m_queue_mutex);
-    if (not m_queue.empty())
+    std::lock_guard<std::mutex> lock(m_jobs_mutex);
+    if (not m_jobs.empty() and m_jobs.back().valid())
     {
-        // wait until queue is empty
-        m_post_to_last_event_id.wait(queue_lock);
+        return m_jobs.back().get();
     }
-
-    std::lock_guard<std::mutex> lock(m_last_event_id_mutex);
-    return m_last_event_id;
+    else
+    {
+        return "";
+    }
 }
 
 const json& crow::get_context() const
@@ -340,7 +324,7 @@ void crow::clear_context()
     }
 }
 
-std::string crow::post(const json& payload) const
+std::string crow::post(json payload) const
 {
     curl_wrapper curl;
 
@@ -355,7 +339,7 @@ std::string crow::post(const json& payload) const
     return curl.post(m_store_url, payload, true).data;
 }
 
-void crow::enqueue_post()
+void crow::enqueue_post(const json& payload)
 {
     if (not m_enabled)
     {
@@ -369,55 +353,17 @@ void crow::enqueue_post()
         return;
     }
 
-    // enqueue payload to post queue
-    std::lock_guard<std::mutex> lock(m_queue_mutex);
-    m_queue.push_back(m_payload);
-    m_main_to_post.notify_one();
-}
+    // we want to change the job list
+    std::lock_guard<std::mutex> lock_jobs(m_jobs_mutex);
 
-void crow::process_post_queue()
-{
-    // we want to access m_client_running
-    std::unique_lock<std::mutex> running_lock(m_client_running_mutex);
-
-    // loop until client stopped running and queue is empty
-    while (m_client_running or not m_queue.empty())
+    // if we reach the maximal number of jobs, clear the list; this calls get() on all jobs
+    if (m_jobs.size() == maximal_jobs)
     {
-        // allow others (~crow()) to change m_client_running
-        running_lock.unlock();
-
-        // we want to access the queue
-        std::unique_lock<std::mutex> queue_lock(m_queue_mutex);
-        // wait until main thread wakes us up (i.e., put something into the queue)
-        m_main_to_post.wait(queue_lock);
-
-        // If we reach this line, either (1) enqueue_post or (2) the destructor woke us.
-        // In any case: empty the queue. In case (1) we continue looping, because
-        // m_client_running is still true. In case (2) m_client_running is false and we
-        // exit the loop.
-
-        // process the queue
-        while (not m_queue.empty())
-        {
-            // post the payload from the beginning of the queue
-            std::string result = post(m_queue.front());
-            // remove the payload from queue
-            m_queue.pop_front();
-
-            // update m_last_event_id
-            std::lock_guard<std::mutex> lock2(m_last_event_id_mutex);
-            m_last_event_id = json::parse(result).at("id");
-        }
-
-        // we are done with the queue
-        queue_lock.unlock();
-
-        // we processed the queue - wake up get_last_event_id()
-        m_post_to_last_event_id.notify_all();
-
-        // we want to access m_client_running in the next iteration
-        running_lock.lock();
+        m_jobs.clear();
     }
+
+    // add the new job
+    m_jobs.emplace_back(std::move(std::async(std::launch::async, [this, payload](){ return json::parse(post(payload)).at("id").get<std::string>(); })));
 }
 
 void crow::new_termination_handler()
