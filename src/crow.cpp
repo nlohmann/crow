@@ -27,6 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include <iostream>
 #include <exception> // current_exception, exception, get_terminate, rethrow_exception, set_terminate
 #include <regex> // regex, regex_match, smatch
 #include <stdexcept> // invalid_argument
@@ -140,6 +141,7 @@ void crow::capture_exception(const std::exception& exception,
                              const json& context,
                              const bool handled)
 {
+    std::cout << "capture_exception(handled=" << std::boolalpha << handled << ")" << std::endl;
     std::stringstream thread_id;
     thread_id << std::this_thread::get_id();
     std::lock_guard<std::mutex> lock(m_payload_mutex);
@@ -157,6 +159,7 @@ void crow::capture_exception(const std::exception& exception,
 
     const bool send_synchronously = not handled;
     enqueue_post(send_synchronously);
+    std::cout << "payload enqueued: m_posts = " << m_posts << std::endl;
 }
 
 void crow::add_breadcrumb(const std::string& message,

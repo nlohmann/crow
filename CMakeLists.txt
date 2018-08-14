@@ -150,7 +150,7 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
     target_include_directories(livetest PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
     target_link_libraries(livetest crow)
 
-    add_test(NAME unittests COMMAND unittests -s)
+    add_test(NAME unittests COMMAND unittests)
     add_test(NAME uncaught_exception COMMAND uncaught_exception)
     add_test(NAME livetest COMMAND livetest)
 

@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include <exception>
 #include <crow/crow.hpp>
@@ -10,14 +11,11 @@ crow* client = nullptr;
 void my_termination_handler()
 {
     std::cout << "entered my_termination_handler()" << std::endl;
-
-    assert(client->m_posts > 0);
-
     std::cout << "client->m_posts = " << client->m_posts << std::endl;
-
     std::string last_id = client->get_last_event_id();
     std::cout << "last_id = " << last_id << std::endl;
 
+    assert(client->m_posts > 0);
     bool success = not last_id.empty();
     delete client;
     std::exit(success ? 0 : 1);
