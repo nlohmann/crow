@@ -27,7 +27,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <iostream>
 #include <exception> // current_exception, exception, get_terminate, rethrow_exception, set_terminate
 #include <regex> // regex, regex_match, smatch
 #include <stdexcept> // invalid_argument
@@ -87,19 +86,15 @@ crow::crow(const std::string& dsn,
 
 void crow::install_handler()
 {
-    std::cout << "install_handler()" << std::endl;
     if (existing_termination_handler == nullptr)
     {
-        std::cout << "get_terminate()" << std::endl;
         existing_termination_handler = std::get_terminate();
-        std::cout << "set_terminate()" << std::endl;
         std::set_terminate(&new_termination_handler);
 
         // we remember this client, because we will use it to report
         // uncaught exceptions with it
         m_client_that_installed_termination_handler = this;
     }
-    std::cout << "leaving install_handler()" << std::endl;
 }
 
 void crow::capture_message(const std::string& message,
@@ -145,7 +140,6 @@ void crow::capture_exception(const std::exception& exception,
                              const json& context,
                              const bool handled)
 {
-    std::cout << "capture_exception(handled=" << std::boolalpha << handled << ")" << std::endl;
     std::stringstream thread_id;
     thread_id << std::this_thread::get_id();
     std::lock_guard<std::mutex> lock(m_payload_mutex);
@@ -163,7 +157,6 @@ void crow::capture_exception(const std::exception& exception,
 
     const bool send_synchronously = not handled;
     enqueue_post(send_synchronously);
-    std::cout << "payload enqueued: m_posts = " << m_posts << std::endl;
 }
 
 void crow::add_breadcrumb(const std::string& message,
@@ -216,7 +209,7 @@ void crow::add_breadcrumb(const std::string& message,
 
 std::string crow::get_last_event_id() const
 {
-    if (m_posts == 0)
+    if (not m_posts)
     {
         return "";
     }
@@ -370,7 +363,8 @@ void crow::enqueue_post(bool synchronous)
     // we want to change the job list
     std::lock_guard<std::mutex> lock_jobs(m_jobs_mutex);
 
-    ++m_posts;
+    // remember we made a post and now can rely on a last id
+    m_posts = true;
 
     // add the new job
     m_jobs.emplace_back(std::async(std::launch::async, [this]()
@@ -398,7 +392,6 @@ void crow::enqueue_post(bool synchronous)
 
 void crow::new_termination_handler()
 {
-    std::cout << "entered new_termination_handler()" << std::endl;
     assert(m_client_that_installed_termination_handler != nullptr);
 
     auto current_ex = std::current_exception();
@@ -415,7 +408,6 @@ void crow::new_termination_handler()
         }
     }
 
-    std::cout << "calling existing termination handler" << std::endl;
     m_client_that_installed_termination_handler->existing_termination_handler();
 }
 

@@ -215,8 +215,6 @@ class crow
      * @}
      */
 
-    std::size_t m_posts = 0;
-
   private:
     /*!
      * @brief POST the payload to the Sentry sink URL
@@ -260,6 +258,8 @@ class crow
     mutable std::mutex m_jobs_mutex;
     /// a cache for the last event id
     mutable std::string m_last_event_id = "-1";
+    /// whether a post has been made already
+    bool m_posts = false;
 
     /// the termination handler installed before initializing the client
     std::terminate_handler existing_termination_handler = nullptr;
