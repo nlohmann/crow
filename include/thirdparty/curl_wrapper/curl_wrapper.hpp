@@ -39,7 +39,6 @@ class curl_wrapper
     {
         curl_slist_free_all(m_headers);
         curl_easy_cleanup(m_curl);
-        curl_global_cleanup();
     }
 
     response post(const std::string& url, const nlohmann::json& payload, const bool compress = false)
