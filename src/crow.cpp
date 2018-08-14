@@ -87,15 +87,19 @@ crow::crow(const std::string& dsn,
 
 void crow::install_handler()
 {
+    std::cout << "install_handler()" << std::endl;
     if (existing_termination_handler == nullptr)
     {
+        std::cout << "get_terminate()" << std::endl;
         existing_termination_handler = std::get_terminate();
+        std::cout << "set_terminate()" << std::endl;
         std::set_terminate(&new_termination_handler);
 
         // we remember this client, because we will use it to report
         // uncaught exceptions with it
         m_client_that_installed_termination_handler = this;
     }
+    std::cout << "leaving install_handler()" << std::endl;
 }
 
 void crow::capture_message(const std::string& message,
