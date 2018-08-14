@@ -59,7 +59,7 @@ before_build:
 - cmake . -G "%GENERATOR%" -DCMAKE_CXX_FLAGS="%FLAGS%" -DCMAKE_IGNORE_PATH="C:/Program Files/Git/usr/bin" -DCROW_BUILD_LOG4CPLUS=ON -DCMAKE_BUILD_TYPE=Release -DCROW_EXTERNAL_CURL_PROJECT=curl-7.61.0 -DCROW_EXTERNAL_ZLIB_PROJECT=zlib-1.2.11
 
 build_script:
-  - cmake --build . --config Release
+  - cmake --build . --parallel --config Release
 
 before_test:
   - forever start tests/server/server.js

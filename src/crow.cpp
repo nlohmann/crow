@@ -398,6 +398,7 @@ void crow::enqueue_post(bool synchronous)
 
 void crow::new_termination_handler()
 {
+    std::cout << "entered new_termination_handler()" << std::endl;
     assert(m_client_that_installed_termination_handler != nullptr);
 
     auto current_ex = std::current_exception();
@@ -414,6 +415,7 @@ void crow::new_termination_handler()
         }
     }
 
+    std::cout << "calling existing termination handler" << std::endl;
     m_client_that_installed_termination_handler->existing_termination_handler();
 }
 
