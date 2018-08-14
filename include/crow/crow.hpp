@@ -215,6 +215,8 @@ class crow
      * @}
      */
 
+    std::size_t m_posts = 0;
+
   private:
     /*!
      * @brief POST the payload to the Sentry sink URL
@@ -225,7 +227,7 @@ class crow
      */
     std::string post(json payload) const;
 
-    void enqueue_post(const json& payload, bool synchronous = false);
+    void enqueue_post(bool synchronous = false);
 
     /*!
      * @brief termination handler that detects uncaught exceptions
@@ -257,14 +259,12 @@ class crow
     /// a mutex to make m_jobs thread-safe
     mutable std::mutex m_jobs_mutex;
     /// a cache for the last event id
-    mutable std::string m_last_event_id = "";
+    mutable std::string m_last_event_id = "-1";
 
     /// the termination handler installed before initializing the client
     std::terminate_handler existing_termination_handler = nullptr;
     /// a pointer to the last client (used for termination handling)
     static crow* m_client_that_installed_termination_handler;
-    /// the maximal number of concurrent jobs (length of m_jobs)
-    constexpr static size_t maximal_jobs = 1;
 };
 
 }

@@ -82,8 +82,6 @@ crow::crow(const std::string& dsn,
     {
         install_handler();
     }
-
-    m_jobs.reserve(maximal_jobs);
 }
 
 void crow::install_handler()
@@ -134,7 +132,7 @@ void crow::capture_message(const std::string& message,
         }
     }
 
-    enqueue_post(m_payload);
+    enqueue_post();
 }
 
 
@@ -158,7 +156,7 @@ void crow::capture_exception(const std::exception& exception,
     merge_context(context);
 
     const bool send_synchronously = not handled;
-    enqueue_post(m_payload, send_synchronously);
+    enqueue_post(send_synchronously);
 }
 
 void crow::add_breadcrumb(const std::string& message,
@@ -211,12 +209,19 @@ void crow::add_breadcrumb(const std::string& message,
 
 std::string crow::get_last_event_id() const
 {
+    if (m_posts == 0)
+    {
+        return "";
+    }
+
     std::lock_guard<std::mutex> lock(m_jobs_mutex);
     if (not m_jobs.empty() and m_jobs.back().valid())
     {
         m_last_event_id = m_jobs.back().get();
+        m_jobs.clear();
     }
 
+    assert(not m_last_event_id.empty());
     return m_last_event_id;
 }
 
@@ -339,43 +344,49 @@ std::string crow::post(json payload) const
     return curl.post(m_store_url, payload, true).data;
 }
 
-void crow::enqueue_post(const json& payload, bool synchronous)
+void crow::enqueue_post(bool synchronous)
 {
     if (not m_enabled)
     {
         return;
     }
 
+    /*
     // https://docs.sentry.io/clientdev/features/#event-sampling
     const auto rand = crow_utilities::get_random_number(0, 100) / 100.0;
     if (rand >= m_sample_rate)
     {
         return;
     }
+     */
 
     // we want to change the job list
     std::lock_guard<std::mutex> lock_jobs(m_jobs_mutex);
 
-    // if we reach the maximal number of jobs, clear the list; this calls get() on all jobs
-    if (m_jobs.size() == maximal_jobs)
-    {
-        m_jobs.clear();
-    }
+    ++m_posts;
 
     // add the new job
-    m_jobs.emplace_back(std::move(std::async(std::launch::async, [this, payload]()
+    m_jobs.emplace_back(std::async(std::launch::deferred, [this]()
     {
-        return json::parse(post(payload)).at("id").get<std::string>();
-    })));
+        std::string res = json::parse(post(m_payload)).at("id");
+        assert(not res.empty());
+        return res;
+    }));
 
+    assert(not m_jobs.empty());
+    assert(m_jobs.back().valid());
+
+    /*
     // in case of a synchronous call, immediately get the result
     if (synchronous)
     {
+        assert(not m_jobs.empty());
         if (m_jobs.back().valid())
         {
             m_last_event_id = m_jobs.back().get();
         }
     }
+    */
 }
 
 void crow::new_termination_handler()
