@@ -90,7 +90,6 @@ TEST_CASE("DSN parsing")
     }
 }
 
-/*
 TEST_CASE("sample rate")
 {
     SECTION("sample rate 0.0")
@@ -111,7 +110,6 @@ TEST_CASE("sample rate")
         CHECK(not crow_client.get_last_event_id().empty());
     }
 }
- */
 
 TEST_CASE("creating messages")
 {

@@ -27,6 +27,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*!
+ * @file crow.hpp
+ * @brief main header for Crow
+ */
+
 #ifndef NLOHMANN_CROW_HPP
 #define NLOHMANN_CROW_HPP
 
@@ -38,7 +43,9 @@ SOFTWARE.
 
 using json = nlohmann::json;
 
-/// namespace for Niels Lohmann
+/*!
+ * @brief namespace for Niels Lohmann
+ */
 namespace nlohmann
 {
 /*!
@@ -225,18 +232,21 @@ class crow
      */
     std::string post(json payload) const;
 
-    void enqueue_post(bool synchronous = false);
+    void enqueue_post();
 
     /*!
      * @brief termination handler that detects uncaught exceptions
      *
      * @post previously installed termination handler is executed
+     *
+     * @note The rethrowing of uncaught exceptions does not work with Microsoft Visual Studio 2017, see
+     *       https://developercommunity.visualstudio.com/content/problem/135332/stdcurrent-exception-returns-null-in-a-stdterminat.html
      */
     static void new_termination_handler();
 
   private:
-    /// the sample rate
-    const double m_sample_rate;
+    /// the sample rate (as integer 0..100)
+    const int m_sample_rate;
 
     /// whether the client is enabled
     const bool m_enabled = true;
@@ -265,6 +275,9 @@ class crow
     std::terminate_handler existing_termination_handler = nullptr;
     /// a pointer to the last client (used for termination handling)
     static crow* m_client_that_installed_termination_handler;
+
+    /// the maximal number of running jobs
+    static constexpr std::size_t m_maximal_jobs = 10;
 };
 
 }

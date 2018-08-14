@@ -103,7 +103,7 @@ find_package(Threads)
 # library #
 ###########
 
-add_library(crow src/crow.cpp src/crow_utilities.cpp)
+add_library(crow src/crow.cpp src/crow_utilities.cpp src/crow_utilities.hpp)
 set_target_properties(crow PROPERTIES CXX_STANDARD 11)
 target_include_directories(crow PUBLIC include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
 target_link_libraries(crow ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
@@ -169,11 +169,10 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
         set_target_properties(log4cplus PROPERTIES IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}log4cplus${CMAKE_STATIC_LIBRARY_SUFFIX})
         add_dependencies(log4cplus log4cplus_project)
 
-        add_executable(log4cplus_example examples/log4cplus/example.cpp)
+        add_executable(log4cplus_example examples/log4cplus/example.cpp include/crow/integrations/loggers.hpp include/crow/integrations/log4cplus.hpp)
         set_target_properties(log4cplus_example PROPERTIES CXX_STANDARD 11)
         target_include_directories(log4cplus_example PUBLIC include ${install_dir}/include)
         target_link_libraries(log4cplus_example log4cplus crow)
-
         add_test(NAME log4cplus_example COMMAND log4cplus_example)
     endif()
 endif()

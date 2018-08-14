@@ -27,6 +27,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*!
+ * @file crow.cpp
+ * @brief implementation of class crow
+ */
+
 #include <exception> // current_exception, exception, get_terminate, rethrow_exception, set_terminate
 #include <regex> // regex, regex_match, smatch
 #include <stdexcept> // invalid_argument
@@ -49,7 +54,7 @@ crow::crow(const std::string& dsn,
            const json& context,
            const double sample_rate,
            const bool install_handlers)
-    : m_sample_rate(sample_rate)
+    : m_sample_rate(static_cast<int>(sample_rate * 100.0))
     , m_enabled(not dsn.empty())
 {
     // process DSN
@@ -155,8 +160,10 @@ void crow::capture_exception(const std::exception& exception,
     // add given context
     merge_context(context);
 
-    const bool send_synchronously = not handled;
-    enqueue_post(send_synchronously);
+    enqueue_post();
+
+    // we want to support at most m_maximal_jobs running jobs
+    m_jobs.reserve(m_maximal_jobs);
 }
 
 void crow::add_breadcrumb(const std::string& message,
@@ -344,21 +351,19 @@ std::string crow::post(json payload) const
     return curl.post(m_store_url, payload, true).data;
 }
 
-void crow::enqueue_post(bool synchronous)
+void crow::enqueue_post()
 {
     if (not m_enabled)
     {
         return;
     }
 
-    /*
     // https://docs.sentry.io/clientdev/features/#event-sampling
-    const auto rand = crow_utilities::get_random_number(0, 100) / 100.0;
+    const auto rand = crow_utilities::get_random_number(0, 99);
     if (rand >= m_sample_rate)
     {
         return;
     }
-     */
 
     // we want to change the job list
     std::lock_guard<std::mutex> lock_jobs(m_jobs_mutex);
@@ -366,28 +371,23 @@ void crow::enqueue_post(bool synchronous)
     // remember we made a post and now can rely on a last id
     m_posts = true;
 
+    // enforce maximal number of running jobs
+    if (m_jobs.size() == m_maximal_jobs)
+    {
+        // clearing the vector of futures means waiting for their result; we do
+        // not need to save an event id, because we will add another post job
+        // below
+        m_jobs.clear();
+    }
+
     // add the new job
     m_jobs.emplace_back(std::async(std::launch::async, [this]()
     {
-        std::string res = json::parse(post(m_payload)).at("id");
-        assert(not res.empty());
-        return res;
+        return json::parse(post(m_payload)).at("id").get<std::string>();
     }));
 
     assert(not m_jobs.empty());
     assert(m_jobs.back().valid());
-
-    /*
-    // in case of a synchronous call, immediately get the result
-    if (synchronous)
-    {
-        assert(not m_jobs.empty());
-        if (m_jobs.back().valid())
-        {
-            m_last_event_id = m_jobs.back().get();
-        }
-    }
-    */
 }
 
 void crow::new_termination_handler()

@@ -8,14 +8,22 @@
 #include <log4cplus/log4cplus.h>
 #include <log4cplus/clogger.h>
 
+/*!
+ * @file log4cplus.hpp
+ * @brief interface for the Log4cplus appender
+ */
+
 namespace nlohmann
 {
 namespace crow_integrations
 {
 
 /*!
- * @brief appender for Log4cplus
  * @example log4cplus/example.cpp
+ */
+
+/*!
+ * @brief appender for Log4cplus
  * @since 0.0.4
  */
 class log4cplus_appender : public log4cplus::Appender

@@ -30,6 +30,11 @@ SOFTWARE.
 #ifndef NLOHMANN_CROW_CONFIG_HPP
 #define NLOHMANN_CROW_CONFIG_HPP
 
+/*!
+ * @file crow_config.hpp
+ * @brief constants written by CMake
+ */
+
 // macros do decide which headers are present
 #cmakedefine NLOHMANN_CROW_HAVE_CXXABI_H
 #cmakedefine NLOHMANN_CROW_HAVE_EXECINFO_H

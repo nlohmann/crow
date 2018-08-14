@@ -1,8 +1,16 @@
 #ifndef NLOHMANN_CROW_LOGGERS_HPP
 #define NLOHMANN_CROW_LOGGERS_HPP
 
+/*!
+ * @file loggers.hpp
+ * @brief common types for logger integrations
+ */
+
 namespace nlohmann
 {
+/*!
+ * @brief integrations of Crow into other frameworks
+ */
 namespace crow_integrations
 {
 

@@ -27,6 +27,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*!
+ * @file crow_utilities.cpp
+ * @brief implementation of Crow helper functions
+ */
+
 #include <chrono>
 #include <cstdlib>
 #include <cstddef>

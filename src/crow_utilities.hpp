@@ -30,6 +30,11 @@ SOFTWARE.
 #ifndef NLOHMANN_CROW_UTILITIES_HPP
 #define NLOHMANN_CROW_UTILITIES_HPP
 
+/*!
+ * @file crow_utilities.hpp
+ * @brief helper functions for Crow
+ */
+
 #include <cstdint>
 #include <string>
 #include <thirdparty/json/json.hpp>
@@ -38,6 +43,9 @@ using json = nlohmann::json;
 
 namespace nlohmann
 {
+/*!
+ * @brief helper functions for Crow
+ */
 namespace crow_utilities
 {
 
