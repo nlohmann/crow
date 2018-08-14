@@ -64,6 +64,9 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
 ### Version 0.0.5
 
 - :sparkles: added event sampling
+- :white_check_mark: added testing server to mock Sentry
+- :memo: added example code
+- :hammer: overworked threading
 
 ### Version 0.0.4
 
