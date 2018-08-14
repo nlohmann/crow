@@ -2,7 +2,7 @@
   "targets": {
     "xenial-amd64": {
       "buildenv": "centos7-x86_64",
-      "builddeps": ["build-essential"],
+      "builddeps": ["gcc-c++"],
       "buildcmd": ["mkdir cmake", "wget https://cmake.org/files/v3.12/cmake-3.12.1-Linux-x86_64.sh", "chmod a+x cmake-3.12.1-Linux-x86_64.sh", "./cmake-3.12.1-Linux-x86_64.sh --skip-license --prefix=cmake", "cmake/bin/cmake .", "make"]
     }
   }
