@@ -8,6 +8,7 @@ crow* client = nullptr;
 // a termination handler that checks the state of the messages sent to Sentry
 void my_termination_handler()
 {
+    assert(client->m_posts > 0);
     bool success = not client->get_last_event_id().empty();
     delete client;
     std::exit(success ? 0 : 1);

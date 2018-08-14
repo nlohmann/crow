@@ -123,7 +123,6 @@ TEST_CASE("creating messages")
         {
             std::string msg_string = "message text";
             crow_client.capture_message(msg_string);
-            CHECK(crow_client.m_posts > 0);
 
             // check payload sent to Sentry
             auto msg = parse_msg(crow_client.get_last_event_id());
@@ -137,7 +136,6 @@ TEST_CASE("creating messages")
         {
             std::string ex_string = "exception text";
             crow_client.capture_exception(std::runtime_error(ex_string), nullptr, true);
-            CHECK(crow_client.m_posts > 0);
 
             // check payload sent to Sentry
             auto msg = parse_msg(crow_client.get_last_event_id());
@@ -149,7 +147,6 @@ TEST_CASE("creating messages")
         {
             std::string ex_string = "exception text";
             crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false);
-            CHECK(crow_client.m_posts > 0);
 
             // check payload sent to Sentry
             auto msg = parse_msg(crow_client.get_last_event_id());
@@ -171,7 +168,6 @@ TEST_CASE("creating messages")
         // capture message
         std::string msg_string = "message text";
         crow_client.capture_message(msg_string);
-        CHECK(crow_client.m_posts > 0);
 
         // check payload sent to Sentry
         auto msg = parse_msg(crow_client.get_last_event_id());
@@ -209,7 +205,6 @@ TEST_CASE("context")
 
         // capture message
         crow_client.capture_message("msg");
-        CHECK(crow_client.m_posts > 0);
 
         // check payload sent to Sentry
         auto msg = parse_msg(crow_client.get_last_event_id());
@@ -224,7 +219,6 @@ TEST_CASE("context")
 
         // capture message
         crow_client.capture_message("msg");
-        CHECK(crow_client.m_posts > 0);
 
         // check payload sent to Sentry
         auto msg = parse_msg(crow_client.get_last_event_id());
@@ -241,7 +235,6 @@ TEST_CASE("context")
 
         // check payload sent to Sentry
         auto msg = parse_msg(crow_client.get_last_event_id());
-        CHECK(crow_client.m_posts > 0);
 
         // check payload sent to Sentry
         CHECK(msg["request"]["url"] == "http://example.com");
@@ -259,7 +252,6 @@ TEST_CASE("context")
 
         // check payload sent to Sentry
         auto msg = parse_msg(crow_client.get_last_event_id());
-        CHECK(crow_client.m_posts > 0);
 
         CHECK(msg["extra"] == extra);
     }
