@@ -65,7 +65,7 @@ before_test:
   - forever start tests/server/server.js
 
 test_script:
-  - ctest -C Release -V -j --output-on-failure --verbose
+  - ctest -C Release -V --output-on-failure --verbose
 
 on_finish:
   - forever stop tests/server/server.js
