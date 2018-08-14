@@ -366,7 +366,7 @@ void crow::enqueue_post(bool synchronous)
     ++m_posts;
 
     // add the new job
-    m_jobs.emplace_back(std::async(std::launch::deferred, [this]()
+    m_jobs.emplace_back(std::async(std::launch::async, [this]()
     {
         std::string res = json::parse(post(m_payload)).at("id");
         assert(not res.empty());
