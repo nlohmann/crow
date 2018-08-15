@@ -1,7 +1,7 @@
 /*
  _____ _____ _____ _ _ _
 |     | __  |     | | | |  Crow - a Sentry client for C++
-|   --|    -|  |  | | | |  version 0.0.4
+|   --|    -|  |  | | | |  version 0.0.5
 |_____|__|__|_____|_____|  https://github.com/nlohmann/crow
 
 Licensed under the MIT License <http://opensource.org/licenses/MIT>.
@@ -27,15 +27,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <cstdlib>
-#include <cstddef>
-#include <cstring>
-#include <ctime>
-#include <exception>
-#include <future>
-#include <mutex>
-#include <regex>
-#include <stdexcept>
+/*!
+ * @file crow.cpp
+ * @brief implementation of class crow
+ */
+
+#include <exception> // current_exception, exception, get_terminate, rethrow_exception, set_terminate
+#include <regex> // regex, regex_match, smatch
+#include <stdexcept> // invalid_argument
+#include <sstream> // stringstream
 #include <crow/crow.hpp>
 #include <src/crow_config.hpp>
 #include <src/crow_utilities.hpp>
@@ -46,12 +46,16 @@ using json = nlohmann::json;
 
 namespace nlohmann
 {
+class crow;
+
 crow* crow::m_client_that_installed_termination_handler = nullptr;
 
 crow::crow(const std::string& dsn,
            const json& context,
+           const double sample_rate,
            const bool install_handlers)
-    : m_enabled(not dsn.empty())
+    : m_sample_rate(static_cast<int>(sample_rate * 100.0))
+    , m_enabled(not dsn.empty())
 {
     // process DSN
     if (not dsn.empty())
@@ -89,7 +93,7 @@ void crow::install_handler()
 {
     if (existing_termination_handler == nullptr)
     {
-        existing_termination_handler = std::set_terminate([]() {});
+        existing_termination_handler = std::get_terminate();
         std::set_terminate(&new_termination_handler);
 
         // we remember this client, because we will use it to report
@@ -98,26 +102,8 @@ void crow::install_handler()
     }
 }
 
-crow::crow(const crow& other)
-    : m_enabled(other.m_enabled)
-    , m_public_key(other.m_public_key)
-    , m_secret_key(other.m_secret_key)
-    , m_store_url(other.m_store_url)
-    , m_payload(other.m_payload)
-{}
-
-crow::~crow()
-{
-    // wait fur running request to finish
-    if (m_pending_future.valid())
-    {
-        m_pending_future.wait();
-    }
-}
-
 void crow::capture_message(const std::string& message,
-                           const json& attributes,
-                           const bool asynchronous)
+                           const json& attributes)
 {
     std::lock_guard<std::mutex> lock(m_payload_mutex);
     m_payload["message"] = message;
@@ -151,13 +137,12 @@ void crow::capture_message(const std::string& message,
         }
     }
 
-    enqueue_post(asynchronous);
+    enqueue_post();
 }
 
 
 void crow::capture_exception(const std::exception& exception,
                              const json& context,
-                             const bool asynchronous,
                              const bool handled)
 {
     std::stringstream thread_id;
@@ -175,7 +160,10 @@ void crow::capture_exception(const std::exception& exception,
     // add given context
     merge_context(context);
 
-    enqueue_post(asynchronous);
+    enqueue_post();
+
+    // we want to support at most m_maximal_jobs running jobs
+    m_jobs.reserve(m_maximal_jobs);
 }
 
 void crow::add_breadcrumb(const std::string& message,
@@ -228,22 +216,20 @@ void crow::add_breadcrumb(const std::string& message,
 
 std::string crow::get_last_event_id() const
 {
-    std::lock_guard<std::mutex> lock(m_pending_future_mutex);
-    if (m_pending_future.valid())
-    {
-        try
-        {
-            return json::parse(m_pending_future.get()).at("id");
-        }
-        catch (const json::exception&)
-        {
-            return "";
-        }
-    }
-    else
+    if (not m_posts)
     {
         return "";
     }
+
+    std::lock_guard<std::mutex> lock(m_jobs_mutex);
+    if (not m_jobs.empty() and m_jobs.back().valid())
+    {
+        m_last_event_id = m_jobs.back().get();
+        m_jobs.clear();
+    }
+
+    assert(not m_last_event_id.empty());
+    return m_last_event_id;
 }
 
 const json& crow::get_context() const
@@ -352,22 +338,56 @@ void crow::clear_context()
 
 std::string crow::post(json payload) const
 {
-    if (m_enabled)
+    curl_wrapper curl;
+
+    // add security header
+    std::string security_header = "X-Sentry-Auth: Sentry sentry_version=5,sentry_client=crow/";
+    security_header += std::string(NLOHMANN_CROW_VERSION) + ",sentry_timestamp=";
+    security_header += std::to_string(crow_utilities::get_timestamp());
+    security_header += ",sentry_key=" + m_public_key;
+    security_header += ",sentry_secret=" + m_secret_key;
+    curl.set_header(security_header.c_str());
+
+    return curl.post(m_store_url, payload, true).data;
+}
+
+void crow::enqueue_post()
+{
+    if (not m_enabled)
     {
-        curl_wrapper curl;
-
-        // add security header
-        std::string security_header = "X-Sentry-Auth: Sentry sentry_version=5,sentry_client=crow/";
-        security_header += std::string(NLOHMANN_CROW_VERSION) + ",sentry_timestamp=";
-        security_header += std::to_string(crow_utilities::get_timestamp());
-        security_header += ",sentry_key=" + m_public_key;
-        security_header += ",sentry_secret=" + m_secret_key;
-        curl.set_header(security_header.c_str());
-
-        return curl.post(m_store_url, payload);
+        return;
     }
 
-    return "";
+    // https://docs.sentry.io/clientdev/features/#event-sampling
+    const auto rand = crow_utilities::get_random_number(0, 99);
+    if (rand >= m_sample_rate)
+    {
+        return;
+    }
+
+    // we want to change the job list
+    std::lock_guard<std::mutex> lock_jobs(m_jobs_mutex);
+
+    // remember we made a post and now can rely on a last id
+    m_posts = true;
+
+    // enforce maximal number of running jobs
+    if (m_jobs.size() == m_maximal_jobs)
+    {
+        // clearing the vector of futures means waiting for their result; we do
+        // not need to save an event id, because we will add another post job
+        // below
+        m_jobs.clear();
+    }
+
+    // add the new job
+    m_jobs.emplace_back(std::async(std::launch::async, [this]()
+    {
+        return json::parse(post(m_payload)).at("id").get<std::string>();
+    }));
+
+    assert(not m_jobs.empty());
+    assert(m_jobs.back().valid());
 }
 
 void crow::new_termination_handler()
@@ -384,29 +404,11 @@ void crow::new_termination_handler()
         }
         catch (const std::exception& e)
         {
-            m_client_that_installed_termination_handler->capture_exception(e, nullptr, false, false);
+            m_client_that_installed_termination_handler->capture_exception(e, nullptr, false);
         }
     }
 
     m_client_that_installed_termination_handler->existing_termination_handler();
 }
-
-    void crow::enqueue_post(const bool asynchronous)
-    {
-        std::lock_guard<std::mutex> lock(m_pending_future_mutex);
-
-        // wait for running post requests
-        if (m_pending_future.valid())
-        {
-            m_pending_future.wait();
-        }
-
-        // start a new post request
-        m_pending_future = std::async(std::launch::async, [this] { return post(m_payload); });
-        if (not asynchronous)
-        {
-            m_pending_future.wait();
-        }
-    }
 
 }

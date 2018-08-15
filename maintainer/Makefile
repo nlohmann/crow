@@ -18,6 +18,6 @@ upload_docs:
 
 coverage:
 	mkdir build ; cd build ; cmake .. -DCROW_CHECK_COVERAGE=ON ; cmake --build . ; cd ..
-	cd build ; ./tests ; cd ..
+	cd build ; ctest ; cd ..
 	cd build ; cmake --build . --target crow_coverage_report ; cd ..
 	open build/coverage_report/index.html

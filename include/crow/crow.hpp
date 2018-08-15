@@ -1,7 +1,7 @@
 /*
  _____ _____ _____ _ _ _
 |     | __  |     | | | |  Crow - a Sentry client for C++
-|   --|    -|  |  | | | |  version 0.0.4
+|   --|    -|  |  | | | |  version 0.0.5
 |_____|__|__|_____|_____|  https://github.com/nlohmann/crow
 
 Licensed under the MIT License <http://opensource.org/licenses/MIT>.
@@ -27,20 +27,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*!
+ * @file crow.hpp
+ * @brief main header for Crow
+ */
+
 #ifndef NLOHMANN_CROW_HPP
 #define NLOHMANN_CROW_HPP
 
-#include <future>
-#include <mutex>
+#include <vector> // vector
+#include <future> // future
+#include <mutex> // mutex
+#include <string> //string
 #include <thirdparty/json/json.hpp>
 
 using json = nlohmann::json;
 
-/// namespace for Niels Lohmann
+/*!
+ * @brief namespace for Niels Lohmann
+ */
 namespace nlohmann
 {
-class crow;
-
 /*!
  * @brief a C++ client for Sentry
  */
@@ -52,7 +59,8 @@ class crow
      *
      * @param[in] dsn the DNS string
      * @param[in] context an optional attributes object
-     * @param[in] install_handlers whether to install a termination handler
+     * @param[in] sample_rate the sample rate (0.0 .. 1.0, default: 1.0)
+     * @param[in] install_handlers whether to install a termination handler (default: off)
      *
      * @throw std::invalid_argument if DNS string is invalid
      * @throw std::invalid_argument if context object contains invalid key
@@ -72,7 +80,8 @@ class crow
      */
     explicit crow(const std::string& dsn,
                   const json& context = nullptr,
-                  bool install_handlers = true);
+                  double sample_rate = 1.0,
+                  bool install_handlers = false);
 
     /*!
      * @brief install termination handler to handle uncaught exceptions
@@ -81,26 +90,6 @@ class crow
      * @since 0.0.3
      */
     void install_handler();
-
-    /*!
-     * @brief copy constructor
-     *
-     * @param[in] other client to copy
-     *
-     * @note The last event id is not preserved by copying.
-     *
-     * @since 0.0.2
-     */
-    crow(const crow& other);
-
-    /*!
-     * @brief destructor
-     *
-     * @note Waits until pending HTTP requests complete.
-     *
-     * @since 0.0.2
-     */
-    ~crow();
 
     /*!
      * @name event capturing
@@ -112,22 +101,18 @@ class crow
      *
      * @param[in] message the message to capture
      * @param[in] attributes an optional attributes object
-     * @param[in] asynchronous whether the message should be sent asynchronously
      *
      * @throw std::invalid_argument if context object contains invalid key
      *
      * @since 0.0.1
      */
     void capture_message(const std::string& message,
-                         const json& attributes = nullptr,
-                         bool asynchronous = true);
-
+                         const json& attributes = nullptr);
     /*!
      * @brief capture an exception
      *
      * @param[in] exception the passed exception
      * @param[in] context an optional context object
-     * @param[in] asynchronous whether the message should be sent asynchronously
      * @param[in] handled whether the exception was handled and only reported
      *
      * @throw std::invalid_argument if context object contains invalid key
@@ -136,7 +121,6 @@ class crow
      */
     void capture_exception(const std::exception& exception,
                            const json& context = nullptr,
-                           bool asynchronous = true,
                            bool handled = true);
 
     /*!
@@ -242,21 +226,28 @@ class crow
     /*!
      * @brief POST the payload to the Sentry sink URL
      *
-     * @param[in] payload payload to send (copy intended)
+     * @param[in] payload payload to send
+     * @param[in] synchronous whether the payload should be sent immediately
      * @return result
      */
     std::string post(json payload) const;
 
-    void enqueue_post(bool asynchronous);
+    void enqueue_post();
 
     /*!
      * @brief termination handler that detects uncaught exceptions
      *
      * @post previously installed termination handler is executed
+     *
+     * @note The rethrowing of uncaught exceptions does not work with Microsoft Visual Studio 2017, see
+     *       https://developercommunity.visualstudio.com/content/problem/135332/stdcurrent-exception-returns-null-in-a-stdterminat.html
      */
     static void new_termination_handler();
 
   private:
+    /// the sample rate (as integer 0..100)
+    const int m_sample_rate;
+
     /// whether the client is enabled
     const bool m_enabled = true;
     /// the public key to be used in requests
@@ -265,18 +256,28 @@ class crow
     std::string m_secret_key;
     /// the URL to send events to
     std::string m_store_url;
+
     /// the payload of all events
     json m_payload = {};
-    /// the result of the last HTTP POST
-    mutable std::future<std::string> m_pending_future;
-    /// the termination handler installed before initializing the client
-    std::terminate_handler existing_termination_handler = nullptr;
     /// a mutex to make payload thread-safe
     std::mutex m_payload_mutex;
-    /// a mutex to make the posting thread-safe
-    mutable std::mutex m_pending_future_mutex;
+
+    /// a vector of POST jobs
+    mutable std::vector<std::future<std::string>> m_jobs;
+    /// a mutex to make m_jobs thread-safe
+    mutable std::mutex m_jobs_mutex;
+    /// a cache for the last event id
+    mutable std::string m_last_event_id = "-1";
+    /// whether a post has been made already
+    bool m_posts = false;
+
+    /// the termination handler installed before initializing the client
+    std::terminate_handler existing_termination_handler = nullptr;
     /// a pointer to the last client (used for termination handling)
     static crow* m_client_that_installed_termination_handler;
+
+    /// the maximal number of running jobs
+    static constexpr std::size_t m_maximal_jobs = 10;
 };
 
 }

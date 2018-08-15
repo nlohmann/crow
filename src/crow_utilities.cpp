@@ -1,7 +1,7 @@
 /*
  _____ _____ _____ _ _ _
 |     | __  |     | | | |  Crow - a Sentry client for C++
-|   --|    -|  |  | | | |  version 0.0.4
+|   --|    -|  |  | | | |  version 0.0.5
 |_____|__|__|_____|_____|  https://github.com/nlohmann/crow
 
 Licensed under the MIT License <http://opensource.org/licenses/MIT>.
@@ -27,7 +27,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*!
+ * @file crow_utilities.cpp
+ * @brief implementation of Crow helper functions
+ */
+
 #include <chrono>
+#include <cstdlib>
+#include <cstddef>
+#include <cstring>
+#include <ctime>
 #include <typeinfo>
 #include <src/crow_config.hpp>
 #include <src/crow_utilities.hpp>
@@ -150,14 +159,6 @@ std::string get_iso8601()
     return buf;
 }
 
-/*!
- * @brief return a random integer
- * @param[in] lower lower bound
- * @param[in] upper upper bound
- * @return lower <= x <= upper
- *
- * @note The C++11 random implementation is broken in MinGW, so we need to fall back to std::rand().
- */
 int get_random_number(int lower, int upper)
 {
 #ifdef NLOHMANN_CROW_MINGW
@@ -169,9 +170,9 @@ int get_random_number(int lower, int upper)
     }
     return std::rand() % upper + lower;
 #else
-    static std::random_device random_device;
-    static std::default_random_engine random_engine(random_device());
-    static std::uniform_int_distribution<int> uniform_dist(lower, upper);
+    std::random_device random_device;
+    std::default_random_engine random_engine(random_device());
+    std::uniform_int_distribution<int> uniform_dist(lower, upper);
     return uniform_dist(random_engine);
 #endif
 }
