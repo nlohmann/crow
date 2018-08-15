@@ -2,18 +2,23 @@ cmake_minimum_required(VERSION 3.10)
 
 project(crow_example)
 
+find_package(CURL)
+find_package(ZLIB REQUIRED)
+find_package(Threads)
+
 include(ExternalProject)
 ExternalProject_Add(crow_project
         GIT_REPOSITORY https://github.com/nlohmann/crow
         INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/crow
         CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/crow -DCROW_BUILD_TESTING=OFF
-        BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/log4cplus/lib/${CMAKE_SHARED_LIBRARY_PREFIX}crow${CMAKE_SHARED_LIBRARY_SUFFIX}
+        BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/crow/lib/${CMAKE_STATIC_LIBRARY_PREFIX}crow${CMAKE_STATIC_LIBRARY_SUFFIX}
         )
 ExternalProject_Get_Property(crow_project install_dir)
 add_library(crow SHARED IMPORTED)
-set_target_properties(crow PROPERTIES IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_SHARED_LIBRARY_PREFIX}crow${CMAKE_SHARED_LIBRARY_SUFFIX})
+set_target_properties(crow PROPERTIES IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}crow${CMAKE_STATIC_LIBRARY_SUFFIX})
 add_dependencies(crow crow_project)
+include_directories(${install_dir}/include)
 
 add_executable(example example.cpp)
-target_link_libraries(example crow)
+target_link_libraries(example crow ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
 set_target_properties(example PROPERTIES CXX_STANDARD 11)
