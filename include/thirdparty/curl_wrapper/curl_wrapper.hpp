@@ -6,10 +6,26 @@
 #include <zlib.h>
 #include "thirdparty/json/json.hpp"
 
-using json = nlohmann::json;
-
 class curl_wrapper
 {
+  public:
+    class response
+    {
+      public:
+        response(std::string d, int sc)
+            : data(std::move(d))
+            , status_code(sc)
+        {}
+
+        std::string data;
+        int status_code;
+
+        nlohmann::json json()
+        {
+            return nlohmann::json::parse(data);
+        }
+    };
+
   public:
     curl_wrapper() : m_curl(curl_easy_init())
     {
@@ -23,16 +39,15 @@ class curl_wrapper
     {
         curl_slist_free_all(m_headers);
         curl_easy_cleanup(m_curl);
-        curl_global_cleanup();
     }
 
-    std::string post(const std::string& url, const json& payload, const bool compress = false)
+    response post(const std::string& url, const nlohmann::json& payload, const bool compress = false)
     {
         set_header("Content-Type: application/json");
         return post(url, payload.dump(), compress);
     }
 
-    std::string post(const std::string& url, const std::string& data, const bool compress = false)
+    response post(const std::string& url, const std::string& data, const bool compress = false)
     {
         std::string c_data;
 
@@ -41,7 +56,7 @@ class curl_wrapper
             c_data = compress_string(data);
 
             set_header("Content-Encoding: gzip");
-            std::string size_header = "Content-Length: " + std::to_string(c_data.size());
+            const std::string size_header = "Content-Length: " + std::to_string(c_data.size());
             set_header(size_header.c_str());
             set_option(CURLOPT_POSTFIELDS, c_data.c_str());
             set_option(CURLOPT_POSTFIELDSIZE, c_data.size());
@@ -65,7 +80,10 @@ class curl_wrapper
             throw std::runtime_error(error_msg);
         }
 
-        return string_buffer;
+        int status_code;
+        curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &status_code);
+
+        return {std::move(string_buffer), status_code};
     }
 
     template<typename T>
@@ -116,7 +134,7 @@ class curl_wrapper
 
         // For the compress
         zs.next_in = (Bytef*)str.data();
-        zs.avail_in = str.size();           // set the z_stream's input
+        zs.avail_in = static_cast<uInt>(str.size());           // set the z_stream's input
 
         char outbuffer[32768];
 

@@ -3,24 +3,25 @@
 #include <thirdparty/catch/catch.hpp>
 #include <crow/crow.hpp>
 #include <src/crow_utilities.hpp>
-#include <src/crow_config.hpp>
-#include <thirdparty/json/json.hpp>
 
 using json = nlohmann::json;
 using crow = nlohmann::crow;
-json results = json::array();
 
-void verify_message_structure(const json& msg);
-void verify_message_structure(const json& msg)
+json parse_msg(const std::string& raw);
+json parse_msg(const std::string& raw)
 {
+    CAPTURE(raw);
+    auto msg = json::parse(raw);
+
     CAPTURE(msg);
     CHECK(msg.at("event_id").is_string());
     CHECK(msg.at("timestamp").is_string());
-    //CHECK(msg.at("logger").is_string());
     CHECK(msg.at("platform").is_string());
 
     CHECK(msg.at("sdk").at("name").is_string());
     CHECK(msg.at("sdk").at("version").is_string());
+
+    return msg;
 }
 
 TEST_CASE("utilities")
@@ -89,26 +90,41 @@ TEST_CASE("DSN parsing")
     }
 }
 
+TEST_CASE("sample rate")
+{
+    SECTION("sample rate 0.0")
+    {
+        crow crow_client("http://abc:def@127.0.0.1:5000/1", nullptr, 0.0);
+        crow_client.capture_message("message");
+
+        // make sure no message was sent
+        CHECK(crow_client.get_last_event_id().empty());
+    }
+
+    SECTION("sample rate 1.0")
+    {
+        crow crow_client("http://abc:def@127.0.0.1:5000/1", nullptr, 1.0);
+        crow_client.capture_message("message");
+
+        // make sure a message was sent
+        CHECK(not crow_client.get_last_event_id().empty());
+    }
+}
+
 TEST_CASE("creating messages")
 {
-    crow crow_client("https://abc:def@sentry.io/123");
-    std::string url = "https://sentry.io/api/123/store/";
+    crow crow_client("http://abc:def@127.0.0.1:5000/1");
 
     SECTION("capture_message")
     {
         SECTION("without payload")
         {
-            results.clear();
             std::string msg_string = "message text";
-            crow_client.capture_message(msg_string, nullptr, false);
+            crow_client.capture_message(msg_string);
 
-            CHECK(results.size() == 1);
-            const auto& message = results.at(0).at("payload");
-            verify_message_structure(message);
-            CHECK(message.at("message") == msg_string);
-            CHECK(results.at(0).at("url") == url);
-
-            CHECK(crow_client.get_last_event_id() == "0");
+            // check payload sent to Sentry
+            auto msg = parse_msg(crow_client.get_last_event_id());
+            CHECK(msg["message"] == msg_string);
         }
     }
 
@@ -116,51 +132,29 @@ TEST_CASE("creating messages")
     {
         SECTION("marked as handled")
         {
-            results.clear();
             std::string ex_string = "exception text";
-            crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false, true);
+            crow_client.capture_exception(std::runtime_error(ex_string), nullptr, true);
 
-            CHECK(results.size() == 1);
-            const auto& message = results.at(0).at("payload");
-            CAPTURE(message);
-            verify_message_structure(message);
-            CHECK(message.at("exception").size() == 1);
-            const auto& exception = message.at("exception").at(0);
-#ifdef NLOHMANN_CROW_HAVE_CXXABI_H
-            CHECK(exception.at("type") == "std::runtime_error");
-#endif
-            CHECK(exception.at("value") == ex_string);
-            CHECK(exception.at("mechanism").at("handled"));
-            CHECK(results.at(0).at("url") == url);
-
-            CHECK(crow_client.get_last_event_id() == "1");
+            // check payload sent to Sentry
+            auto msg = parse_msg(crow_client.get_last_event_id());
+            CHECK(msg["exception"][0]["value"] == ex_string);
+            CHECK(msg["exception"][0]["mechanism"]["handled"]);
         }
 
         SECTION("marked as unhandled")
         {
-            results.clear();
             std::string ex_string = "exception text";
-            crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false, false);
+            crow_client.capture_exception(std::runtime_error(ex_string), nullptr, false);
 
-            const auto& message = results.at(0).at("payload");
-            CAPTURE(message);
-            verify_message_structure(message);
-            CHECK(message.at("exception").size() == 1);
-            const auto& exception = message.at("exception").at(0);
-#ifdef NLOHMANN_CROW_HAVE_CXXABI_H
-            CHECK(exception.at("type") == "std::runtime_error");
-#endif
-            CHECK(exception.at("value") == ex_string);
-            CHECK(not exception.at("mechanism").at("handled"));
-            CHECK(results.at(0).at("url") == url);
-
-            CHECK(crow_client.get_last_event_id() == "2");
+            // check payload sent to Sentry
+            auto msg = parse_msg(crow_client.get_last_event_id());
+            CHECK(msg["exception"][0]["value"] == ex_string);
+            CHECK(not msg["exception"][0]["mechanism"]["handled"]);
         }
     }
 
     SECTION("add_breadcrumb")
     {
-        results.clear();
         const std::string msg1 = "breadcrumb 1";
         const std::string msg2 = "breadcrumb 2";
         const json data2 = {{"from", "origin"}, {"to", "destination"}};
@@ -171,53 +165,93 @@ TEST_CASE("creating messages")
 
         // capture message
         std::string msg_string = "message text";
-        crow_client.capture_message(msg_string, nullptr, false);
+        crow_client.capture_message(msg_string);
 
-        CHECK(results.size() == 1);
-        const auto& message = results.at(0).at("payload");
-        verify_message_structure(message);
-        CHECK(message.at("message") == msg_string);
-        CHECK(results.at(0).at("url") == url);
-
-        CHECK(message.at("breadcrumbs").at("values").size() == 2);
-        CHECK(message.at("breadcrumbs").at("values").at(0).at("message") == msg1);
-        CHECK(message.at("breadcrumbs").at("values").at(0).at("type") == "default");
-
-        CHECK(message.at("breadcrumbs").at("values").at(1).at("message") == msg2);
-        CHECK(message.at("breadcrumbs").at("values").at(1).at("type") == "navigation");
-        CHECK(message.at("breadcrumbs").at("values").at(1).at("data") == data2);
-
-        CHECK(crow_client.get_last_event_id() == "3");
+        // check payload sent to Sentry
+        auto msg = parse_msg(crow_client.get_last_event_id());
+        CHECK(msg["breadcrumbs"]["values"].size() == 2);
+        CHECK(msg["breadcrumbs"]["values"][0]["message"] == msg1);
+        CHECK(msg["breadcrumbs"]["values"][1]["message"] == msg2);
     }
+}
+
+TEST_CASE("job list")
+{
+    crow crow_client("http://abc:def@127.0.0.1:5000/1");
+    crow_client.capture_message("message_1");
+    crow_client.capture_message("message_2");
+    crow_client.capture_message("message_3");
+    crow_client.capture_message("message_4");
+    crow_client.capture_message("message_5");
+    crow_client.capture_message("message_6");
+    crow_client.capture_message("message_7");
+    crow_client.capture_message("message_8");
+    crow_client.capture_message("message_9");
+    crow_client.capture_message("message_10");
+    crow_client.capture_message("message_11");
 }
 
 TEST_CASE("context")
 {
-    crow crow_client("https://abc:def@sentry.io/123");
+    crow crow_client("http://abc:def@127.0.0.1:5000/1");
 
     SECTION("user context")
     {
-        crow_client.add_user_context({{"email", "person@example.com"}});
-        CHECK(crow_client.get_context()["user"]["email"] == "person@example.com");
+        // set email
+        const std::string email = "person@example.com";
+        crow_client.add_user_context({{"email", email}});
+
+        // capture message
+        crow_client.capture_message("msg");
+
+        // check payload sent to Sentry
+        auto msg = parse_msg(crow_client.get_last_event_id());
+        CHECK(msg["user"]["email"] == email);
     }
 
     SECTION("tags context")
     {
-        crow_client.add_tags_context({{"tag", "value"}});
-        CHECK(crow_client.get_context()["tags"]["tag"] == "value");
+        // set tag
+        const json tag = {{"tag", "value"}};
+        crow_client.add_tags_context(tag);
+
+        // capture message
+        crow_client.capture_message("msg");
+
+        // check payload sent to Sentry
+        auto msg = parse_msg(crow_client.get_last_event_id());
+        CHECK(msg["tags"] == tag);
     }
 
     SECTION("request context")
     {
+        // set request context
         crow_client.add_request_context({{"url", "http://example.com"}, {"method", "GET"}});
-        CHECK(crow_client.get_context()["request"]["url"] == "http://example.com");
-        CHECK(crow_client.get_context()["request"]["method"] == "GET");
+
+        // capture message
+        crow_client.capture_message("msg");
+
+        // check payload sent to Sentry
+        auto msg = parse_msg(crow_client.get_last_event_id());
+
+        // check payload sent to Sentry
+        CHECK(msg["request"]["url"] == "http://example.com");
+        CHECK(msg["request"]["method"] == "GET");
     }
 
     SECTION("extra context")
     {
-        crow_client.add_extra_context({{"foo", "bar"}});
-        CHECK(crow_client.get_context()["extra"]["foo"] == "bar");
+        // set extra context
+        const json extra = {{"foo", "bar"}};
+        crow_client.add_extra_context(extra);
+
+        // capture message
+        crow_client.capture_message("msg");
+
+        // check payload sent to Sentry
+        auto msg = parse_msg(crow_client.get_last_event_id());
+
+        CHECK(msg["extra"] == extra);
     }
 
     SECTION("reset context")

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0048 NEW)
-project(crow VERSION 0.0.4)
+project(crow VERSION 0.0.5)
 
 ##############################
 # check for required headers #
@@ -103,7 +103,7 @@ find_package(Threads)
 # library #
 ###########
 
-add_library(crow src/crow.cpp src/crow_utilities.cpp)
+add_library(crow src/crow.cpp src/crow_utilities.cpp src/crow_utilities.hpp)
 set_target_properties(crow PROPERTIES CXX_STANDARD 11)
 target_include_directories(crow PUBLIC include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
 target_link_libraries(crow ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
@@ -136,19 +136,25 @@ option(CROW_BUILD_LOG4CPLUS "build log4cplus example" OFF)
 if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
     enable_testing()
 
-    get_target_property(CROW_SOURCES crow SOURCES)
-    add_executable(tests tests/unittests.cpp ${CROW_SOURCES})
-    set_target_properties(tests PROPERTIES CXX_STANDARD 11)
-    target_include_directories(tests PUBLIC tests include ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
-    target_link_libraries(tests ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
+    add_executable(unittests tests/unittests.cpp)
+    set_target_properties(unittests PROPERTIES CXX_STANDARD 11)
+    target_include_directories(unittests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} tests)
+    target_link_libraries(unittests crow)
+    add_test(NAME unittests COMMAND unittests)
+
+    # std::current_exception is broken with MSVC (https://developercommunity.visualstudio.com/content/problem/135332/stdcurrent-exception-returns-null-in-a-stdterminat.html)
+    if (NOT MSVC)
+        add_executable(uncaught_exception tests/uncaught_exception.cpp)
+        set_target_properties(uncaught_exception PROPERTIES CXX_STANDARD 11)
+        target_link_libraries(uncaught_exception crow)
+        add_test(NAME uncaught_exception COMMAND uncaught_exception)
+    endif()
 
     add_executable(livetest tests/livetest.cpp)
     set_target_properties(livetest PROPERTIES CXX_STANDARD 11)
-    target_include_directories(livetest PUBLIC include ${CMAKE_CURRENT_BINARY_DIR})
+    target_include_directories(livetest PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
     target_link_libraries(livetest crow)
-
-    add_test(tests tests)
-    add_test(livetest livetest)
+    add_test(NAME livetest COMMAND livetest)
 
     if(CROW_BUILD_LOG4CPLUS)
         include(ExternalProject)
@@ -163,12 +169,11 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
         set_target_properties(log4cplus PROPERTIES IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}log4cplus${CMAKE_STATIC_LIBRARY_SUFFIX})
         add_dependencies(log4cplus log4cplus_project)
 
-        add_executable(log4cplus_example examples/log4cplus/example.cpp)
+        add_executable(log4cplus_example examples/log4cplus/example.cpp include/crow/integrations/loggers.hpp include/crow/integrations/log4cplus.hpp)
         set_target_properties(log4cplus_example PROPERTIES CXX_STANDARD 11)
         target_include_directories(log4cplus_example PUBLIC include ${install_dir}/include)
         target_link_libraries(log4cplus_example log4cplus crow)
-
-        add_test(log4cplus_example log4cplus_example)
+        add_test(NAME log4cplus_example COMMAND log4cplus_example)
     endif()
 endif()
 

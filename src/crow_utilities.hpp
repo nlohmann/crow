@@ -1,7 +1,7 @@
 /*
  _____ _____ _____ _ _ _
 |     | __  |     | | | |  Crow - a Sentry client for C++
-|   --|    -|  |  | | | |  version 0.0.4
+|   --|    -|  |  | | | |  version 0.0.5
 |_____|__|__|_____|_____|  https://github.com/nlohmann/crow
 
 Licensed under the MIT License <http://opensource.org/licenses/MIT>.
@@ -30,6 +30,11 @@ SOFTWARE.
 #ifndef NLOHMANN_CROW_UTILITIES_HPP
 #define NLOHMANN_CROW_UTILITIES_HPP
 
+/*!
+ * @file crow_utilities.hpp
+ * @brief helper functions for Crow
+ */
+
 #include <cstdint>
 #include <string>
 #include <thirdparty/json/json.hpp>
@@ -38,6 +43,9 @@ using json = nlohmann::json;
 
 namespace nlohmann
 {
+/*!
+ * @brief helper functions for Crow
+ */
 namespace crow_utilities
 {
 
@@ -51,6 +59,16 @@ json get_backtrace(int skip = 1);
  */
 std::string pretty_name(const char* type_id_name,
                         bool only_module = false);
+
+/*!
+ * @brief return a random integer
+ * @param[in] lower lower bound
+ * @param[in] upper upper bound
+ * @return lower <= x <= upper
+ *
+ * @note The C++11 random implementation is broken in MinGW, so we need to fall back to std::rand().
+ */
+int get_random_number(int lower, int upper);
 
 /*!
  * @brief get the seconds since epoch
