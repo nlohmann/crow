@@ -198,3 +198,16 @@ if(CROW_CHECK_COVERAGE)
             COMMAND genhtml --title "Crow ${PROJECT_VERSION}" --legend --demangle-cpp --output-directory coverage_report --show-details --branch-coverage coverage.info.filtered
             COMMENT "Generating HTML report coverage_report/index.html")
 endif()
+
+#############
+# packaging #
+#############
+
+install(TARGETS crow RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
+install(FILES include/crow/crow.hpp DESTINATION include)
+install(FILES include/thirdparty/json/json.hpp DESTINATION include/thirdparty/json)
+
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_STRIP_FILES TRUE)
+include(InstallRequiredSystemLibraries)
+include(CPack)
