@@ -204,8 +204,8 @@ endif()
 #############
 
 install(TARGETS crow RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
-install(FILES include/crow/crow.hpp DESTINATION include)
-install(FILES include/thirdparty/json/json.hpp DESTINATION include/thirdparty/json)
+install(FILES include/crow/crow.hpp DESTINATION include/crow)
+install(FILES include/thirdparty/json/json.hpp DESTINATION include/crow/thirdparty/json)
 
 set(CPACK_GENERATOR "ZIP")
 set(CPACK_STRIP_FILES TRUE)
