@@ -1,7 +1,7 @@
 /*
  _____ _____ _____ _ _ _
 |     | __  |     | | | |  Crow - a Sentry client for C++
-|   --|    -|  |  | | | |  version 0.0.5
+|   --|    -|  |  | | | |  version 0.0.6
 |_____|__|__|_____|_____|  https://github.com/nlohmann/crow
 
 Licensed under the MIT License <http://opensource.org/licenses/MIT>.

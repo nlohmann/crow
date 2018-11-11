@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 cmake_policy(SET CMP0048 NEW)
-project(crow VERSION 0.0.5)
+project(crow VERSION 0.0.6)
 
 ##############################
 # check for required headers #

@@ -61,6 +61,11 @@ The following items from [the SDK implementation guidelines](https://docs.sentry
 
 ## Change Log
 
+### Version 0.0.6
+
+- :arrow_down: made Crow work with CMake 3.8
+- :arrow_up: upgraded shipped JSON for Modern C++ to 3.4.0
+
 ### Version 0.0.5
 
 - :sparkles: added event sampling
