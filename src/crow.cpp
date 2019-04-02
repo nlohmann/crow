@@ -237,6 +237,12 @@ const json& crow::get_context() const
     return m_payload;
 }
 
+void crow::set_release( const std::string & release )
+{
+    std::lock_guard<std::mutex> lock(m_payload_mutex);
+    m_payload["release"] = release;
+}
+
 void crow::add_user_context(const json& data)
 {
     std::lock_guard<std::mutex> lock(m_payload_mutex);

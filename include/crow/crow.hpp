@@ -162,6 +162,15 @@ class crow
     const json& get_context() const;
 
     /*!
+     * @brief set the code release id
+     *
+     * @param[in] release release id to add to the main context
+     *
+     * @since 0.0.7
+     */
+    void set_release(const std::string& release);
+
+    /*!
      * @brief add elements to the "user" context for future events
      *
      * @param[in] data data to add to the extra context
