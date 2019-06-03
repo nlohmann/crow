@@ -228,6 +228,12 @@ class crow
     void clear_context();
 
     /*!
+     * @brief waits for all pending posts/jobs to complete
+     *
+     */
+    void wait_pending_jobs() const;
+
+    /*!
      * @}
      */
 

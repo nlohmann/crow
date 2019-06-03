@@ -342,6 +342,13 @@ void crow::clear_context()
     }
 }
 
+void crow::wait_pending_jobs() const {
+    std::lock_guard<std::mutex> lock_jobs(m_jobs_mutex);
+
+    for (auto it = m_jobs.begin(); it != m_jobs.end(); ++it)
+      it->wait();
+}
+
 std::string crow::post(json payload) const
 {
     curl_wrapper curl;
