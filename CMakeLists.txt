@@ -1,6 +1,16 @@
 cmake_minimum_required(VERSION 3.8)
 cmake_policy(SET CMP0048 NEW)
-project(crow VERSION 0.0.6)
+project(crow VERSION 0.0.6 LANGUAGES CXX)
+
+#################
+# CMake options #
+#################
+
+option(CROW_EXTERNAL_ZLIB_PROJECT "the path to zlib" OFF)
+option(CROW_EXTERNAL_CURL_PROJECT "the path to curl" OFF)
+option(CROW_BUILD_TESTING "build tests" OFF)
+option(CROW_BUILD_LOG4CPLUS "build log4cplus example" OFF)
+option(CROW_CHECK_COVERAGE "instrument compiler to collect coverage information" OFF)
 
 ##############################
 # check for required headers #
@@ -74,7 +84,6 @@ configure_file(src/crow_config.hpp.in
 # dependencies #
 ################
 
-option(CROW_EXTERNAL_ZLIB_PROJECT "the path to zlib" OFF)
 if(CROW_EXTERNAL_ZLIB_PROJECT)
     add_subdirectory(${CROW_EXTERNAL_ZLIB_PROJECT})
     set(ZLIB_INCLUDE_DIRS ${CROW_EXTERNAL_ZLIB_PROJECT})
@@ -83,7 +92,6 @@ else()
     find_package(ZLIB REQUIRED ${CROW_EXTERNAL_ZLIB_PROJECT})
 endif()
 
-option(CROW_EXTERNAL_CURL_PROJECT "the path to curl" OFF)
 if(CROW_EXTERNAL_CURL_PROJECT)
     set(BUILD_TESTING OFF CACHE INTERNAL "")
     set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")

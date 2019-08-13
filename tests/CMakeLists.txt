@@ -3,13 +3,11 @@
 ###########
 
 include(CTest)
-option(CROW_BUILD_TESTING "build tests" ON)
-option(CROW_BUILD_LOG4CPLUS "build log4cplus example" OFF)
 if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
     enable_testing()
 
     add_executable(unittests unittests.cpp)
-    target_include_directories(unittests PUBLIC ${CMAKE_BINARY_DIR})
+    target_include_directories(unittests PUBLIC ${CMAKE_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
     set_target_properties(unittests PROPERTIES CXX_STANDARD 11)
     target_link_libraries(unittests crow)
     add_test(NAME unittests COMMAND unittests)
@@ -41,7 +39,7 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
         set_target_properties(log4cplus PROPERTIES IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}log4cplus${CMAKE_STATIC_LIBRARY_SUFFIX})
         add_dependencies(log4cplus log4cplus_project)
 
-        add_executable(log4cplus_example examples/log4cplus/example.cpp include/crow/integrations/loggers.hpp include/crow/integrations/log4cplus.hpp)
+        add_executable(log4cplus_example ${CMAKE_SOURCE_DIR}}/examples/log4cplus/example.cpp include/crow/integrations/loggers.hpp include/crow/integrations/log4cplus.hpp)
         set_target_properties(log4cplus_example PROPERTIES CXX_STANDARD 11)
         target_include_directories(log4cplus_example PUBLIC include ${install_dir}/include)
         target_link_libraries(log4cplus_example log4cplus crow)
@@ -53,7 +51,6 @@ endif()
 # coverage #
 ############
 
-option(CROW_CHECK_COVERAGE "instrument compiler to collect coverage information" OFF)
 if(CROW_CHECK_COVERAGE)
     message(STATUS "Building test suite with coverage information; now build, run the unit tests and call `make crow_coverage_report`")
 

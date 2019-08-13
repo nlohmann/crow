@@ -12,7 +12,7 @@ include(ExternalProject)
 ExternalProject_Add(crow_project
         GIT_REPOSITORY https://github.com/nlohmann/crow
         INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/crow
-        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/crow -DCROW_BUILD_TESTING=OFF
+        CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/crow
         BUILD_BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/crow/lib/${CMAKE_STATIC_LIBRARY_PREFIX}crow${CMAKE_STATIC_LIBRARY_SUFFIX}
         )
 ExternalProject_Get_Property(crow_project install_dir)

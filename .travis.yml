@@ -259,7 +259,7 @@ install:
 script:
   # compile and execute unit tests
   - mkdir -p build && cd build
-  - cmake .. ${CMAKE_OPTIONS} -DCROW_BUILD_LOG4CPLUS=ON -GNinja && cmake --build . --config Release
+  - cmake .. ${CMAKE_OPTIONS} -DCROW_BUILD_LOG4CPLUS=ON -DCROW_BUILD_TESTING=ON -GNinja && cmake --build . --config Release
   - ctest -C Release -V -j
   - cd ..
 
