@@ -12,9 +12,9 @@ option(CROW_BUILD_TESTING "build tests" OFF)
 option(CROW_BUILD_LOG4CPLUS "build log4cplus example" OFF)
 option(CROW_CHECK_COVERAGE "instrument compiler to collect coverage information" OFF)
 
-##############################
-# check for required headers #
-##############################
+################################
+# check for required functions #
+################################
 
 include(CheckSymbolExists)
 check_symbol_exists(abi::__cxa_demangle "cxxabi.h" NLOHMANN_CROW_HAVE_CXA_DEMANGLE)
@@ -115,7 +115,7 @@ find_package(Threads)
 ###########
 
 add_library(crow src/crow.cpp src/crow_utilities.cpp src/crow_utilities.hpp)
-set_target_properties(crow PROPERTIES CXX_STANDARD 11)
+target_compile_features(crow PUBLIC cxx_std_11)
 target_include_directories(crow PUBLIC include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
 target_link_libraries(crow ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
 
@@ -130,16 +130,3 @@ add_subdirectory(doc)
 ###########
 
 add_subdirectory(tests)
-
-#############
-# packaging #
-#############
-
-install(TARGETS crow RUNTIME DESTINATION bin ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
-install(FILES include/crow/crow.hpp DESTINATION include/crow)
-install(FILES include/thirdparty/json/json.hpp DESTINATION include/thirdparty/json)
-
-set(CPACK_GENERATOR "ZIP")
-set(CPACK_STRIP_FILES TRUE)
-include(InstallRequiredSystemLibraries)
-include(CPack)
