@@ -211,7 +211,7 @@ class crow
      *
      * @param[in] context the context to add
      *
-     * @note @a context must be an object; allowed keys are "user", "request", "extea", or "tags"
+     * @note @a context must be an object; allowed keys are "user", "request", "extra", or "tags"
      * @throw std::invalid_argument if context object contains invalid key
      *
      * @since 0.0.3
