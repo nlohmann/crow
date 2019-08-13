@@ -116,7 +116,7 @@ find_package(Threads)
 
 add_library(crow src/crow.cpp src/crow_utilities.cpp src/crow_utilities.hpp)
 target_compile_features(crow PUBLIC cxx_std_11)
-target_include_directories(crow PUBLIC include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
+target_include_directories(crow PUBLIC include external PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
 target_link_libraries(crow ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
 
 #################

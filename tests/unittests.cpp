@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
 
-#include <thirdparty/catch/catch.hpp>
+#include <catch/catch.hpp>
 #include <crow/crow.hpp>
 #include <src/crow_utilities.hpp>
 

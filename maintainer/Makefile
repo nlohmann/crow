@@ -17,7 +17,7 @@ upload_docs:
 	open http://nlohmann.github.io/crow/
 
 coverage:
-	mkdir build ; cd build ; cmake .. -DCROW_CHECK_COVERAGE=ON ; cmake --build . ; cd ..
+	mkdir build ; cd build ; cmake .. -DCROW_CHECK_COVERAGE=ON -DCROW_BUILD_TESTING=ON ; cmake --build . ; cd ..
 	cd build ; ctest ; cd ..
 	cd build ; cmake --build . --target crow_coverage_report ; cd ..
 	open build/coverage_report/index.html

@@ -4,7 +4,7 @@
 #include <string>
 #include <curl/curl.h>
 #include <zlib.h>
-#include "thirdparty/json/json.hpp"
+#include <json/json.hpp>
 
 class curl_wrapper
 {

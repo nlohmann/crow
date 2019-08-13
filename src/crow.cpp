@@ -39,8 +39,8 @@ SOFTWARE.
 #include <crow/crow.hpp>
 #include <src/crow_config.hpp>
 #include <src/crow_utilities.hpp>
-#include <thirdparty/curl_wrapper/curl_wrapper.hpp>
-#include <thirdparty/json/json.hpp>
+#include <curl_wrapper/curl_wrapper.hpp>
+#include <json/json.hpp>
 
 using json = nlohmann::json;
 
