@@ -84,7 +84,33 @@ configure_file(src/crow_config.hpp.in
 # dependencies #
 ################
 
-add_subdirectory(external)
+if(CROW_EXTERNAL_ZLIB_PROJECT)
+    add_subdirectory(${CROW_EXTERNAL_ZLIB_PROJECT})
+    set(ZLIB_INCLUDE_DIRS ${CROW_EXTERNAL_ZLIB_PROJECT})
+    set(ZLIB_LIBRARIES zlibstatic)
+else()
+    find_package(ZLIB REQUIRED ${CROW_EXTERNAL_ZLIB_PROJECT})
+endif()
+
+if(CROW_EXTERNAL_CURL_PROJECT)
+    set(BUILD_TESTING OFF CACHE INTERNAL "")
+    set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
+    set(CURL_STATICLIB ON CACHE INTERNAL "")
+    set(BUILD_CURL_EXE OFF CACHE INTERNAL "")
+    set(CURL_CA_PATH_SET OFF CACHE INTERNAL "")
+    set(CMAKE_USE_OPENSSL ON CACHE INTERNAL "")
+    set(HTTP_ONLY ON CACHE INTERNAL "")
+    add_definitions(-DCURL_STATICLIB)
+    add_subdirectory(${CROW_EXTERNAL_CURL_PROJECT})
+    set(CURL_INCLUDE_DIR ${CROW_EXTERNAL_CURL_PROJECT}/include)
+    set(CURL_LIBRARIES libcurl)
+else()
+    find_package(CURL)
+endif()
+
+find_package(Threads)
+
+include(tools/cmake/coverage.cmake)
 
 ###########
 # library #
@@ -93,13 +119,13 @@ add_subdirectory(external)
 add_library(crow src/crow.cpp src/crow_utilities.cpp src/crow_utilities.hpp)
 target_compile_features(crow PUBLIC cxx_std_11)
 target_include_directories(crow PUBLIC include external PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
-target_link_libraries(crow ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(crow PUBLIC ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
 
 #################
 # documentation #
 #################
 
-add_subdirectory(doc)
+add_subdirectory(docs)
 
 ###########
 # testing #
