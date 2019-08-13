@@ -48,15 +48,15 @@ SOFTWARE.
     #include <ctime> // for time
 #endif
 
-#ifdef NLOHMANN_CROW_HAVE_CXXABI_H
+#ifdef NLOHMANN_CROW_HAVE_CXA_DEMANGLE
     #include <cxxabi.h> // for abi::__cxa_demangle
 #endif
 
-#ifdef NLOHMANN_CROW_HAVE_EXECINFO_H
+#ifdef NLOHMANN_CROW_HAVE_BACKTRACE
     #include <execinfo.h> // for backtrace
 #endif
 
-#ifdef NLOHMANN_CROW_HAVE_DLFCN_H
+#ifdef NLOHMANN_CROW_HAVE_DLADDR
     #include <dlfcn.h> // for dladdr
 #endif
 
@@ -72,7 +72,7 @@ json get_backtrace(int skip)
 {
     json result = json::array();
 
-#if defined(NLOHMANN_CROW_HAVE_DLFCN_H) && defined(NLOHMANN_CROW_HAVE_EXECINFO_H)
+#if defined(NLOHMANN_CROW_HAVE_DLADDR) && defined(NLOHMANN_CROW_HAVE_BACKTRACE)
     void* callstack[128];
     const int nMaxFrames = sizeof(callstack) / sizeof(callstack[0]);
     char buf[1024];
@@ -88,7 +88,7 @@ json get_backtrace(int skip)
             int status = -1;
             if (info.dli_sname[0] == '_')
             {
-#ifdef NLOHMANN_CROW_HAVE_CXXABI_H
+#ifdef NLOHMANN_CROW_HAVE_CXA_DEMANGLE
                 demangled = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status);
 #endif
             }
@@ -131,7 +131,7 @@ json get_backtrace(int skip)
 std::string pretty_name(const char* type_id_name,
                         const bool only_module)
 {
-#ifdef NLOHMANN_CROW_HAVE_CXXABI_H
+#ifdef NLOHMANN_CROW_HAVE_CXA_DEMANGLE
     int status;
     std::string result = abi::__cxa_demangle(type_id_name, nullptr, nullptr, &status);
 #else

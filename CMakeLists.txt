@@ -16,10 +16,10 @@ option(CROW_CHECK_COVERAGE "instrument compiler to collect coverage information"
 # check for required headers #
 ##############################
 
-include(CheckIncludeFiles)
-check_include_files(cxxabi.h NLOHMANN_CROW_HAVE_CXXABI_H)
-check_include_files(execinfo.h NLOHMANN_CROW_HAVE_EXECINFO_H)
-check_include_files(dlfcn.h NLOHMANN_CROW_HAVE_DLFCN_H)
+include(CheckSymbolExists)
+check_symbol_exists(abi::__cxa_demangle "cxxabi.h" NLOHMANN_CROW_HAVE_CXA_DEMANGLE)
+check_symbol_exists(backtrace "execinfo.h" NLOHMANN_CROW_HAVE_BACKTRACE)
+check_symbol_exists(dladdr "dlfcn.h" NLOHMANN_CROW_HAVE_DLADDR)
 
 ##################################
 # collect additional information #

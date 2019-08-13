@@ -36,9 +36,9 @@ SOFTWARE.
  */
 
 // macros do decide which headers are present
-#cmakedefine NLOHMANN_CROW_HAVE_CXXABI_H
-#cmakedefine NLOHMANN_CROW_HAVE_EXECINFO_H
-#cmakedefine NLOHMANN_CROW_HAVE_DLFCN_H
+#cmakedefine NLOHMANN_CROW_HAVE_CXA_DEMANGLE
+#cmakedefine NLOHMANN_CROW_HAVE_BACKTRACE
+#cmakedefine NLOHMANN_CROW_HAVE_DLADDR
 
 // macros to choose certain functions
 #cmakedefine NLOHMANN_CROW_MINGW
