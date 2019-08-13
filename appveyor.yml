@@ -62,7 +62,7 @@ build_script:
   - cmake --build . --config Release
 
 before_test:
-  - forever start tools/testserver/testserver.js
+  - forever start tools/testserver/server.js
 
 test_script:
   - cd tests
@@ -70,4 +70,4 @@ test_script:
   - cd ..
 
 on_finish:
-  - forever stop tools/testserver/testserver.js
+  - forever stop tools/testserver/server.js

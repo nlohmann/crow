@@ -246,7 +246,7 @@ install:
   # install node forever module
   - npm install -g forever
   # start test server
-  - forever start tools/testserver/testserver.js
+  - forever start tools/testserver/server.js
 
   # make sure CXX is correctly set
   - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; export CC=${CCOMPILER}; fi
@@ -265,4 +265,4 @@ script:
 
 after_script:
   # shut down test server
-  - forever stop tools/testserver/testserver.js
+  - forever stop tools/testserver/server.js
