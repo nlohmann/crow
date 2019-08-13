@@ -39,7 +39,7 @@ if(CROW_BUILD_TESTING AND (BUILD_TESTING OR CROW_EXTERNAL_CURL_PROJECT))
         set_target_properties(log4cplus PROPERTIES IMPORTED_LOCATION ${install_dir}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}log4cplus${CMAKE_STATIC_LIBRARY_SUFFIX})
         add_dependencies(log4cplus log4cplus_project)
 
-        add_executable(log4cplus_example ${CMAKE_SOURCE_DIR}}/examples/log4cplus/example.cpp include/crow/integrations/loggers.hpp include/crow/integrations/log4cplus.hpp)
+        add_executable(log4cplus_example ${CMAKE_SOURCE_DIR}/examples/log4cplus/example.cpp ${CMAKE_SOURCE_DIR}/include/crow/integrations/loggers.hpp ${CMAKE_SOURCE_DIR}/include/crow/integrations/log4cplus.hpp)
         set_target_properties(log4cplus_example PROPERTIES CXX_STANDARD 11)
         target_include_directories(log4cplus_example PUBLIC include ${install_dir}/include)
         target_link_libraries(log4cplus_example log4cplus crow)
