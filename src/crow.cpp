@@ -145,25 +145,30 @@ void crow::capture_exception(const std::exception& exception,
                              const json& context,
                              const bool handled)
 {
-    std::stringstream thread_id;
-    thread_id << std::this_thread::get_id();
-    std::lock_guard<std::mutex> lock(m_payload_mutex);
-    m_payload["exception"].push_back({{"type", crow_utilities::pretty_name(typeid(exception).name())},
-        {"value", exception.what()},
-        {"module", crow_utilities::pretty_name(typeid(exception).name(), true)},
-        {"mechanism", {{"handled", handled}, {"description", handled ? "handled exception" : "unhandled exception"}}},
-        {"stacktrace", {{"frames", crow_utilities::get_backtrace()}}},
-        {"thread_id", thread_id.str()}});
-    m_payload["event_id"] = crow_utilities::generate_uuid();
-    m_payload["timestamp"] = nlohmann::crow_utilities::get_iso8601();
+    {
+        std::stringstream thread_id;
+        thread_id << std::this_thread::get_id();
+        std::lock_guard<std::mutex> lock(m_payload_mutex);
+        m_payload["exception"].push_back({{"type", crow_utilities::pretty_name(typeid(exception).name())},
+            {"value", exception.what()},
+            {"module", crow_utilities::pretty_name(typeid(exception).name(), true)},
+            {"mechanism", {{"handled", handled}, {"description", handled ? "handled exception" : "unhandled exception"}}},
+            {"stacktrace", {{"frames", crow_utilities::get_backtrace()}}},
+            {"thread_id", thread_id.str()}});
+        m_payload["event_id"] = crow_utilities::generate_uuid();
+        m_payload["timestamp"] = nlohmann::crow_utilities::get_iso8601();
+    }
 
     // add given context
     merge_context(context);
 
     enqueue_post();
 
-    // we want to support at most m_maximal_jobs running jobs
-    m_jobs.reserve(m_maximal_jobs);
+    {
+        // we want to support at most m_maximal_jobs running jobs
+        std::lock_guard<std::mutex> lock(m_jobs_mutex);
+        m_jobs.reserve(m_maximal_jobs);
+    }
 }
 
 void crow::add_breadcrumb(const std::string& message,
@@ -274,9 +279,16 @@ void crow::merge_context(const json& context)
         std::lock_guard<std::mutex> lock(m_payload_mutex);
         for (const auto& el : context.items())
         {
-            if (el.key() == "user" or el.key() == "request" or el.key() == "extra" or el.key() == "tags")
+            if (el.key() == "user" or el.key() == "request" or el.key() == "extra" or el.key() == "tags" or el.key() == "release")
             {
-                m_payload[el.key()].update(el.value());
+                if (el.value().is_object())
+                {
+                    m_payload[el.key()].update(el.value());
+                }
+                else
+                {
+                    m_payload[el.key()] = el.value();
+                }
             }
             else
             {
@@ -403,7 +415,7 @@ void crow::new_termination_handler()
     auto current_ex = std::current_exception();
     if (current_ex)
     {
-        m_client_that_installed_termination_handler->add_breadcrumb("uncaught exception", {{"type", "exceptiomn"}, {"level", "critical"}});
+        m_client_that_installed_termination_handler->add_breadcrumb("uncaught exception", {{"type", "exception"}, {"level", "critical"}});
         try
         {
             std::rethrow_exception(current_ex);
