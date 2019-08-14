@@ -39,7 +39,7 @@ SOFTWARE.
 #include <crow/crow.hpp>
 #include <src/crow_config.hpp>
 #include <src/crow_utilities.hpp>
-#include <curl_wrapper/curl_wrapper.hpp>
+#include <http/http.hpp>
 #include <json/json.hpp>
 
 using json = nlohmann::json;
@@ -356,7 +356,7 @@ void crow::clear_context()
 
 std::string crow::post(json payload) const
 {
-    curl_wrapper curl;
+    http::request curl;
 
     // add security header
     std::string security_header = "X-Sentry-Auth: Sentry sentry_version=5,sentry_client=crow/";
@@ -366,7 +366,7 @@ std::string crow::post(json payload) const
     security_header += ",sentry_secret=" + m_secret_key;
     curl.set_header(security_header.c_str());
 
-    return curl.post(m_store_url, payload, true).data;
+    return curl.use_compression(true).post(m_store_url, payload).text;
 }
 
 void crow::enqueue_post()
