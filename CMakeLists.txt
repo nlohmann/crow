@@ -16,11 +16,11 @@ option(CROW_CHECK_COVERAGE "instrument compiler to collect coverage information"
 # check for required functions #
 ################################
 
-include(CheckSymbolExists)
-check_symbol_exists(abi::__cxa_demangle "cxxabi.h" NLOHMANN_CROW_HAVE_CXA_DEMANGLE)
-check_symbol_exists(backtrace "execinfo.h" NLOHMANN_CROW_HAVE_BACKTRACE)
+include(CheckCXXSymbolExists)
+check_cxx_symbol_exists(abi::__cxa_demangle "cxxabi.h" NLOHMANN_CROW_HAVE_CXA_DEMANGLE)
+check_cxx_symbol_exists(backtrace "execinfo.h" NLOHMANN_CROW_HAVE_BACKTRACE)
 set(CMAKE_REQUIRED_LIBRARIES dl)
-check_symbol_exists(dladdr "dlfcn.h" NLOHMANN_CROW_HAVE_DLADDR)
+check_cxx_symbol_exists(dladdr "dlfcn.h" NLOHMANN_CROW_HAVE_DLADDR)
 unset(CMAKE_REQUIRED_LIBRARIES)
 
 ##################################
