@@ -11,7 +11,7 @@ if(DOXYGEN_FOUND)
 
     add_custom_target(crow_documentation
             COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
-            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/doc
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/docs
             COMMENT "Generating API documentation with Doxygen"
             VERBATIM)
 endif()
