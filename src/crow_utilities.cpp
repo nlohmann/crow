@@ -75,8 +75,8 @@ json get_backtrace(int skip)
 #if defined(NLOHMANN_CROW_HAVE_DLADDR) && defined(NLOHMANN_CROW_HAVE_BACKTRACE)
     void* callstack[128];
     const int nMaxFrames = sizeof(callstack) / sizeof(callstack[0]);
-    char buf[1024];
-    int nFrames = backtrace(callstack, nMaxFrames);
+    //char buf[1024];
+    const int nFrames = backtrace(callstack, nMaxFrames);
     char** symbols = backtrace_symbols(callstack, nFrames);
 
     for (int i = skip; i < nFrames; i++)
@@ -84,21 +84,18 @@ json get_backtrace(int skip)
         Dl_info info;
         if (dladdr(callstack[i], &info) && info.dli_sname)
         {
-            char* demangled = nullptr;
-            int status = -1;
+            std::string demangled_name;
             if (info.dli_sname[0] == '_')
             {
-#ifdef NLOHMANN_CROW_HAVE_CXA_DEMANGLE
-                demangled = abi::__cxa_demangle(info.dli_sname, nullptr, nullptr, &status);
-#endif
+                demangled_name = pretty_name(info.dli_sname);
             }
 
-            const std::string function_name = (status == 0 ? demangled : info.dli_sname == nullptr ? symbols[i] : info.dli_sname);
+            const std::string function_name = (demangled_name != std::string(info.dli_sname) ? demangled_name : (info.dli_sname == nullptr ? symbols[i] : info.dli_sname));
 
-            snprintf(buf, sizeof(buf), "%-3d %*p %s + %zd\n",
-                     i, int(2 + sizeof(void*) * 2), callstack[i],
-                     function_name.c_str(),
-                     (char*) callstack[i] - (char*) info.dli_saddr);
+            //snprintf(buf, sizeof(buf), "%-3d %*p %s + %zd\n",
+            //         i, int(2 + sizeof(void*) * 2), callstack[i],
+            //         function_name.c_str(),
+            //         (char*) callstack[i] - (char*) info.dli_saddr);
             //std::cout << buf << std::endl;
 
             json entry;
@@ -113,16 +110,13 @@ json get_backtrace(int skip)
             }
 
             result.push_back(entry);
-
-            free(demangled);
         }
         else
         {
-            snprintf(buf, sizeof(buf), "%-3d %*p %s\n",
-                     i, int(2 + sizeof(void*) * 2), callstack[i], symbols[i]);
+            // snprintf(buf, sizeof(buf), "%-3d %*p %s\n",
+            //         i, int(2 + sizeof(void*) * 2), callstack[i], symbols[i]);
         }
     }
-    free(symbols);
 #endif
 
     return result;
@@ -131,11 +125,21 @@ json get_backtrace(int skip)
 std::string pretty_name(const char* type_id_name,
                         const bool only_module)
 {
+    if (type_id_name == nullptr)
+    {
+        return "";
+    }
+
+    std::string result = type_id_name;
+
 #ifdef NLOHMANN_CROW_HAVE_CXA_DEMANGLE
     int status;
-    std::string result = abi::__cxa_demangle(type_id_name, nullptr, nullptr, &status);
-#else
-    std::string result = type_id_name;
+    char* demangled_output = abi::__cxa_demangle(type_id_name, nullptr, nullptr, &status);
+    if (status == 0 and demangled_output != nullptr)
+    {
+        result = demangled_output;
+    }
+    std::free(demangled_output);
 #endif
 
     return only_module
