@@ -8,7 +8,7 @@ http.createServer((request, response) => {
     }).on('data', (chunk) => {
         body.push(chunk);
     }).on('end', () => {
-        if (request.headers['content-encoding'] == 'gzip') {
+        if (request.headers['content-encoding'] === 'gzip') {
             body = zlib.gunzipSync(Buffer.concat(body)).toString();
         }
         else {
