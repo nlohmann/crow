@@ -90,7 +90,7 @@ json get_backtrace(int skip)
                 demangled_name = pretty_name(info.dli_sname);
             }
 
-            const std::string function_name = (demangled_name != std::string(info.dli_sname) ? demangled_name : (info.dli_sname == nullptr ? symbols[i] : info.dli_sname));
+            const std::string function_name = ((demangled_name != std::string(info.dli_sname) and not demangled_name.empty()) ? demangled_name : (info.dli_sname == nullptr ? symbols[i] : info.dli_sname));
 
             //snprintf(buf, sizeof(buf), "%-3d %*p %s + %zd\n",
             //         i, int(2 + sizeof(void*) * 2), callstack[i],
@@ -103,10 +103,9 @@ json get_backtrace(int skip)
 
             if (not function_name.empty())
             {
-                if (function_name.substr(0, 5) == "std::" or function_name.substr(0, 2) == "__")
-                {
-                    entry["in_app"] = false;
-                }
+                entry["in_app"] = not(function_name.substr(0, 5) == "std::" or
+                                      function_name.substr(0, 2) == "__" or
+                                      function_name == "start");
             }
 
             result.push_back(entry);
