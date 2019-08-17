@@ -319,7 +319,7 @@ class response
     status::code_t status_code;
 
     /// textual reason of responded HTTP Status, e.g. "Not Found" or "OK"
-    const char* reason;
+    std::string reason;
 
     /// true if status code is less than 400
     bool ok;
