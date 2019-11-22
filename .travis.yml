@@ -36,9 +36,6 @@ matrix:
   # OSX / Clang
 
   - os: osx
-    osx_image: xcode7.3
-
-  - os: osx
     osx_image: xcode8.2
 
   - os: osx
