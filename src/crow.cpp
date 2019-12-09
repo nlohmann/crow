@@ -403,7 +403,7 @@ void crow::new_termination_handler()
     auto current_ex = std::current_exception();
     if (current_ex)
     {
-        m_client_that_installed_termination_handler->add_breadcrumb("uncaught exception", {{"type", "exceptiomn"}, {"level", "critical"}});
+        m_client_that_installed_termination_handler->add_breadcrumb("uncaught exception", {{"type", "exception"}, {"level", "critical"}});
         try
         {
             std::rethrow_exception(current_ex);
