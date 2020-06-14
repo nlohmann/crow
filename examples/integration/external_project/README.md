@@ -2,6 +2,8 @@
 
 The integration as external project is a bit more complicated.
 
+*Note*: If you are using CMake version 3.14 or above, refer to the [fetch_content example][../fetch_content].
+
 Example:
 
 ```cmake
