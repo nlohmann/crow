@@ -60,16 +60,16 @@ crow::crow(const std::string& dsn,
     // process DSN
     if (not dsn.empty())
     {
-        const std::regex dsn_regex("(http[s]?)://([^:]+):([^@]+)@([^/]+)/([0-9]+)");
+        const std::regex dsn_regex("(http[s]?)://([^:]+)(:([^@]+))?@([^/]+)/([0-9]+)");
         std::smatch pieces_match;
 
-        if (std::regex_match(dsn, pieces_match, dsn_regex) and pieces_match.size() == 6)
+        if (std::regex_match(dsn, pieces_match, dsn_regex) and pieces_match.size() == 7)
         {
             const auto scheme = pieces_match.str(1);
             m_public_key = pieces_match.str(2);
-            m_secret_key = pieces_match.str(3);
-            const auto host = pieces_match.str(4);
-            const auto project_id = pieces_match.str(5);
+            m_secret_key = pieces_match.str(4);
+            const auto host = pieces_match.str(5);
+            const auto project_id = pieces_match.str(6);
             m_store_url = scheme + "://" + host + "/api/" + project_id + "/store/";
         }
         else
