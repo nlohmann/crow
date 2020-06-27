@@ -1,9 +1,5 @@
 # curl_wrapper
 
-[![pipeline status](https://gitlab.mbition.de/mbition/navigation/mapdata/curl_wrapper/badges/master/pipeline.svg)](https://gitlab.mbition.de/mbition/navigation/mapdata/curl_wrapper/pipelines)
-[![coverage report](https://gitlab.mbition.de/mbition/navigation/mapdata/curl_wrapper/badges/master/coverage.svg)](https://pages.gitlab.mbition.de/static/mbition/navigation/mapdata/curl_wrapper/public/coverage/)
-[![documentation](https://img.shields.io/badge/docs-doxygen-brightgreen.svg)](https://pages.gitlab.mbition.de/static/mbition/navigation/mapdata/curl_wrapper/public/doxygen/)
-
 ## About
 
 This project provides a C++11 wrapper around [libcurl](https://curl.haxx.se/libcurl/) with a touch of Python's [requests](http://python-requests.org) library, powered by [JSON for Modern C++](https://github.com/nlohmann/json).
