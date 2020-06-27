@@ -1,0 +1,130 @@
+﻿#
+# MBition Navigation C++ Indentation Rules, version 1.0.0
+#
+# Adjusted for Bumblebee: includes are sorted; structs are properly indented
+#
+
+---
+# the section is about C++ code
+Language: Cpp
+Standard: Cpp11
+
+# "public", "private", and "protected" are only half indented
+AccessModifierOffset: -2
+
+# multi-line arguments are aligned to the opening bracket
+AlignAfterOpenBracket: Align
+
+# newline backslashes are aligned to the rightmost column
+AlignEscapedNewlines: Right
+
+# multi-line assignments are aligned to the equal sign
+AlignOperands: true
+
+# do not allow short code blocks on a single line
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+# only allow empty functions on the same line
+AllowShortFunctionsOnASingleLine: Empty
+
+# add a break before a multi-line string literal
+AlwaysBreakBeforeMultilineStrings: true
+
+# add a break after a template declaration
+AlwaysBreakTemplateDeclarations: Yes
+
+# allow multile function call arguments/parameters within the same line
+BinPackArguments: true
+BinPackParameters: true
+
+# decide when to add spaces after braces
+BreakBeforeBraces: Custom
+BraceWrapping:
+  # do namespaces begin in the same line
+  AfterNamespace: false
+  # everything else: brace is in a new line
+  AfterClass: true
+  AfterControlStatement: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: true
+  BeforeCatch: true
+  BeforeElse: true
+  # empty stuff remains in one line
+  SplitEmptyRecord: false
+  SplitEmptyFunction: false
+  SplitEmptyNamespace: false
+
+# always break constructor initializers before commas and align the commas with the colon
+BreakConstructorInitializersBeforeComma: true
+
+ColumnLimit: 0
+
+# if the constructor initializers don’t fit on a line, put each initializer on its own line
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+
+# use C++11 style for braced lists
+Cpp11BracedListStyle: true
+
+# add indentation to case labels
+IndentCaseLabels: true
+
+# the basic indentation is 4 spaces
+IndentWidth: 4
+
+# do not indent namespaces
+NamespaceIndentation: None
+
+# pointers/references are aligned to the type
+PointerAlignment: Left
+
+# sort #includes
+SortIncludes: true
+
+IncludeBlocks: Merge
+IncludeCategories:
+  - Regex:           '^".*"'
+    Priority:        1
+  - Regex:           '<[[:alnum:]._]+>'
+    Priority:        2
+  - Regex:           '^"(bumblebee)/'
+    Priority:        3
+  - Regex:           '.*'
+    Priority:        4
+
+# no space after C-style cast
+SpaceAfterCStyleCast: false
+
+# add a space before an assignment
+SpaceBeforeAssignmentOperators: true
+
+# add a space between if/while/for and the opening parenthesis
+SpaceBeforeParens: ControlStatements
+
+# remove spaces in empty parentheses
+SpaceInEmptyParentheses: false
+
+# remove trailing spaces in template argument lists
+SpacesInAngles: false
+
+# remove spaces in C-style casts
+SpacesInCStyleCastParentheses: false
+
+# remove trailing spaces in container literals
+SpacesInContainerLiterals: false
+
+# remove trailing spaces in parentheses
+SpacesInParentheses: false
+
+# remove trailing spaces in subscript operators
+SpacesInSquareBrackets: false
+
+# never use tabs
+UseTab: Never
+
+...

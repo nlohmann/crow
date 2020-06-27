@@ -1,294 +1,169 @@
-/*
- _____ _____ _____ _ _ _
-|     | __  |     | | | |  Crow - a Sentry client for C++
-|   --|    -|  |  | | | |  version 0.0.6
-|_____|__|__|_____|_____|  https://github.com/nlohmann/crow
+#pragma once
 
-Licensed under the MIT License <http://opensource.org/licenses/MIT>.
-SPDX-License-Identifier: MIT
-Copyright (c) 2018 Niels Lohmann <http://nlohmann.me>.
+#include <exception>
+#include <functional>
+#include <memory>
+#include <crow/hub/hub.hpp>
+#include <crow/types/configuration.hpp>
 
-Permission is hereby  granted, free of charge, to any  person obtaining a copy
-of this software and associated  documentation files (the "Software"), to deal
-in the Software  without restriction, including without  limitation the rights
-to  use, copy,  modify, merge,  publish, distribute,  sublicense, and/or  sell
-copies  of  the Software,  and  to  permit persons  to  whom  the Software  is
-furnished to do so, subject to the following conditions:
+namespace crow {
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE  IS PROVIDED "AS  IS", WITHOUT WARRANTY  OF ANY KIND,  EXPRESS OR
-IMPLIED,  INCLUDING BUT  NOT  LIMITED TO  THE  WARRANTIES OF  MERCHANTABILITY,
-FITNESS FOR  A PARTICULAR PURPOSE AND  NONINFRINGEMENT. IN NO EVENT  SHALL THE
-AUTHORS  OR COPYRIGHT  HOLDERS  BE  LIABLE FOR  ANY  CLAIM,  DAMAGES OR  OTHER
-LIABILITY, WHETHER IN AN ACTION OF  CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
+/// @name initialization
+/// @{
 
 /*!
- * @file crow.hpp
- * @brief main header for Crow
+ * @brief configures the Sentry SDK
+ *
+ * @param[in] dsn The DSN tells the SDK where to send the events to. If this
+ *            value is not provided, the SDK will try to read it from the
+ *            `SENTRY_DSN` environment variable. If that variable also does not
+ *            exist, the SDK will just not send any events.
+ *
+ * @param[in] configuration additional configuration options
  */
+extern void init(const std::string& dsn = "",
+                 const types::configuration& configuration = {});
 
-#ifndef NLOHMANN_CROW_HPP
-#define NLOHMANN_CROW_HPP
+/// @}
 
-#include <vector> // vector
-#include <future> // future
-#include <mutex> // mutex
-#include <string> //string
-#include <thirdparty/json/json.hpp>
-
-using json = nlohmann::json;
+/// @name handlers
+/// @{
 
 /*!
- * @brief namespace for Niels Lohmann
+ * @brief install signal and termination handlers
+ *
+ * Installs both signal handlers and termination handlers.
+ *
+ * @sa @ref install_signal_handlers()
+ * @sa @ref install_termination_handler()
+ *
+ * @note This function is thread-safe.
  */
-namespace nlohmann
-{
+extern void install_handlers();
+
 /*!
- * @brief a C++ client for Sentry
+ * @brief install signal handlers
+ *
+ * Installs signal handlers (@ref crow::utils::signal_handler()) for the
+ * signals SIGTERM, SIGSEGV, SIGINT, SIGILL, SIGABRT, and SIGFPE. This signal
+ * handler creates Sentry event from the signal and calls the previously
+ * installed signal handler, which is equivalent to calling `std::abort` in
+ * case no user-defined signal handler was installed for that signal.
+ *
+ * @sa @ref crow::utils::signal_handler()
+ *
+ * @note This function is thread-safe.
  */
-class crow
-{
-  public:
-    /*!
-     * @brief create a client
-     *
-     * @param[in] dsn the DNS string
-     * @param[in] context an optional attributes object
-     * @param[in] sample_rate the sample rate (0.0 .. 1.0, default: 1.0)
-     * @param[in] install_handlers whether to install a termination handler (default: off)
-     *
-     * @throw std::invalid_argument if DNS string is invalid
-     * @throw std::invalid_argument if context object contains invalid key
-     *
-     * @note If @a dns is empty, the client is disabled.
-     *
-     * @note
-     * In case @a install_handlers is set to `true` (default), the currently
-     * installed termination handler is replaced by a new termination handler
-     * that first reports possibly uncaught exceptions and then executes the
-     * previously installed termination handler. Note that termination
-     * handlers installed after creating this client would override this
-     * termination behavior. The termination handler can be installed later
-     * with function @ref install_handler().
-     *
-     * @since 0.0.1
-     */
-    explicit crow(const std::string& dsn,
-                  const json& context = nullptr,
-                  double sample_rate = 1.0,
-                  bool install_handlers = false);
+extern void install_signal_handlers();
 
-    /*!
-     * @brief install termination handler to handle uncaught exceptions
-     * @post uncaught exceptions are reported prior to executing existing termination handler
-     *
-     * @since 0.0.3
-     */
-    void install_handler();
+/*!
+ * @brief install termination handler
+ *
+ * Installs a termination handler (@ref crow::utils::termination_handler())
+ * that detects uncaught exceptions, creates a Sentry event from it and passes
+ * them to the previously installed termination handler, which is equivalent to
+ * calling `std::abort()` in case no user-defined termination handler was
+ * installed.
+ *
+ * @sa @ref crow::utils::termination_handler()
+ *
+ * @note This function is thread-safe.
+ */
+extern void install_termination_handler();
 
-    /*!
-     * @name event capturing
-     * @{
-     */
+/// @}
 
-    /*!
-     * @brief capture a message
-     *
-     * @param[in] message the message to capture
-     * @param[in] attributes an optional attributes object
-     *
-     * @throw std::invalid_argument if context object contains invalid key
-     *
-     * @since 0.0.1
-     */
-    void capture_message(const std::string& message,
-                         const json& attributes = nullptr);
-    /*!
-     * @brief capture an exception
-     *
-     * @param[in] exception the passed exception
-     * @param[in] context an optional context object
-     * @param[in] handled whether the exception was handled and only reported
-     *
-     * @throw std::invalid_argument if context object contains invalid key
-     *
-     * @since 0.0.1, context added with 0.0.3
-     */
-    void capture_exception(const std::exception& exception,
-                           const json& context = nullptr,
-                           bool handled = true);
+/// @name event captures
+/// @{
 
-    /*!
-     * @brief add a breadcrumb to the current context
-     *
-     * @param[in] message message for the breadcrumb
-     * @param[in] attributes an optional attributes object
-     *
-     * @since 0.0.1
-     */
-    void add_breadcrumb(const std::string& message,
-                        const json& attributes = nullptr);
+/*!
+ * @brief capture an event
+ * @param event event to capture
+ * @note This function is thread-safe.
+ */
+extern void capture_event(const types::event_t& event);
 
-    /*!
-     * @brief return the id of the last reported event
-     *
-     * @return event id, or empty string, if no request has been made
-     *
-     * @since 0.0.2
-     */
-    std::string get_last_event_id() const;
+/*!
+ * @brief capture an exception
+ * @param exception exception to capture
+ *
+ * @sa capture_exception(const std::exception&, bool handled);
+ *
+ * @note This function is thread-safe.
+ */
+extern void capture_exception(const types::interfaces::exception_t& exception);
 
-    /*!
-     * @}
-     */
+/*!
+ * @brief capture an exception
+ * @param exception exception to capture
+ * @param handled whether the exception was handled by a `try`/`catch` block (default: true)
+ * @param event optional pre-filled event
+ *
+ * @sa capture_exception(const types::interface::exception_t&)
+ *
+ * @note This function is thread-safe.
+ */
+extern void capture_exception(const std::exception& exception, bool handled = true, types::event_t event = {});
 
-    /*!
-     * @name context management
-     * @{
-     */
+/*!
+ * @brief capture a signal
+ * @param signal signal to capture
+ * @param handled whether the signal was handled (default: true)
+ * @param event optional pre-filled event
+ * @note This function is thread-safe.
+ */
+extern void capture_signal(int signal, bool handled = true, types::event_t event = {});
 
-    /*!
-     * @brief return current context
-     *
-     * @return current context
-     *
-     * @since 0.0.3
-     */
-    const json& get_context() const;
+/*!
+ * @brief capture the current errno
+ * @note This is a noop in case `errno` is 0.
+ * @note This function is thread-safe.
+ */
+extern void capture_errno();
 
-    /*!
-     * @brief set the code release id
-     *
-     * @param[in] release release id to add to the main context
-     *
-     * @since 0.0.7
-     */
-    void set_release(const std::string& release);
+/*!
+ * @brief capture a message
+ * @param message message to capture
+ * @param level the level for the message
+ * @note This function is thread-safe.
+ */
+extern void capture_message(const std::string& message, types::level_t level);
 
-    /*!
-     * @brief add elements to the "user" context for future events
-     *
-     * @param[in] data data to add to the extra context
-     *
-     * @since 0.0.3
-     */
-    void add_user_context(const json& data);
+/*!
+ * @brief add a breadcrumb
+ * @param breadcrumb breadcrumb to add
+ * @note This function is thread-safe.
+ */
+extern void add_breadcrumb(const types::interfaces::breadcrumb_value_t& breadcrumb);
 
-    /*!
-     * @brief add elements to the "tags" context for future events
-     *
-     * @param[in] data data to add to the extra context
-     *
-     * @since 0.0.3
-     */
-    void add_tags_context(const json& data);
+/// @}
 
-    /*!
-     * @brief add elements to the "request" context for future events
-     *
-     * @param[in] data data to add to the extra context
-     *
-     * @since 0.0.3
-     */
-    void add_request_context(const json& data);
+/// @name misc
+/// @{
 
-    /*!
-     * @brief add elements to the "extra" context for future events
-     *
-     * @param[in] data data to add to the extra context
-     *
-     * @since 0.0.3
-     */
-    void add_extra_context(const json& data);
+/*!
+ * @brief configure the current scope
+ */
+extern void configure_scope(const std::function<void(scope&)>& callback);
 
-    /*!
-     * @brief add context information to payload for future events
-     *
-     * @param[in] context the context to add
-     *
-     * @note @a context must be an object; allowed keys are "user", "request", "extea", or "tags"
-     * @throw std::invalid_argument if context object contains invalid key
-     *
-     * @since 0.0.3
-     */
-    void merge_context(const json& context);
+/*!
+ * @brief set a callback function to manipulate or filter events before sending
+ *
+ * This function is called with an SDK specific event object and can return a
+ * modified event object or nothing to skip reporting the event. This can be
+ * used for instance for manual PII stripping before sending.
+ *
+ * @note This function is thread-safe.
+ */
+extern void set_before_send_hook(const std::function<bool(crow::types::event_t& event)>& before_send_hook);
 
-    /*!
-     * @brief reset context for future events
-     *
-     * @post context is in the same state as it was after construction
-     *
-     * @since 0.0.3
-     */
-    void clear_context();
+/// @}
 
-    /*!
-     * @}
-     */
+namespace internal {
 
-  private:
-    /*!
-     * @brief POST the payload to the Sentry sink URL
-     *
-     * @param[in] payload payload to send
-     * @param[in] synchronous whether the payload should be sent immediately
-     * @return result
-     */
-    std::string post(json payload) const;
+extern std::unique_ptr<hub> main;
+extern std::terminate_handler existing_termination_handler;
 
-    void enqueue_post();
+} // namespace internal
 
-    /*!
-     * @brief termination handler that detects uncaught exceptions
-     *
-     * @post previously installed termination handler is executed
-     *
-     * @note The rethrowing of uncaught exceptions does not work with Microsoft Visual Studio 2017, see
-     *       https://developercommunity.visualstudio.com/content/problem/135332/stdcurrent-exception-returns-null-in-a-stdterminat.html
-     */
-    static void new_termination_handler();
-
-  private:
-    /// the sample rate (as integer 0..100)
-    const int m_sample_rate;
-
-    /// whether the client is enabled
-    const bool m_enabled = true;
-    /// the public key to be used in requests
-    std::string m_public_key;
-    /// the secret key to be used in requests
-    std::string m_secret_key;
-    /// the URL to send events to
-    std::string m_store_url;
-
-    /// the payload of all events
-    json m_payload = {};
-    /// a mutex to make payload thread-safe
-    std::mutex m_payload_mutex;
-
-    /// a vector of POST jobs
-    mutable std::vector<std::future<std::string>> m_jobs;
-    /// a mutex to make m_jobs thread-safe
-    mutable std::mutex m_jobs_mutex;
-    /// a cache for the last event id
-    mutable std::string m_last_event_id = "-1";
-    /// whether a post has been made already
-    bool m_posts = false;
-
-    /// the termination handler installed before initializing the client
-    std::terminate_handler existing_termination_handler = nullptr;
-    /// a pointer to the last client (used for termination handling)
-    static crow* m_client_that_installed_termination_handler;
-
-    /// the maximal number of running jobs
-    static constexpr std::size_t m_maximal_jobs = 10;
-};
-
-}
-
-#endif
+} // namespace crow

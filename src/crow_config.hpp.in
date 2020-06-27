@@ -1,32 +1,3 @@
-/*
- _____ _____ _____ _ _ _
-|     | __  |     | | | |  Crow - a Sentry client for C++
-|   --|    -|  |  | | | |  version 0.0.6
-|_____|__|__|_____|_____|  https://github.com/nlohmann/crow
-
-Licensed under the MIT License <http://opensource.org/licenses/MIT>.
-SPDX-License-Identifier: MIT
-Copyright (c) 2018 Niels Lohmann <http://nlohmann.me>.
-
-Permission is hereby  granted, free of charge, to any  person obtaining a copy
-of this software and associated  documentation files (the "Software"), to deal
-in the Software  without restriction, including without  limitation the rights
-to  use, copy,  modify, merge,  publish, distribute,  sublicense, and/or  sell
-copies  of  the Software,  and  to  permit persons  to  whom  the Software  is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE  IS PROVIDED "AS  IS", WITHOUT WARRANTY  OF ANY KIND,  EXPRESS OR
-IMPLIED,  INCLUDING BUT  NOT  LIMITED TO  THE  WARRANTIES OF  MERCHANTABILITY,
-FITNESS FOR  A PARTICULAR PURPOSE AND  NONINFRINGEMENT. IN NO EVENT  SHALL THE
-AUTHORS  OR COPYRIGHT  HOLDERS  BE  LIABLE FOR  ANY  CLAIM,  DAMAGES OR  OTHER
-LIABILITY, WHETHER IN AN ACTION OF  CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE  OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
-
 #ifndef NLOHMANN_CROW_CONFIG_HPP
 #define NLOHMANN_CROW_CONFIG_HPP
 
@@ -36,22 +7,32 @@ SOFTWARE.
  */
 
 // macros do decide which headers are present
-#cmakedefine NLOHMANN_CROW_HAVE_CXXABI_H
-#cmakedefine NLOHMANN_CROW_HAVE_EXECINFO_H
-#cmakedefine NLOHMANN_CROW_HAVE_DLFCN_H
-
-// macros to choose certain functions
-#cmakedefine NLOHMANN_CROW_MINGW
+#cmakedefine NLOHMANN_CROW_HAVE_CXA_DEMANGLE
+#cmakedefine NLOHMANN_CROW_HAVE_BACKTRACE
+#cmakedefine NLOHMANN_CROW_HAVE_DLADDR
+#cmakedefine NLOHMANN_CROW_HAVE_PHTREAD_GETNAME_NP
+#cmakedefine NLOHMANN_CROW_HAVE_PHTREAD_THREADID_NP
+#cmakedefine NLOHMANN_CROW_HAVE_LIBBFD
+#cmakedefine NLOHMANN_CROW_HAVE_GETCURRENTPROCESSID
+#cmakedefine NLOHMANN_CROW_HAVE_GETPID
+#cmakedefine NLOHMANN_CROW_HAVE_UNISTD_H
+#cmakedefine NLOHMANN_CROW_HAVE_GMTIME_R
 
 // context: app
 #define NLOHMANN_CROW_CMAKE_BUILD_TYPE "${CMAKE_BUILD_TYPE}"
-#define NLOHMANN_CROW_BITS (${CMAKE_SIZEOF_VOID_P} * 8)
+#define NLOHMANN_CROW_CMAKE_PROJECT_NAME "${CMAKE_PROJECT_NAME}"
+#define NLOHMANN_CROW_CMAKE_PROJECT_VERSION "${CMAKE_PROJECT_VERSION}"
 
 // context: device
 #define NLOHMANN_CROW_CMAKE_SYSTEM_PROCESSOR "${CMAKE_SYSTEM_PROCESSOR}"
 #define NLOHMANN_CROW_HOSTNAME "${NLOHMANN_CROW_HOSTNAME}"
 #define NLOHMANN_CROW_SYSCTL_HW_MODEL "${NLOHMANN_CROW_SYSCTL_HW_MODEL}"
 #define NLOHMANN_CROW_TOTAL_PHYSICAL_MEMORY (${NLOHMANN_CROW_TOTAL_PHYSICAL_MEMORY} * 1048576ul)
+#define NLOHMANN_CROW_AVAILABLE_PHYSICAL_MEMORY (${NLOHMANN_CROW_AVAILABLE_PHYSICAL_MEMORY} * 1048576ul)
+#define NLOHMANN_CROW_PROCESSOR_SERIAL_NUMBER "${NLOHMANN_CROW_PROCESSOR_SERIAL_NUMBER}";
+#define NLOHMANN_CROW_SYS_PRODUCT_NAME "${NLOHMANN_CROW_SYS_PRODUCT_NAME}"
+#define NLOHMANN_CROW_SYS_PRODUCT_FAMILY "${NLOHMANN_CROW_SYS_PRODUCT_FAMILY}"
+#define NLOHMANN_CROW_SYS_VENDOR "${NLOHMANN_CROW_SYS_VENDOR}"
 
 // context: os
 #define NLOHMANN_CROW_CMAKE_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}"
@@ -65,11 +46,14 @@ SOFTWARE.
 #define NLOHMANN_CROW_CMAKE_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}"
 #define NLOHMANN_CROW_CMAKE_CXX_COMPILER_VERSION "${CMAKE_CXX_COMPILER_VERSION}"
 #define NLOHMANN_CROW_CXX "${NLOHMANN_CROW_CXX}"
+#define NLOHMANN_CROW_CURL_WRAPPER_VERSION "${CURL_WRAPPER_VERSION}"
 
 // crow version
-#define NLOHMANN_CROW_VERSION_MAJOR ${PROJECT_VERSION_MAJOR}
-#define NLOHMANN_CROW_VERSION_MINOR ${PROJECT_VERSION_MINOR}
-#define NLOHMANN_CROW_VERSION_PATCH ${PROJECT_VERSION_PATCH}
+#define NLOHMANN_CROW_PACKAGE_NAME "${PROJECT_NAME}"
 #define NLOHMANN_CROW_VERSION "${PROJECT_VERSION}"
+
+// user
+#define NLOHMANN_CROW_IP_ADDRESS "${NLOHMANN_CROW_IP_ADDRESS}"
+#define NLOHMANN_CROW_WHOAMI "${NLOHMANN_CROW_WHOAMI}"
 
 #endif

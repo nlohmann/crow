@@ -1,0 +1,16 @@
+[doctest] run with "--help" for options
+I am a test from the dll!
+I am a test from the implementation!
+I am a test from the implementation_2!
+I am a test from the executable!
+===============================================================================
+main.cpp(0):
+TEST CASE:  executable
+
+main.cpp(0): ERROR: test case THREW exception: char: 97
+
+I am a test from the plugin!
+===============================================================================
+[doctest] test cases:      5 |      4 passed |      1 failed |      0 skipped
+[doctest] assertions:      0 |      0 passed |      0 failed |
+[doctest] Status: FAILURE!

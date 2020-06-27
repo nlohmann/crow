@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<rule>
+    <pattern><![CDATA[(?<=[^s][^t][^d][^:][^:u])(u?int)(8|16|32|64)_t]]></pattern>
+    <message>
+        <id>stdIntegerTypeWithoutNamespace</id>
+        <severity>style</severity>
+        <summary>Prefix integer types like uint8_t with `std::`.</summary>
+    </message>
+</rule>
+
+<rule>
+    <pattern><![CDATA[(?<=[^s][^t][^d][^:][^:])size_t(?=[^y])]]></pattern>
+    <message>
+        <id>stdIntegerTypeWithoutNamespace</id>
+        <severity>style</severity>
+        <summary>Prefix integer types like size_t with `std::`.</summary>
+    </message>
+</rule>

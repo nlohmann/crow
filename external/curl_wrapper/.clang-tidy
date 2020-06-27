@@ -1,0 +1,42 @@
+#
+# MBition Navigation C++ Clang-Tidy Rules, version 1.0.0, Bumblebee flavor
+#
+
+---
+Checks: >
+  -*,
+  readability-*,
+  -readability-magic-numbers,
+  modernize-*,
+  bugprone-*,
+  -bugprone-macro-parentheses,
+  performance-*,
+  clang-analyzer-*,
+  portability-*,
+  cert-*,
+  hicpp-*,
+  -hicpp-no-array-decay,
+  google-*,
+  -google-runtime-references
+
+FormatStyle: file
+
+CheckOptions:
+  - { key: readability-identifier-naming.NamespaceCase,                 value: lower_case  }
+  - { key: readability-identifier-naming.FunctionCase,                  value: lower_case  }
+  - { key: readability-identifier-naming.TypeAliasCase,                 value: lower_case  }
+  - { key: readability-identifier-naming.StructCase,                    value: lower_case  }
+  - { key: readability-identifier-naming.ClassCase,                     value: lower_case  }
+  - { key: readability-identifier-naming.PrivateMemberPrefix,           value: m_          }
+  - { key: readability-identifier-naming.MemberCase,                    value: lower_case  }
+  - { key: readability-identifier-naming.EnumConstantCase,              value: lower_case  }
+  - { key: readability-identifier-naming.EnumCase,                      value: lower_case  }
+  - { key: readability-identifier-naming.ParameterCase,                 value: lower_case  }
+  - { key: readability-identifier-naming.ConstantParameterCase,         value: lower_case  }
+  - { key: readability-identifier-naming.PointerParameterCase,          value: lower_case  }
+  - { key: readability-identifier-naming.ConstantPointerParameterCase,  value: lower_case  }
+  - { key: readability-identifier-naming.ConstantCase,                  value: lower_case  }
+  - { key: readability-identifier-naming.LocalConstantCase,             value: lower_case  }
+  - { key: readability-identifier-naming.StaticConstantCase,            value: UPPER_CASE  }
+  - { key: readability-identifier-naming.GlobalConstantCase,            value: UPPER_CASE  }
+  - { key: readability-identifier-naming.TemplateTemplateParameterCase, value: CamelCase   }
