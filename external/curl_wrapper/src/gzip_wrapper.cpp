@@ -1,4 +1,5 @@
 #include <cstring>
+#include <stdexcept>
 #include <http/detail/gzip_wrapper.hpp>
 
 namespace http {
