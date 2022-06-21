@@ -63,8 +63,13 @@ TEST_CASE("DSN parsing")
 {
     SECTION("valid DSN")
     {
+        // Deprecated DSN:
+        // "Deprecated DSN includes a secret which is no longer required by newer SDK versions."
         CHECK_NOTHROW(crow("http://abc:def@sentry.io/123"));
         CHECK_NOTHROW(crow("https://abc:def@sentry.io/123"));
+
+        // New DSN-format
+        CHECK_NOTHROW(crow("https://abc@sentry.io/123"));
     }
 
     SECTION("invalid DSN")
