@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.8)
 cmake_policy(SET CMP0048 NEW)
 project(crow VERSION 0.0.6)
 
+option(CROW_USE_CONAN "Whether to use conan package management for dependencies" ON)
+if(CROW_USE_CONAN)
+    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    conan_basic_setup(TARGETS)
+endif()
+
 ##############################
 # check for required headers #
 ##############################
@@ -73,31 +79,32 @@ configure_file(src/crow_config.hpp.in
 ################
 # dependencies #
 ################
-
 option(CROW_EXTERNAL_ZLIB_PROJECT "the path to zlib" OFF)
-if(CROW_EXTERNAL_ZLIB_PROJECT)
-    add_subdirectory(${CROW_EXTERNAL_ZLIB_PROJECT})
-    set(ZLIB_INCLUDE_DIRS ${CROW_EXTERNAL_ZLIB_PROJECT})
-    set(ZLIB_LIBRARIES zlibstatic)
-else()
-    find_package(ZLIB REQUIRED ${CROW_EXTERNAL_ZLIB_PROJECT})
-endif()
-
 option(CROW_EXTERNAL_CURL_PROJECT "the path to curl" OFF)
-if(CROW_EXTERNAL_CURL_PROJECT)
-    set(BUILD_TESTING OFF CACHE INTERNAL "")
-    set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
-    set(CURL_STATICLIB ON CACHE INTERNAL "")
-    set(BUILD_CURL_EXE OFF CACHE INTERNAL "")
-    set(CURL_CA_PATH_SET OFF CACHE INTERNAL "")
-    set(CMAKE_USE_OPENSSL ON CACHE INTERNAL "")
-    set(HTTP_ONLY ON CACHE INTERNAL "")
-    add_definitions(-DCURL_STATICLIB)
-    add_subdirectory(${CROW_EXTERNAL_CURL_PROJECT})
-    set(CURL_INCLUDE_DIR ${CROW_EXTERNAL_CURL_PROJECT}/include)
-    set(CURL_LIBRARIES libcurl)
-else()
-    find_package(CURL)
+if(NOT (CROW_USE_CONAN))
+    if(CROW_EXTERNAL_ZLIB_PROJECT)
+        add_subdirectory(${CROW_EXTERNAL_ZLIB_PROJECT})
+        set(ZLIB_INCLUDE_DIRS ${CROW_EXTERNAL_ZLIB_PROJECT})
+        set(ZLIB_LIBRARIES zlibstatic)
+    else()
+        find_package(ZLIB REQUIRED ${CROW_EXTERNAL_ZLIB_PROJECT})
+    endif()
+
+    if(CROW_EXTERNAL_CURL_PROJECT)
+        set(BUILD_TESTING OFF CACHE INTERNAL "")
+        set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "")
+        set(CURL_STATICLIB ON CACHE INTERNAL "")
+        set(BUILD_CURL_EXE OFF CACHE INTERNAL "")
+        set(CURL_CA_PATH_SET OFF CACHE INTERNAL "")
+        set(CMAKE_USE_OPENSSL ON CACHE INTERNAL "")
+        set(HTTP_ONLY ON CACHE INTERNAL "")
+        add_definitions(-DCURL_STATICLIB)
+        add_subdirectory(${CROW_EXTERNAL_CURL_PROJECT})
+        set(CURL_INCLUDE_DIR ${CROW_EXTERNAL_CURL_PROJECT}/include)
+        set(CURL_LIBRARIES libcurl)
+    else()
+        find_package(CURL)
+    endif()
 endif()
 
 find_package(Threads)
@@ -109,7 +116,7 @@ find_package(Threads)
 add_library(crow src/crow.cpp src/crow_utilities.cpp src/crow_utilities.hpp)
 set_target_properties(crow PROPERTIES CXX_STANDARD 11)
 target_include_directories(crow PUBLIC include PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CURL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIRS})
-target_link_libraries(crow ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
+target_link_libraries(crow ${CONAN_TARGETS} ${CURL_LIBRARIES} ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${ZLIB_LIBRARIES})
 
 #################
 # documentation #
