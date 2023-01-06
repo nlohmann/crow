@@ -12,13 +12,13 @@ class curl_wrapper
     class response
     {
       public:
-        response(std::string d, int sc)
+        response(std::string d, long sc)
             : data(std::move(d))
             , status_code(sc)
         {}
 
         std::string data;
-        int status_code;
+        long status_code;
 
         nlohmann::json json()
         {
@@ -80,7 +80,7 @@ class curl_wrapper
             throw std::runtime_error(error_msg);
         }
 
-        int status_code;
+        long status_code;
         curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &status_code);
 
         return {std::move(string_buffer), status_code};
