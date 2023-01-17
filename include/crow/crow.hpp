@@ -57,15 +57,15 @@ class crow
     /*!
      * @brief create a client
      *
-     * @param[in] dsn the DNS string
+     * @param[in] dsn the DSN string
      * @param[in] context an optional attributes object
      * @param[in] sample_rate the sample rate (0.0 .. 1.0, default: 1.0)
      * @param[in] install_handlers whether to install a termination handler (default: off)
      *
-     * @throw std::invalid_argument if DNS string is invalid
+     * @throw std::invalid_argument if DSN string is invalid
      * @throw std::invalid_argument if context object contains invalid key
      *
-     * @note If @a dns is empty, the client is disabled.
+     * @note If @a dsn is empty, the client is disabled.
      *
      * @note
      * In case @a install_handlers is set to `true` (default), the currently
