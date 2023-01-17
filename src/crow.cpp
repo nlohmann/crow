@@ -74,7 +74,7 @@ crow::crow(const std::string& dsn,
         }
         else
         {
-            throw std::invalid_argument("DNS " + dsn + " is invalid");
+            throw std::invalid_argument("DSN " + dsn + " is invalid");
         }
     }
 
